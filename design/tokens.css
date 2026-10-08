@@ -1,0 +1,152 @@
+/*
+ * Código da Reconquista: tokens de design.
+ *
+ * Mesma organização do styles.css do CalmBaby: os nomes semânticos (background, card, primary...)
+ * são os mesmos, então os componentes copiados do CalmBaby (bg-card, text-primary, shadow-soft,
+ * rounded-card...) recebem a identidade nova só trocando este arquivo.
+ *
+ * Na Fase 1 este bloco vai para src/styles.css. O @theme inline é lido pelo Tailwind 4 e
+ * ignorado pelo navegador (o style-guide.html usa só as variáveis do :root).
+ *
+ * Regras de cor:
+ * - Dourado (--brand-gold) só em detalhe, ícone e título grande. Texto pequeno dourado usa
+ *   --gold-ink (4.7:1 sobre o fundo), nunca --brand-gold (3:1).
+ * - Vermelho de erro só para erro de sistema. "Sinal de alerta" usa vinho, não vermelho.
+ * - Não espalhe hex/oklch pelos componentes: use os tokens.
+ */
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("../brand/fonts/playfair-display-var.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Playfair Display";
+  src: url("../brand/fonts/playfair-display-italic-var.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("../brand/fonts/figtree-var.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-card: 1.25rem;
+  --radius-tile: 0.875rem;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-app-shell: var(--app-shell);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-highlight: var(--highlight);
+  --color-gold: var(--brand-gold);
+  --color-gold-ink: var(--gold-ink);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-light: var(--brand-gold-light);
+  --color-wine: var(--brand-wine);
+  --color-wine-deep: var(--brand-wine-deep);
+  --color-wine-soft: var(--wine-soft);
+  --color-cream: var(--brand-cream);
+  --shadow-card: var(--shadow-card);
+  --shadow-app: var(--shadow-app);
+  --shadow-soft: var(--shadow-soft);
+  --shadow-tile: var(--shadow-tile);
+  --shadow-float: var(--shadow-float);
+  --shadow-glow: var(--shadow-glow);
+}
+
+:root {
+  /* Marca (tirada do PDF do protocolo) */
+  --brand-wine-deep: oklch(0.248 0.075 8.3); /* #3D0D1A páginas de ênfase, faixa lateral */
+  --brand-wine: oklch(0.317 0.101 10.1); /* #5A1426 cor principal */
+  --brand-wine-light: oklch(0.392 0.126 10.7); /* #7A1E35 pressionado, sinais de alerta */
+  --brand-gold: oklch(0.657 0.09 77.2); /* #B08A4F filetes, ícones, títulos grandes */
+  --brand-gold-light: oklch(0.799 0.089 83.6); /* #D9B97A dourado sobre vinho */
+  --brand-ivory: oklch(0.978 0.009 78.3); /* #FBF7F1 fundo */
+  --brand-cream: oklch(0.941 0.018 73.1); /* #F3EADF superfícies */
+  --brand-ink: oklch(0.225 0.037 5.8); /* #2A1419 texto */
+
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
+  --radius: 0.875rem;
+
+  /* Semânticos: mesmos nomes do CalmBaby */
+  --background: var(--brand-ivory);
+  --foreground: var(--brand-ink);
+  --card: oklch(0.994 0.006 84.6); /* #FFFDF9 */
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand-wine);
+  --primary-foreground: var(--brand-ivory);
+  --primary-soft: oklch(0.932 0.018 8.8); /* #F4E4E6 */
+  --secondary: var(--brand-cream);
+  --secondary-foreground: var(--brand-wine);
+  --muted: var(--brand-cream);
+  --muted-foreground: oklch(0.489 0.027 4.6); /* #6E5A5E */
+  --accent: oklch(0.928 0.029 82.6); /* #F1E6D2 */
+  --accent-foreground: var(--brand-wine);
+  --destructive: oklch(0.502 0.18 23.9); /* #B4232C só erro de sistema */
+  --destructive-foreground: var(--brand-ivory);
+  --destructive-soft: oklch(0.955 0.02 20);
+  --border: oklch(0.884 0.032 73.5); /* #E6D6C2 filete */
+  --input: oklch(0.86 0.035 73.5);
+  --ring: var(--brand-gold);
+  --app-shell: oklch(0.921 0.018 70.2); /* #EDE3D8 fora da coluna de 430px */
+  --success: oklch(0.52 0.067 141.9); /* sálvia escura, texto ok */
+  --success-soft: oklch(0.941 0.016 133.8); /* #E7EEE3 */
+  --highlight: var(--brand-gold);
+  --gold-ink: oklch(0.545 0.081 78.3); /* #8A6A35 dourado para texto pequeno */
+  --gold-soft: oklch(0.928 0.029 82.6); /* #F1E6D2 */
+  --wine-soft: var(--primary-soft);
+
+  /* Sombras quentes e baixas (o PDF não tem sombra dura) */
+  --shadow-card: 0 6px 20px color-mix(in oklab, var(--brand-wine) 6%, transparent);
+  --shadow-soft:
+    0 10px 30px color-mix(in oklab, var(--brand-wine) 7%, transparent),
+    0 1px 3px color-mix(in oklab, var(--brand-wine) 6%, transparent);
+  --shadow-tile:
+    0 6px 14px color-mix(in oklab, var(--brand-wine) 8%, transparent),
+    inset 0 0 0 1px color-mix(in oklab, var(--brand-gold) 22%, transparent);
+  --shadow-float:
+    0 -6px 30px color-mix(in oklab, var(--brand-wine) 8%, transparent),
+    0 10px 30px color-mix(in oklab, var(--brand-wine) 12%, transparent);
+  --shadow-glow: 0 14px 30px color-mix(in oklab, var(--brand-wine) 30%, transparent);
+  --shadow-app: 0 24px 64px color-mix(in oklab, var(--brand-wine) 16%, transparent);
+
+  /* Filete dourado, o detalhe mais repetido do PDF */
+  --hairline: 1px solid color-mix(in oklab, var(--brand-gold) 45%, transparent);
+  --hairline-strong: 1px solid var(--brand-gold);
+}

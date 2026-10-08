@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Código da Reconquista · Fase 0</title>
+<link rel="icon" href="../brand/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  /* ---------- Página do style guide (fora dos celulares) ---------- */
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--app-shell);
+    color: var(--foreground);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  img { display: block; max-width: 100%; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  .doc { max-width: 1480px; margin: 0 auto; padding: 40px 16px 120px; }
+  .doc-head { display: flex; gap: 32px; align-items: flex-end; flex-wrap: wrap; border-bottom: var(--hairline); padding-bottom: 28px; }
+  .doc-head img { width: 280px; max-width: 100%; }
+  .doc-head > div { flex: 1 1 280px; min-width: 0; }
+  .doc code { overflow-wrap: anywhere; }
+  .doc-head p { max-width: 620px; margin: 0; color: var(--muted-foreground); }
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+  .toc a { display: inline-block; padding: 6px 12px; border: var(--hairline); border-radius: 999px; color: var(--primary); text-decoration: none; font-size: 13px; font-weight: 600; background: var(--card); }
+  section.block { margin-top: 64px; }
+  .block > header { max-width: 860px; }
+  .block > header h2 { font-family: var(--font-heading); font-weight: 700; font-size: 34px; line-height: 1.1; margin: 6px 0 10px; letter-spacing: -0.01em; }
+  .block > header h2 em { font-style: normal; color: var(--brand-gold); }
+  .ref { font-size: 13px; color: var(--muted-foreground); margin: 0 0 6px; }
+  .ref code { font-size: 12px; background: var(--card); border: var(--hairline); border-radius: 6px; padding: 1px 6px; color: var(--primary); }
+  .notes { margin: 8px 0 0; padding-left: 18px; color: var(--foreground); font-size: 14px; }
+  .notes li { margin: 3px 0; }
+  .phones { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 28px; align-items: flex-start; }
+  .phone-wrap { width: min(375px, 100%); }
+  .phone-cap { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); margin: 0 0 10px 4px; }
+  .phone {
+    position: relative; width: 100%; height: 780px; overflow: hidden;
+    border-radius: 34px; background: var(--background);
+    box-shadow: var(--shadow-app), 0 0 0 8px #1d0a0f, 0 0 0 9px color-mix(in oklab, var(--brand-gold) 50%, transparent);
+    margin: 9px auto;
+  }
+  .phone-wrap { padding: 0 9px; }
+  .screen { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+  .status-bar { height: 34px; }
+
+  /* ---------- Fundamentos ---------- */
+  .grid-found { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 20px; margin-top: 24px; }
+  .panel { background: var(--card); border: var(--hairline); border-radius: var(--radius-card, 20px); padding: 22px; box-shadow: var(--shadow-card); }
+  .panel h3 { font-family: var(--font-heading); font-size: 20px; margin: 0 0 14px; }
+  .swatches { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sw { border-radius: 12px; overflow: hidden; border: var(--hairline); font-size: 12px; }
+  .sw b { display: block; height: 52px; }
+  .sw span { display: block; padding: 6px 8px; line-height: 1.3; }
+  .sw small { color: var(--muted-foreground); }
+  .type-row { border-bottom: var(--hairline); padding: 10px 0; }
+  .type-row:last-child { border: 0; }
+  .type-row small { display: block; color: var(--muted-foreground); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+  .stack > * + * { margin-top: 10px; }
+  .icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px; }
+  .icon-cell { text-align: center; font-size: 11.5px; line-height: 1.25; color: var(--muted-foreground); }
+  .icon-cell .ring { margin: 0 auto 6px; }
+  .asset-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .contrast td, .contrast th { font-size: 12.5px; padding: 5px 8px; text-align: left; border-bottom: var(--hairline); }
+  .contrast { border-collapse: collapse; width: 100%; }
+
+  /* ---------- Componentes do app (equivalentes às classes Tailwind do CalmBaby) ---------- */
+  .h-display { font-family: var(--font-heading); font-weight: 700; letter-spacing: -0.012em; line-height: 1.1; margin: 0; }
+  .wine { color: var(--brand-wine); }
+  .gold { color: var(--brand-gold); }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-ink); margin: 0; }
+  .eyebrow.on-wine { color: var(--brand-gold-light); }
+  .eyebrow-rule { display: flex; align-items: center; gap: 10px; }
+  .eyebrow-rule::after { content: ""; flex: 1; border-top: var(--hairline); }
+  .muted { color: var(--muted-foreground); }
+  .small { font-size: 13px; line-height: 1.45; }
+  .xs { font-size: 12px; line-height: 1.4; }
+
+  .card { background: var(--card); border-radius: 20px; box-shadow: var(--shadow-soft); border: 1px solid color-mix(in oklab, var(--brand-gold) 22%, transparent); }
+  .card.pad { padding: 20px; }
+  .card.cream { background: var(--brand-cream); box-shadow: none; }
+  .card.deep { background: linear-gradient(160deg, var(--brand-wine) 0%, var(--brand-wine-deep) 100%); color: var(--brand-ivory); border-color: color-mix(in oklab, var(--brand-gold) 40%, transparent); box-shadow: var(--shadow-glow); }
+  .card.gold-line { border: var(--hairline-strong); box-shadow: none; background: var(--card); }
+  .mx { margin-left: 20px; margin-right: 20px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 52px; padding: 0 20px; border-radius: 14px; font-weight: 700; font-size: 15px; letter-spacing: .01em; width: 100%; }
+  .btn svg { width: 18px; height: 18px; }
+  .btn-primary { background: var(--primary); color: var(--primary-foreground); box-shadow: 0 8px 18px color-mix(in oklab, var(--brand-wine) 22%, transparent); }
+  .btn-gold { background: var(--brand-gold-light); color: var(--brand-wine-deep); }
+  .btn-outline { background: var(--card); color: var(--primary); border: 1px solid var(--brand-gold); }
+  .btn-ghost { color: var(--primary); height: 44px; }
+  .btn-ghost.danger { color: var(--destructive); justify-content: flex-start; }
+  .btn-sm { height: 44px; font-size: 14px; }
+  .btn[disabled] { background: var(--brand-cream); color: var(--muted-foreground); box-shadow: none; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--card); border: var(--hairline); color: var(--primary); flex-shrink: 0; }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .icon-btn.round { border-radius: 999px; }
+  .icon-btn.on-wine { background: color-mix(in oklab, var(--brand-ivory) 14%, transparent); border-color: color-mix(in oklab, var(--brand-gold-light) 40%, transparent); color: var(--brand-ivory); }
+
+  .ring { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; border: 1px solid var(--brand-gold); color: var(--brand-gold); flex-shrink: 0; background: var(--card); }
+  .ring svg { width: 21px; height: 21px; }
+  .ring.lg { width: 56px; height: 56px; }
+  .ring.lg svg { width: 26px; height: 26px; }
+  .ring.sm { width: 36px; height: 36px; }
+  .ring.sm svg { width: 17px; height: 17px; }
+  .ring.wine { border-color: color-mix(in oklab, var(--brand-wine) 60%, transparent); color: var(--brand-wine); }
+  .ring.on-wine { background: transparent; border-color: var(--brand-gold-light); color: var(--brand-gold-light); }
+  .ring.sage { border-color: var(--success); color: var(--success); }
+
+  .pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+  .pill svg { width: 12px; height: 12px; }
+  .pill.done { background: var(--success-soft); color: var(--success); }
+  .pill.now { background: var(--primary-soft); color: var(--primary); }
+  .pill.wait { background: var(--brand-cream); color: var(--muted-foreground); }
+  .pill.gold { background: var(--gold-soft); color: var(--gold-ink); }
+  .pill.on-wine { background: color-mix(in oklab, var(--brand-ivory) 14%, transparent); color: var(--brand-gold-light); }
+
+  .bar { height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--brand-gold) 22%, transparent); overflow: hidden; display: flex; gap: 3px; }
+  .bar.on-wine { background: transparent; }
+  .seg { flex: var(--n); height: 100%; border-radius: 999px; background: color-mix(in oklab, var(--brand-gold) 22%, transparent); position: relative; overflow: hidden; }
+  .on-wine .seg { background: color-mix(in oklab, var(--brand-ivory) 18%, transparent); }
+  .seg i { position: absolute; inset: 0; width: var(--p); background: var(--brand-gold); border-radius: 999px; }
+  .on-wine .seg i { background: var(--brand-gold-light); }
+
+  /* Cabeçalho e avatar */
+  .app-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px 0; }
+  .app-header img { height: 26px; width: auto; }
+  .avatar { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center; background: var(--card); color: var(--primary); font-family: var(--font-heading); font-weight: 700; font-size: 18px; border: 1px solid var(--brand-gold); box-shadow: var(--shadow-card); }
+  .avatar.lg { width: 64px; height: 64px; font-size: 26px; }
+
+  /* Navegação inferior (BottomNav do CalmBaby) */
+  .nav { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 10px 14px; z-index: 5; }
+  .nav-inner { display: flex; justify-content: space-around; background: color-mix(in oklab, var(--card) 94%, transparent); backdrop-filter: blur(10px); border-radius: 22px; padding: 6px; box-shadow: var(--shadow-float); border: 1px solid color-mix(in oklab, var(--brand-gold) 25%, transparent); }
+  .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 0 6px; font-size: 10.5px; font-weight: 600; color: var(--muted-foreground); position: relative; }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-item.active { color: var(--primary); font-weight: 700; }
+  .nav-item.active::before { content: ""; position: absolute; top: 0; width: 4px; height: 4px; border-radius: 999px; background: var(--brand-gold); }
+
+  /* Tiles (CategoryTile) */
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .tile { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font-size: 12px; font-weight: 600; line-height: 1.2; }
+  .tile-box { width: 60px; height: 60px; border-radius: 16px; display: grid; place-items: center; background: var(--card); box-shadow: var(--shadow-tile); color: var(--brand-gold); }
+  .tile-box svg { width: 24px; height: 24px; }
+
+  /* Featured (FeaturedCard) */
+  .featured { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .feat-panel { position: relative; aspect-ratio: 1/0.9; border-radius: 20px; display: grid; place-items: center; overflow: hidden; }
+  .feat-panel .pill { position: absolute; left: 10px; top: 10px; }
+  .feat-panel svg { width: 44px; height: 44px; }
+  .feat-title { font-family: var(--font-heading); font-weight: 700; font-size: 15px; line-height: 1.2; margin: 9px 2px 2px; }
+  .feat-sub { font-size: 12px; line-height: 1.35; color: var(--muted-foreground); margin: 0 2px; }
+  .dashed { outline: 1.5px dashed var(--brand-gold); outline-offset: 4px; border-radius: 22px; }
+
+  /* Lista de menu (Perfil) e lista de registros (Diário) */
+  .menu { overflow: hidden; }
+  .menu-row { display: flex; align-items: center; gap: 14px; padding: 13px 18px; border-bottom: var(--hairline); width: 100%; text-align: left; font-size: 14.5px; font-weight: 600; }
+  .menu-row:last-child { border-bottom: 0; }
+  .menu-row .grow { flex: 1; min-width: 0; }
+  .menu-row .chev { width: 16px; height: 16px; color: var(--muted-foreground); }
+  .menu-row .detail { font-size: 12px; color: var(--muted-foreground); font-weight: 600; }
+
+  /* Overlay (Overlay/DayPanel do CalmBaby) */
+  .ov-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 12px; padding: 12px 16px 14px; background: var(--background); border-bottom: var(--hairline); }
+  .ov-head h1 { font-family: var(--font-heading); font-size: 19px; font-weight: 700; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ov-body { padding: 22px 16px 40px; }
+  .section-title { font-family: var(--font-heading); font-weight: 700; font-size: 20px; margin: 26px 0 12px; }
+
+  .step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); font-size: 14.5px; line-height: 1.5; width: 100%; text-align: left; }
+  .step + .step { margin-top: 10px; }
+  .box { width: 24px; height: 24px; border-radius: 6px; border: 1.5px solid var(--brand-gold); flex-shrink: 0; display: grid; place-items: center; margin-top: 1px; }
+  .step.on { border-color: color-mix(in oklab, var(--brand-gold) 60%, transparent); background: var(--gold-soft); }
+  .step.on .box { background: var(--brand-gold); color: var(--brand-ivory); }
+  .box svg { width: 15px; height: 15px; }
+
+  /* Balões de mensagem (como o celular do PDF) */
+  .bubble { position: relative; max-width: 88%; padding: 12px 14px; border-radius: 16px; font-size: 14.5px; line-height: 1.45; background: var(--brand-cream); }
+  .bubble.me { margin-left: auto; background: var(--brand-wine); color: var(--brand-ivory); border-bottom-right-radius: 6px; }
+  .bubble.them { border-bottom-left-radius: 6px; }
+  .bubble-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+  .copy { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: var(--primary); padding: 6px 10px; border-radius: 10px; border: var(--hairline); background: var(--card); }
+  .copy svg { width: 14px; height: 14px; }
+
+  /* Faça / evite */
+  .do-list { list-style: none; margin: 0; padding: 0; }
+  .do-list li { display: flex; gap: 12px; align-items: center; padding: 9px 0; font-size: 14.5px; line-height: 1.4; border-bottom: var(--hairline); }
+  .do-list li:last-child { border-bottom: 0; }
+  .mark { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; flex-shrink: 0; }
+  .mark svg { width: 14px; height: 14px; }
+  .mark.yes { border: 1px solid var(--success); color: var(--success); }
+  .mark.no { border: 1px solid var(--brand-wine-light); color: var(--brand-wine-light); }
+
+  .alert { display: flex; gap: 12px; padding: 14px 16px; border-radius: 16px; background: var(--primary-soft); border: 1px solid color-mix(in oklab, var(--brand-wine) 30%, transparent); font-size: 14px; line-height: 1.45; color: var(--brand-wine); }
+  .alert svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+
+  .quote { font-family: var(--font-heading); font-style: italic; font-size: 19px; line-height: 1.35; color: var(--brand-wine); position: relative; padding: 0 6px 0 30px; margin: 0; }
+  .quote::before { content: "\201C"; position: absolute; left: 0; top: -10px; font-size: 48px; color: var(--brand-gold); font-style: normal; }
+
+  .numbered { list-style: none; margin: 0; padding: 0; }
+  .numbered li { display: grid; grid-template-columns: 58px 1fr; align-items: center; gap: 4px; padding: 12px 0; border-bottom: 1px solid color-mix(in oklab, var(--brand-gold-light) 35%, transparent); }
+  .numbered li:last-child { border: 0; }
+  .numbered .n { font-family: var(--font-heading); font-weight: 700; font-size: 34px; line-height: 1; color: var(--brand-gold-light); }
+  .numbered .t { font-size: 14.5px; line-height: 1.4; }
+
+  /* Trilha (JourneyPath) */
+  .journey { position: relative; margin: 0 auto; }
+  .journey svg.lines { position: absolute; inset: 0; }
+  .node { position: absolute; width: 60px; height: 60px; transform: translateX(-50%); }
+  .node button { width: 100%; height: 100%; border-radius: 999px; display: grid; place-items: center; }
+  .node svg { width: 24px; height: 24px; }
+  .node.done button { background: var(--brand-gold); color: var(--brand-ivory); box-shadow: var(--shadow-tile); }
+  .node.current button { background: var(--brand-wine); color: var(--brand-gold-light); box-shadow: 0 0 0 4px var(--background), 0 0 0 5.5px var(--brand-gold), var(--shadow-glow); transform: scale(1.08); }
+  .node.open button { background: var(--brand-wine); color: var(--brand-ivory); }
+  .node.tomorrow button { background: var(--card); color: var(--gold-ink); border: 1.5px dashed var(--brand-gold); }
+  .node.locked button { background: var(--brand-cream); color: color-mix(in oklab, var(--muted-foreground) 70%, transparent); border: 1px solid var(--border); }
+  .node-label { position: absolute; top: 50%; transform: translateY(-50%); width: 112px; font-size: 12px; font-weight: 600; line-height: 1.25; }
+  .node-label small { display: block; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); }
+  .node.locked .node-label, .node.tomorrow .node-label { color: var(--muted-foreground); }
+  .phase-sep { display: flex; align-items: center; gap: 10px; justify-content: center; padding: 26px 20px 4px; }
+  .phase-sep img { width: 34px; height: 34px; }
+
+  .floating { position: absolute; left: 10px; right: 10px; bottom: 14px; z-index: 6; display: flex; align-items: center; gap: 12px; background: var(--card); border-radius: 20px; padding: 12px; box-shadow: var(--shadow-float); border: 1px solid color-mix(in oklab, var(--brand-gold) 30%, transparent); }
+  .floating img { width: 48px; height: 48px; }
+  .play { width: 48px; height: 48px; border-radius: 999px; display: grid; place-items: center; background: var(--brand-wine); color: var(--brand-gold-light); flex-shrink: 0; }
+  .play svg { width: 20px; height: 20px; }
+  .play[disabled] { background: var(--brand-cream); color: var(--muted-foreground); }
+
+  /* Sheet e diálogo (Drawer / Dialog) */
+  .scrim { position: absolute; inset: 0; background: color-mix(in oklab, var(--brand-wine-deep) 45%, transparent); z-index: 8; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 9; background: var(--background); border-radius: 26px 26px 0 0; padding: 10px 18px 22px; box-shadow: var(--shadow-float); }
+  .grabber { width: 44px; height: 4px; border-radius: 999px; background: var(--border); margin: 0 auto 14px; }
+  .dialog { position: absolute; left: 18px; right: 18px; top: 50%; transform: translateY(-50%); z-index: 9; background: var(--background); border-radius: 24px; padding: 26px 22px 22px; text-align: center; border: 1px solid color-mix(in oklab, var(--brand-gold) 40%, transparent); }
+  .info-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--brand-cream); font-size: 13.5px; }
+  .info-row svg { width: 16px; height: 16px; color: var(--gold-ink); }
+
+  /* Cenários */
+  .scen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .scen { text-align: left; padding: 16px 14px 14px; display: flex; flex-direction: column; gap: 10px; min-height: 150px; position: relative; }
+  .scen .h-display { font-size: 16.5px; line-height: 1.15; }
+  .scen.selected { border: 1.5px solid var(--brand-gold); }
+  .scen .pill { position: absolute; right: 10px; top: 12px; }
+  .row-mission { display: flex; align-items: center; gap: 12px; padding: 12px 14px; width: 100%; text-align: left; }
+  .row-mission + .row-mission { margin-top: 10px; }
+  .dot-state { width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center; flex-shrink: 0; }
+  .dot-state svg { width: 17px; height: 17px; }
+
+  /* Diário */
+  .counter-num { font-family: var(--font-heading); font-weight: 700; font-size: 64px; line-height: .9; color: var(--brand-gold-light); }
+  .dots { display: flex; gap: 6px; }
+  .dots i { width: 100%; height: 6px; border-radius: 999px; background: color-mix(in oklab, var(--brand-ivory) 18%, transparent); }
+  .dots i.on { background: var(--brand-gold-light); }
+  .quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .quick button { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 14px 6px 12px; border-radius: 16px; background: var(--card); box-shadow: var(--shadow-tile); font-size: 12px; font-weight: 600; line-height: 1.25; }
+  .quick svg { width: 22px; height: 22px; color: var(--brand-gold); }
+  .mood { display: flex; gap: 6px; }
+  .mood button { flex: 1; padding: 9px 0; border-radius: 12px; border: 1px solid var(--border); font-size: 12px; font-weight: 600; background: var(--card); }
+  .mood button.on { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid var(--border); background: var(--card); }
+  .chip svg { width: 14px; height: 14px; }
+  .chip.open-on { background: var(--success-soft); border-color: color-mix(in oklab, var(--success) 45%, transparent); color: var(--success); }
+  .chip.alert-on { background: var(--primary-soft); border-color: color-mix(in oklab, var(--brand-wine) 35%, transparent); color: var(--brand-wine); }
+  .log-row { display: flex; gap: 12px; align-items: flex-start; padding: 14px 18px; border-bottom: var(--hairline); }
+  .log-row:last-child { border: 0; }
+  .log-row .draft { margin-top: 6px; font-size: 13.5px; line-height: 1.4; padding: 9px 11px; border-radius: 12px; background: var(--brand-cream); font-style: italic; color: var(--foreground); }
+
+  /* Pausa */
+  .textarea { width: 100%; min-height: 150px; border-radius: 16px; border: 1px solid var(--input); background: var(--card); padding: 14px; font: inherit; font-size: 15.5px; line-height: 1.5; color: var(--foreground); resize: none; }
+  .yn { display: flex; gap: 6px; flex-shrink: 0; }
+  .yn button { height: 34px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 13px; font-weight: 700; background: var(--card); color: var(--muted-foreground); }
+  .yn button.yes { background: var(--success-soft); border-color: color-mix(in oklab, var(--success) 50%, transparent); color: var(--success); }
+  .yn button.no { background: var(--primary-soft); border-color: color-mix(in oklab, var(--brand-wine) 40%, transparent); color: var(--brand-wine); }
+  .check-q { display: flex; gap: 12px; align-items: center; padding: 13px 0; border-bottom: var(--hairline); }
+  .check-q:last-child { border: 0; }
+  .check-q .q { flex: 1; font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+  .check-q .q small { display: block; font-weight: 400; font-size: 12.5px; color: var(--muted-foreground); margin-top: 2px; }
+  .timer { font-family: var(--font-heading); font-size: 44px; font-weight: 700; color: var(--brand-gold-light); line-height: 1; letter-spacing: .01em; }
+
+  .legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .legend .node { position: relative; transform: none; margin-bottom: 8px; }
+  .legend-item { font-size: 13px; }
+  .legend-item b { display: block; font-size: 14px; }
+
+  /* ?inteiras: mostra cada tela sem cortar (para revisar e imprimir) */
+  .full .phone:not(.fixed) { height: auto; min-height: 780px; }
+  .full .phone:not(.fixed) .screen { position: relative; overflow: visible; }
+  .full .scrim, .full .sheet, .full .dialog { position: absolute; }
+
+  @media (max-width: 480px) {
+    .doc { padding-top: 24px; }
+    .block h2 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+  <div class="doc-head">
+    <img src="../brand/logo-wordmark.svg" alt="Código da Reconquista" />
+    <div>
+      <p class="eyebrow eyebrow-rule">Fase 0 · Identidade aplicada às telas</p>
+      <p style="margin-top:10px">Mesma estrutura de telas do CalmBaby e do Calm Kids (shell de 430px, navegação inferior fixa, cards empilhados, trilha com progresso, ferramentas em camada), com a identidade do PDF e a lógica de produto do Código da Reconquista. Os textos vêm de <code>content-draft.js</code>; nada de conteúdo escrito direto no HTML das telas.</p>
+    </div>
+  </div>
+  <ul class="toc">
+    <li><a href="#fundamentos">Fundamentos</a></li>
+    <li><a href="#home">Início</a></li>
+    <li><a href="#plano">Plano 21 dias</a></li>
+    <li><a href="#cenarios">Cenários</a></li>
+    <li><a href="#diario">Diário</a></li>
+    <li><a href="#mais">Mais</a></li>
+    <li><a href="#pausa">Pausa antes de enviar</a></li>
+    <li><a href="?inteiras" id="toggle-full" style="background:var(--primary);color:var(--primary-foreground)">Ver telas inteiras</a></li>
+  </ul>
+
+  <!-- ==================== FUNDAMENTOS ==================== -->
+  <section class="block" id="fundamentos">
+    <header>
+      <p class="eyebrow eyebrow-rule">Fundamentos</p>
+      <h2>Cor, tipo e <em>assets</em></h2>
+      <p class="ref">Tokens em <code>design/tokens.css</code>, com os mesmos nomes semânticos do <code>styles.css</code> do CalmBaby (background, card, primary, muted, shadow-soft, rounded-card…).</p>
+    </header>
+    <div class="grid-found">
+      <div class="panel">
+        <h3>Paleta</h3>
+        <div class="swatches" id="swatches"></div>
+      </div>
+      <div class="panel">
+        <h3>Tipografia</h3>
+        <div class="type-row"><small>Display · Playfair Display 700</small><p class="h-display" style="font-size:34px"><span class="wine">Plano de</span> <span class="gold">21 dias</span></p></div>
+        <div class="type-row"><small>Título de tela · 28/700</small><p class="h-display" style="font-size:28px">Diário</p></div>
+        <div class="type-row"><small>Título de card · 18/700</small><p class="h-display" style="font-size:18px">Curta, leve e aberta</p></div>
+        <div class="type-row"><small>Rótulo · Figtree 700, caixa alta, 0.18em</small><p class="eyebrow">Fase 2 · Dia 9</p></div>
+        <div class="type-row"><small>Texto · Figtree 16/1.55 (mínimo 15 em leitura)</small><p style="margin:0">Uma mensagem nova não explica o passado. Ela mostra que você está bem.</p></div>
+        <div class="type-row"><small>Citação · Playfair itálico</small><p class="quote" style="font-size:17px">Envie uma. Depois, solte o celular.</p></div>
+      </div>
+      <div class="panel">
+        <h3>Contraste</h3>
+        <table class="contrast">
+          <tr><th>Texto</th><th>Fundo</th><th>Razão</th><th>Uso</th></tr>
+          <tr><td>ink</td><td>ivory</td><td>16.2</td><td>texto</td></tr>
+          <tr><td>wine</td><td>ivory</td><td>12.6</td><td>títulos, botões</td></tr>
+          <tr><td>muted</td><td>card</td><td>6.3</td><td>apoio</td></tr>
+          <tr><td>gold-light</td><td>wine</td><td>7.2</td><td>dourado sobre vinho</td></tr>
+          <tr><td>gold-ink</td><td>card</td><td>4.9</td><td>rótulo pequeno</td></tr>
+          <tr><td>gold</td><td>ivory</td><td>3.0</td><td>só título grande e ícone</td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Botões e estados</h3>
+        <div class="stack">
+          <button class="btn btn-primary"><i data-lucide="play"></i>Começar agora</button>
+          <button class="btn btn-outline">Ver o que fazer</button>
+          <button class="btn btn-gold">Copiar mensagem</button>
+          <button class="btn btn-primary" disabled>Libera amanhã</button>
+          <button class="btn btn-ghost">Ver caminho completo do plano <i data-lucide="chevron-right"></i></button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="pill done"><i data-lucide="check"></i>Concluído</span>
+            <span class="pill now">Disponível agora</span>
+            <span class="pill wait"><i data-lucide="clock"></i>Libera amanhã</span>
+            <span class="pill wait"><i data-lucide="lock"></i>Bloqueado</span>
+            <span class="pill gold">Seu cenário</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Ícones (lucide, traço 1.5)</h3>
+        <div class="icon-grid" id="icons"></div>
+      </div>
+      <div class="panel">
+        <h3>Marca, fases e conquistas</h3>
+        <div class="asset-row">
+          <img src="../brand/icons/icon-192.png" alt="Ícone do app" width="72" height="72" style="border-radius:16px" />
+          <img src="../brand/logo-inline.svg" alt="Logo em uma linha" style="height:26px;width:auto" />
+        </div>
+        <p class="eyebrow" style="margin:18px 0 8px">Emblemas das fases</p>
+        <div class="asset-row" id="emblems"></div>
+        <p class="eyebrow" style="margin:18px 0 8px">Medalhas</p>
+        <div class="asset-row" id="badges"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TELAS ==================== -->
+  <section class="block" id="home">
+    <header>
+      <p class="eyebrow eyebrow-rule">Tela 1 · aba Início</p>
+      <h2>Início</h2>
+      <p class="ref">Base: <code>calmbaby/components/home/home-screen.tsx</code> + <code>home/cards.tsx</code> + <code>home/bottom-nav.tsx</code></p>
+      <ul class="notes">
+        <li>Mesma ordem da Home do CalmBaby: o que fazer hoje, ajuda imediata, meta da fase, cenário, evolução e ofertas por último.</li>
+        <li>O Calminho sai. No lugar dele entra o emblema da fase atual (numeral romano em anel dourado).</li>
+        <li>"Horários de hoje" vira "Seu cenário"; "Meta da semana" vira "Meta da fase", com a meta do PDF.</li>
+        <li>"Vontade de mandar mensagem?" fica logo abaixo do dia, no lugar dos botões "Dormiu / Acordou".</li>
+        <li>O card tracejado é uma oferta: só aparece se o link existir no <code>.env</code> (padrão <code>config.ts</code>).</li>
+      </ul>
+    </header>
+    <div class="phones" id="home-phones"></div>
+  </section>
+
+  <section class="block" id="plano">
+    <header>
+      <p class="eyebrow eyebrow-rule">Tela 2 · aba Plano</p>
+      <h2>Plano de <em>21 dias</em></h2>
+      <p class="ref">Base: <code>calmbaby/components/plan/plan-screen.tsx</code>, <code>plan/journey.tsx</code> (WeekHeader, JourneyPath, FloatingMissionCard, MissionSheet, MilestoneCelebration) e <code>plan/day-panel.tsx</code></p>
+      <ul class="notes">
+        <li>Semana vira fase: 1–7, 8–13, 14–18 e 19–21. O cabeçalho vinho fica fixo e troca conforme a fase visível.</li>
+        <li>Como no CalmBaby, a tela do Plano esconde a navegação inferior e mostra o card flutuante do dia; o botão de voltar leva ao Início.</li>
+        <li>Regra de liberação igual à de <code>progress.ts</code>: o dia libera quando o anterior foi concluído num dia anterior do calendário.</li>
+        <li>As cores da trilha seguem o progresso real: dourado no trecho percorrido, vinho no trecho que leva ao dia atual e filete no resto.</li>
+      </ul>
+    </header>
+    <div class="panel" style="margin-top:24px;max-width:860px">
+      <h3>Estados do dia</h3>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="phones" id="plan-phones"></div>
+  </section>
+
+  <section class="block" id="cenarios">
+    <header>
+      <p class="eyebrow eyebrow-rule">Tela 3 · aba Cenários</p>
+      <h2>Cenários</h2>
+      <p class="ref">Base: atalhos "O que vocês precisam agora?" + <code>calmkids/components/situation/situation-screen.tsx</code> (lista dos dias ligados à situação, com o mesmo MissionSheet)</p>
+      <ul class="notes">
+        <li>Grid com os 6 cenários. O cenário escolhido no onboarding aparece marcado e personaliza o Início.</li>
+        <li>O detalhe tem: o que costuma acontecer, faça / evite, modelos de mensagem (quando cabe), quando parar e os dias do plano ligados a ele.</li>
+        <li>Nos cenários de bloqueio e de outra pessoa, aparece o alerta e não há modelos de mensagem.</li>
+      </ul>
+    </header>
+    <div class="phones" id="scen-phones"></div>
+  </section>
+
+  <section class="block" id="diario">
+    <header>
+      <p class="eyebrow eyebrow-rule">Tela 4 · aba Diário</p>
+      <h2>Diário</h2>
+      <p class="ref">Base: <code>calmbaby/components/diary-screen.tsx</code> (Compare, Registrar, Últimos registros)</p>
+      <ul class="notes">
+        <li>"Antes e depois" vira o contador de dias sem agir por impulso, com a meta de 7 dias da Fase 1.</li>
+        <li>Os botões Dormiu / Despertou / Acordou viram Segurei o impulso / Agi por impulso / Ele fez contato.</li>
+        <li>O histórico mostra os rascunhos guardados pela Pausa. Recomeçar o contador não é tratado como falha.</li>
+      </ul>
+    </header>
+    <div class="phones" id="diary-phones"></div>
+  </section>
+
+  <section class="block" id="mais">
+    <header>
+      <p class="eyebrow eyebrow-rule">Tela 5 · aba Mais</p>
+      <h2>Mais</h2>
+      <p class="ref">Base: <code>calmbaby/components/profile-screen.tsx</code> (cartão do perfil, menu em lista, diálogos de Suporte / Instalar / Sair) e <code>common.tsx</code> (Overlay)</p>
+      <ul class="notes">
+        <li>Mesmo menu em lista. Saem Compartilhar e Modo noite; entram Regras de ouro, Meu compromisso, Privacidade e Apoio emocional.</li>
+        <li>Suporte sem número configurado não aparece (no CalmBaby aparecia "Em breve").</li>
+        <li>As Regras de ouro abrem como Overlay, com o card vinho de ênfase do PDF.</li>
+      </ul>
+    </header>
+    <div class="phones" id="more-phones"></div>
+  </section>
+
+  <section class="block" id="pausa">
+    <header>
+      <p class="eyebrow eyebrow-rule">Camadas · ferramenta</p>
+      <h2>Pausa antes de <em>enviar</em></h2>
+      <p class="ref">Base: pilha de camadas de <code>calm-baby-app.tsx</code> (<code>push / pop</code>) + Overlay de <code>common.tsx</code>, no lugar do SosTool</p>
+      <ul class="notes">
+        <li>Abre por cima de qualquer aba (Início, dia do plano, cenário). Fechar volta exatamente para onde a usuária estava.</li>
+        <li>Fluxo: escrever o rascunho, responder o checklist e ver o resultado.</li>
+        <li>Se ele bloqueou ou pediu distância, o resultado é sempre "não envie", sem exceção.</li>
+        <li>Guardar por 24h salva o rascunho no Diário. Nada é enviado pelo app: no máximo copiado.</li>
+      </ul>
+    </header>
+    <div class="phones" id="pause-phones"></div>
+  </section>
+</div>
+
+<script src="content-draft.js"></script>
+<script src="vendor/lucide-0.575.0.min.js"></script>
+<script>
+(function () {
+  const C = window.CR_CONTENT;
+  if (location.search.includes("inteiras")) {
+    document.body.classList.add("full");
+    const t = document.getElementById("toggle-full");
+    t.textContent = "Ver como celular (rolagem)";
+    t.href = location.pathname;
+  }
+  const $ = (id) => document.getElementById(id);
+  const ic = (name, cls = "") => `<i data-lucide="${name}" class="${cls}"></i>`;
+  const phaseOf = (day) => C.phases.find((p) => day >= p.days[0] && day <= p.days[1]);
+  const dayOf = (n) => C.days.find((d) => d.day === n);
+  const scen = (id) => C.scenarios.find((s) => s.id === id);
+
+  // Estado de exemplo: Marina, cenário "frio", dias 1 a 8 concluídos, hoje é o dia 9.
+  const USER = { name: "Marina", scenario: "frio", done: 8, current: 9, impulseFree: 8 };
+
+  // fixed: telas com sheet ou diálogo ficam sempre na altura do celular, mesmo em ?inteiras.
+  const phone = (cap, inner, fixed = false) => `
+    <div class="phone-wrap"><p class="phone-cap">${cap}</p>
+      <div class="phone ${fixed ? "fixed" : ""}">${inner}</div></div>`;
+
+  const nav = (active) => {
+    const items = [
+      ["home", "house", "Início"],
+      ["plan", "calendar-days", "Plano"],
+      ["scenarios", "compass", "Cenários"],
+      ["diary", "notebook-pen", "Diário"],
+      ["more", "user-round", "Mais"],
+    ];
+    return `<nav class="nav"><div class="nav-inner">${items
+      .map(([id, i, l]) => `<button class="nav-item ${id === active ? "active" : ""}">${ic(i)}${l}</button>`)
+      .join("")}</div></nav>`;
+  };
+
+  const phaseBar = (doneDays, onWine = false) => `
+    <div class="bar ${onWine ? "on-wine" : ""}">${C.phases
+      .map((p) => {
+        const n = p.days[1] - p.days[0] + 1;
+        const d = Math.max(0, Math.min(n, doneDays - p.days[0] + 1));
+        return `<span class="seg" style="--n:${n};--p:${(d / n) * 100}%"><i></i></span>`;
+      })
+      .join("")}</div>`;
+
+  const overlayHead = (eyebrow, title, icon = "arrow-left") => `
+    <header class="ov-head"><button class="icon-btn" aria-label="Voltar">${ic(icon)}</button>
+      <div style="min-width:0"><p class="eyebrow">${eyebrow}</p><h1>${title}</h1></div></header>`;
+
+  // ---------- Fundamentos ----------
+  const swatches = [
+    ["--brand-wine", "Vinho", "#5A1426 primária"],
+    ["--brand-wine-deep", "Vinho profundo", "#3D0D1A ênfase"],
+    ["--brand-gold", "Dourado", "#B08A4F detalhe"],
+    ["--brand-gold-light", "Dourado claro", "#D9B97A sobre vinho"],
+    ["--gold-ink", "Dourado texto", "#8A6A35 rótulos"],
+    ["--background", "Marfim", "#FBF7F1 fundo"],
+    ["--brand-cream", "Creme", "#F3EADF superfícies"],
+    ["--card", "Card", "#FFFDF9"],
+    ["--foreground", "Tinta", "#2A1419 texto"],
+    ["--muted-foreground", "Apoio", "#6E5A5E"],
+    ["--success", "Sálvia", "concluído, abertura"],
+    ["--primary-soft", "Vinho suave", "alerta, atual"],
+  ];
+  $("swatches").innerHTML = swatches
+    .map(([v, n, d]) => `<div class="sw"><b style="background:var(${v})"></b><span><strong>${n}</strong><br><small>${d}</small></span></div>`)
+    .join("");
+
+  const iconSet = [
+    ["house", "Início"], ["calendar-days", "Plano"], ["compass", "Cenários"], ["notebook-pen", "Diário"], ["user-round", "Mais"],
+    ...C.scenarios.map((s) => [s.icon, s.label]),
+    ...C.phases.map((p) => [p.icon, `Fase ${p.phase}`]),
+    ["hourglass", "Pausa"], ["book-open", "Regras de ouro"], ["eye", "Sinais"], ["life-buoy", "Apoio"],
+  ];
+  $("icons").innerHTML = iconSet.map(([i, l]) => `<div class="icon-cell"><span class="ring">${ic(i)}</span>${l}</div>`).join("");
+
+  $("emblems").innerHTML =
+    [1, 2, 3, 4].map((n) => `<img src="../brand/emblems/fase-${n}.svg" width="60" height="60" alt="Fase ${n}">`).join("") +
+    [1, 2, 3, 4].map((n) => `<img src="../brand/emblems/fase-${n}-on-wine.svg" width="60" height="60" alt="Fase ${n} sobre vinho">`).join("");
+  $("badges").innerHTML = ["sem-impulso-7", "fase-2-concluida", "dia-21"]
+    .map((b) => `<img src="../brand/badges/${b}.svg" width="84" height="84" alt="${b}">`)
+    .join("");
+
+  // ---------- Início ----------
+  (function home() {
+    const p = phaseOf(USER.current);
+    const d = dayOf(USER.current);
+    const s = scen(USER.scenario);
+    const phaseDays = p.days[1] - p.days[0] + 1;
+    const phaseDone = USER.done - p.days[0] + 1;
+    const html = `
+      <div class="screen" style="padding-bottom:120px">
+        <div class="status-bar"></div>
+        <header class="app-header">
+          <img src="../brand/logo-inline.svg" alt="Código da Reconquista">
+          <button class="avatar" aria-label="Abrir perfil">M</button>
+        </header>
+
+        <section style="position:relative;padding:26px 20px 22px;display:flex;align-items:flex-end;gap:12px">
+          <div style="flex:1">
+            <p class="muted" style="margin:0;font-size:15px;font-weight:600">Boa tarde, ${USER.name}</p>
+            <h1 class="h-display" style="font-size:29px;margin-top:6px"><span class="wine">Um passo</span><br><span class="gold">de cada vez.</span></h1>
+          </div>
+          <img src="../brand/emblems/fase-${p.phase}.svg" width="84" height="84" alt="">
+        </section>
+
+        <section class="card pad mx">
+          <p class="eyebrow">Plano de hoje</p>
+          <h2 class="h-display" style="font-size:21px;margin-top:10px">${d.title}</h2>
+          <p class="small muted" style="margin:4px 0 0">Fase ${p.phase}: ${p.title}</p>
+          <p class="xs muted" style="margin:16px 0 8px;font-weight:700">Dia ${d.day} de 21 · ${d.minutes} min</p>
+          ${phaseBar(USER.done)}
+          <button class="btn btn-primary" style="margin-top:18px">${ic("play")}Começar agora</button>
+        </section>
+
+        <button class="card deep mx" style="display:flex;align-items:center;gap:14px;padding:16px 18px;margin-top:14px;width:calc(100% - 40px);text-align:left">
+          <span class="ring on-wine">${ic("hourglass")}</span>
+          <span style="flex:1"><span class="h-display" style="display:block;font-size:17px">Vontade de mandar mensagem?</span>
+          <span class="small" style="opacity:.8">Faça a pausa antes de enviar</span></span>
+          ${ic("chevron-right")}
+        </button>
+
+        <section class="card mx" style="margin-top:26px;padding:18px 14px 40px">
+          <h2 class="h-display" style="font-size:17px;padding:0 4px">O que você precisa agora?</h2>
+          <div class="tiles" style="margin-top:16px">
+            <button class="tile"><span class="tile-box">${ic("book-open")}</span>Regras de ouro</button>
+            <button class="tile"><span class="tile-box">${ic("eye")}</span>Sinais para observar</button>
+            <button class="tile"><span class="tile-box">${ic("message-square-x")}</span>O que nunca enviar</button>
+            <button class="tile"><span class="tile-box">${ic("notebook-pen")}</span>Meu diário</button>
+          </div>
+        </section>
+
+        <section class="card deep mx" style="position:relative;margin-top:-24px;padding:20px">
+          <p class="eyebrow on-wine">Meta da fase ${p.phase}</p>
+          <h2 class="h-display" style="font-size:19px;margin-top:6px">${p.goal}</h2>
+          <p class="small" style="opacity:.82;margin:6px 0 16px">${p.objective}</p>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="bar on-wine" style="flex:1"><span class="seg" style="--n:1;--p:${(phaseDone / phaseDays) * 100}%"><i></i></span></div>
+            <span class="xs" style="font-weight:700">${phaseDone} de ${phaseDays} dias</span>
+          </div>
+        </section>
+        <button class="btn btn-ghost" style="margin-top:6px">Ver caminho completo do plano ${ic("chevron-right")}</button>
+
+        <section class="card pad mx" style="margin-top:12px">
+          <div style="display:flex;gap:14px;align-items:flex-start">
+            <span class="ring lg">${ic(s.icon)}</span>
+            <div style="flex:1;min-width:0">
+              <p class="eyebrow">Seu cenário</p>
+              <h2 class="h-display" style="font-size:18px;margin-top:4px">${s.label}</h2>
+              <p class="small muted" style="margin:4px 0 0">${s.short}</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn btn-outline btn-sm">Ver o que fazer</button>
+            <button class="btn btn-ghost btn-sm" style="width:auto;padding:0 12px">Trocar</button>
+          </div>
+        </section>
+
+        <section class="card pad mx" style="margin-top:16px;display:flex;gap:14px;align-items:center">
+          <img src="../brand/badges/sem-impulso-7.svg" width="84" height="84" alt="">
+          <div>
+            <h2 class="h-display" style="font-size:16px">Pequenos avanços</h2>
+            <p class="small muted" style="margin:6px 0 10px">${USER.impulseFree} dias sem agir por impulso. A meta da Fase 1 já foi cumprida.</p>
+            <span class="pill gold">${USER.done} de 21 dias do plano</span>
+          </div>
+        </section>
+
+        <div style="margin-top:28px">
+          <h2 class="h-display mx" style="font-size:17px;margin-bottom:12px">Especialmente para você</h2>
+          <div class="featured mx">
+            <button style="text-align:left"><span class="feat-panel" style="background:var(--brand-cream);color:var(--brand-gold)"><span class="pill gold">Biblioteca</span>${ic("book-open")}</span>
+              <p class="feat-title">Regras de ouro</p><p class="feat-sub">Os 3 erros, o que nunca enviar e como não voltar ao padrão.</p></button>
+            <button style="text-align:left" class="dashed"><span class="feat-panel" style="background:var(--brand-wine);color:var(--brand-gold-light)"><span class="pill on-wine">Oferta</span>${ic("messages-square")}</span>
+              <p class="feat-title">Sequência de Resposta Imediata</p><p class="feat-sub">Só aparece se o link da oferta existir.</p></button>
+          </div>
+        </div>
+      </div>
+      ${nav("home")}`;
+    $("home-phones").innerHTML = phone("Início · rolagem completa", html);
+  })();
+
+  // ---------- Plano ----------
+  const NODE = 60, ROW = 100, CX = 170, W = 340, TOP = 44, BOT = 50;
+  const OFFS = [0, 52, 70, 52, 0, -52, -70];
+
+  function journey(days, statusOf) {
+    const pts = days.map((d, i) => ({ x: CX + OFFS[i % OFFS.length], y: TOP + i * ROW }));
+    const h = TOP + (days.length - 1) * ROW + BOT;
+    const segColor = (i) => {
+      if (statusOf(days[i].day) === "done") return "var(--brand-gold)";
+      if (days[i + 1] && statusOf(days[i + 1].day) === "current") return "var(--brand-wine)";
+      return "var(--border)";
+    };
+    const lines = pts.slice(0, -1).map((p, i) => {
+      const n = pts[i + 1];
+      const dash = segColor(i) === "var(--border)" ? 'stroke-dasharray="2 9"' : "";
+      return `<line x1="${p.x}" y1="${p.y}" x2="${n.x}" y2="${n.y}" stroke="${segColor(i)}" stroke-width="3" stroke-linecap="round" ${dash}/>`;
+    }).join("");
+    const iconFor = (st, day) =>
+      st === "done" ? "check" : st === "locked" ? "lock" : st === "tomorrow" ? "clock" : day === 21 ? "award" : "play";
+    const nodes = days.map((d, i) => {
+      const st = statusOf(d.day);
+      const left = OFFS[i % OFFS.length] < 0;
+      const side = left ? "left:100%;margin-left:12px;text-align:left" : "right:100%;margin-right:12px;text-align:right";
+      return `<div class="node ${st}" style="left:${pts[i].x}px;top:${pts[i].y - NODE / 2}px">
+        <button aria-label="${d.title}">${ic(iconFor(st, d.day))}</button>
+        <span class="node-label" style="${side}"><small>Dia ${d.day}</small>${d.title}</span></div>`;
+    }).join("");
+    return `<div class="journey" style="width:${W}px;height:${h}px"><svg class="lines" width="${W}" height="${h}" viewBox="0 0 ${W} ${h}">${lines}</svg>${nodes}</div>`;
+  }
+
+  function phaseHeader(p, done) {
+    const n = p.days[1] - p.days[0] + 1;
+    const d = Math.max(0, Math.min(n, done - p.days[0] + 1));
+    return `<section class="card deep" style="position:sticky;top:0;z-index:4;border-radius:0 0 26px 26px;border-top:0;padding:44px 20px 22px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="icon-btn round on-wine" aria-label="Voltar ao Início" style="width:36px;height:36px">${ic("arrow-left")}</button>
+        <p class="eyebrow on-wine">Fase ${p.phase} de 4 · dias ${p.days[0]} a ${p.days[1]}</p>
+      </div>
+      <div style="display:flex;gap:14px;align-items:center;margin-top:14px">
+        <img src="../brand/emblems/fase-${p.phase}-on-wine.svg" width="52" height="52" alt="">
+        <div><h1 class="h-display" style="font-size:23px">${p.title}</h1>
+        <p class="small" style="opacity:.82;margin:4px 0 0">${p.objective}</p></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:18px">
+        <div class="bar on-wine" style="flex:1"><span class="seg" style="--n:1;--p:${(d / n) * 100}%"><i></i></span></div>
+        <span class="xs" style="font-weight:700">${d} de ${n} dias</span>
+      </div></section>`;
+  }
+
+  function floating(d, waiting) {
+    const p = phaseOf(d.day);
+    return `<div class="floating">
+      <img src="../brand/emblems/fase-${p.phase}.svg" alt="">
+      <div style="flex:1;min-width:0">
+        <p class="eyebrow" style="font-size:10px">${waiting ? "Próximo dia libera amanhã" : "Atividade de hoje"}</p>
+        <p style="margin:2px 0 0;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.title}</p>
+        <p class="xs muted" style="margin:0">Dia ${d.day} de 21 · ${d.minutes} min</p>
+      </div>
+      <button class="play" ${waiting ? "disabled" : ""} aria-label="Começar">${ic(waiting ? "clock" : "play")}</button></div>`;
+  }
+
+  (function plan() {
+    // Estado A: hoje é o dia 9 (dias 1 a 8 concluídos).
+    const stA = (day) => (day <= 8 ? "done" : day === 9 ? "current" : "locked");
+    // Estado B: dia 9 concluído hoje; o 10 libera amanhã.
+    const stB = (day) => (day <= 9 ? "done" : day === 10 ? "tomorrow" : "locked");
+    const trail = (st) =>
+      C.phases.map((p) => {
+        const days = C.days.filter((d) => d.phase === p.phase);
+        return `<div class="phase-sep"><img src="../brand/emblems/fase-${p.phase}.svg" alt=""><p class="eyebrow">Fase ${p.phase} · ${p.title}</p></div>${journey(days, st)}`;
+      }).join("");
+    const p2 = C.phases[1];
+
+    const a = `<div class="screen" id="plan-a" style="padding-bottom:120px">${phaseHeader(p2, 8)}${trail(stA)}
+      <p class="xs muted" style="text-align:center;padding:10px 40px 30px">Um dia por vez. Toque num dia para ver os detalhes.</p></div>
+      ${floating(dayOf(9), false)}`;
+
+    const d10 = dayOf(10);
+    const b = `<div class="screen" id="plan-b">${phaseHeader(p2, 9)}${trail(stB)}</div>
+      <div class="scrim"></div>
+      <div class="sheet"><div class="grabber"></div>
+        <span class="pill wait">${ic("clock")}Libera amanhã</span>
+        <h2 class="h-display" style="font-size:24px;margin-top:10px">${d10.title}</h2>
+        <p class="small muted" style="margin:6px 0 14px">Textões, ultimatos, mensagens de madrugada: o que afasta mais e por quê.</p>
+        <div class="stack">
+          <div class="info-row">${ic("sparkles")}<b>Fase 2</b><span class="muted">· Dia 10 de 21</span></div>
+          <div class="info-row">${ic("clock")}<b>Leitura:</b><span class="muted">${d10.minutes} min</span></div>
+        </div>
+        <p class="info-row" style="justify-content:center;margin:16px 0 0;font-weight:700;font-size:12.5px;color:var(--muted-foreground)">${ic("lock")}Você já fez o dia de hoje. Este libera amanhã.</p>
+      </div>`;
+
+    const d9 = dayOf(9);
+    const c = `<div class="screen">${overlayHead(`Fase 2 · Dia 9`, d9.title)}
+      <div class="ov-body">
+        <div class="card cream" style="padding:18px;display:flex;gap:14px">
+          <img src="../brand/emblems/fase-2.svg" width="52" height="52" alt="" style="flex-shrink:0">
+          <div>${d9.lesson.map((t) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.6">${t}</p>`).join("")}
+          <p class="xs muted" style="margin:0;font-weight:700">${d9.minutes} min · Nova comunicação</p></div>
+        </div>
+        <h2 class="section-title">Ação de hoje</h2>
+        <div class="card gold-line" style="padding:18px">
+          <p style="margin:0;font-weight:600;font-size:15.5px;line-height:1.55">${d9.action}</p>
+          <button class="btn btn-outline btn-sm" style="margin-top:14px">${ic("hourglass")}Abrir a Pausa antes de enviar</button>
+        </div>
+        <h2 class="section-title">O que você vai fazer</h2>
+        ${d9.checklist.map((t, i) => `<button class="step ${i === 0 ? "on" : ""}"><span class="box">${i === 0 ? ic("check") : ""}</span>${t}</button>`).join("")}
+        <div class="card deep" style="margin-top:24px;padding:24px;text-align:center">
+          <p class="eyebrow on-wine">Terminou o dia?</p>
+          <p class="small" style="opacity:.82;margin:8px 0 16px">Marque como concluído. O próximo dia libera amanhã.</p>
+          <button class="btn btn-gold btn-sm">${ic("circle-check")}Marcar como concluído</button>
+        </div>
+        <p class="xs muted" style="text-align:center;margin-top:20px">Conteúdo educativo. Não substitui acompanhamento psicológico.</p>
+      </div></div>`;
+
+    const m = C.milestones[0];
+    const dlg = `<div class="screen">${phaseHeader(C.phases[0], 7)}${trail((day) => (day <= 7 ? "done" : day === 8 ? "tomorrow" : "locked"))}</div>
+      <div class="scrim"></div>
+      <div class="dialog">
+        <img src="../brand/badges/${m.badge}.svg" width="120" height="120" alt="" style="margin:0 auto">
+        <h2 class="h-display" style="font-size:24px;margin-top:14px"><span class="wine">${m.title}</span></h2>
+        <p class="small muted" style="margin:8px 0 20px">${m.description}</p>
+        <button class="btn btn-primary btn-sm">Continuar</button>
+      </div>`;
+
+    $("plan-phones").innerHTML =
+      phone("Plano · hoje é o dia 9", a) +
+      phone("Detalhe do dia (sheet) · libera amanhã", b, true) +
+      phone("Dia aberto (camada)", c) +
+      phone("Celebração de marco · dia 7", dlg, true);
+
+    // Abre a trilha na fase atual, como o PlanScreen faz.
+    requestAnimationFrame(() => {
+      ["plan-a", "plan-b"].forEach((id) => {
+        const el = document.getElementById(id);
+        const seps = el.querySelectorAll(".phase-sep");
+        if (seps[1]) el.scrollTop = seps[1].offsetTop - 200;
+      });
+    });
+
+    $("legend").innerHTML = [
+      ["done", "check", "Concluído", "Dourado, com check. Dá para rever."],
+      ["current", "play", "Atual", "Vinho com anel dourado. Um toque abre o dia."],
+      ["tomorrow", "clock", "Amanhã", "Dia de hoje feito; o próximo libera amanhã."],
+      ["locked", "lock", "Bloqueado", "Conclua o dia atual para chegar aqui."],
+    ].map(([st, i, t, d]) => `<div class="legend-item"><div class="node ${st}"><button>${ic(i)}</button></div><b>${t}</b><span class="muted">${d}</span></div>`).join("");
+  })();
+
+  // ---------- Cenários ----------
+  function scenarioDetail(s) {
+    const st = (day) => (day <= USER.done ? "done" : day === USER.current ? "current" : "locked");
+    const dot = { done: ["check", "background:var(--brand-gold);color:var(--brand-ivory)"], current: ["play", "background:var(--brand-wine);color:var(--brand-gold-light)"], locked: ["lock", "background:var(--brand-cream);color:var(--muted-foreground)"] };
+    return `<div class="screen">${overlayHead("Cenário", s.label)}
+      <div class="ov-body">
+        <div style="display:flex;gap:14px;align-items:center">
+          <span class="ring lg">${ic(s.icon)}</span>
+          <p style="margin:0;font-size:15px;line-height:1.55">${s.description}</p>
+        </div>
+        ${s.alert ? `<div class="alert" style="margin-top:18px">${ic("triangle-alert")}<span><b>Importante.</b> ${s.alert}</span></div>` : ""}
+        <h2 class="section-title">O que fazer</h2>
+        <ul class="do-list card" style="padding:4px 16px">${s.do.map((t) => `<li><span class="mark yes">${ic("check")}</span>${t}</li>`).join("")}</ul>
+        <h2 class="section-title">O que evitar</h2>
+        <ul class="do-list card" style="padding:4px 16px">${s.avoid.map((t) => `<li><span class="mark no">${ic("x")}</span>${t}</li>`).join("")}</ul>
+        <h2 class="section-title">Modelos de mensagem</h2>
+        ${s.messages.length
+          ? s.messages.map((t) => `<div style="margin-bottom:14px"><div class="bubble me">${t}</div><div class="bubble-actions"><button class="copy">${ic("copy")}Copiar</button></div></div>`).join("") +
+            `<p class="quote" style="font-size:17px;margin-top:6px">Envie uma. Depois, solte o celular.</p>`
+          : `<div class="card cream" style="padding:16px;display:flex;gap:12px;align-items:center">${ic("shield-check", "")}<span class="small">${s.noMessages}</span></div>`}
+        <h2 class="section-title">Quando parar</h2>
+        <div class="card gold-line" style="padding:16px"><p style="margin:0;font-size:14.5px;line-height:1.5">${s.stop}</p></div>
+        <h2 class="section-title">Dias do plano para este cenário</h2>
+        ${s.days.map((n) => { const d = dayOf(n); const k = st(n); return `<button class="card row-mission"><span class="dot-state" style="${dot[k][1]}">${ic(dot[k][0])}</span><span style="flex:1;min-width:0"><span class="xs muted" style="display:block;font-weight:700">Fase ${d.phase} · Dia ${d.day}</span><span class="h-display" style="display:block;font-size:15.5px">${d.title}</span></span>${ic("chevron-right", "chev")}</button>`; }).join("")}
+      </div></div>`;
+  }
+
+  (function scenarios() {
+    const grid = `<div class="screen" style="padding-bottom:120px"><div class="status-bar"></div>
+      <div style="padding:14px 20px 0">
+        <h1 class="h-display" style="font-size:30px">Cenários</h1>
+        <p class="small muted" style="margin:6px 0 0">Escolha o que está acontecendo agora. O plano se adapta ao seu cenário.</p>
+      </div>
+      <div class="scen-grid mx" style="margin-top:20px">${C.scenarios.map((s) => `
+        <button class="card scen ${s.id === USER.scenario ? "selected" : ""}">
+          ${s.id === USER.scenario ? `<span class="pill gold">Seu cenário</span>` : ""}
+          <span class="ring">${ic(s.icon)}</span>
+          <span class="h-display">${s.label}</span>
+          <span class="xs muted">${s.short}</span>
+        </button>`).join("")}</div>
+      <div class="card cream mx" style="margin-top:18px;padding:16px;display:flex;gap:12px;align-items:center">
+        <span class="ring sm">${ic("eye")}</span>
+        <span class="small" style="flex:1"><b>Sinais para observar.</b> Abertura e alerta, sem interpretar demais.</span>${ic("chevron-right", "chev")}
+      </div></div>${nav("scenarios")}`;
+    $("scen-phones").innerHTML =
+      phone("Cenários · grid", grid) +
+      phone("Detalhe · com modelos de mensagem", scenarioDetail(scen("frio"))) +
+      phone("Detalhe · com alerta (bloqueio)", scenarioDetail(scen("bloqueou")));
+  })();
+
+  // ---------- Diário ----------
+  (function diary() {
+    const html = `<div class="screen" style="padding-bottom:120px"><div class="status-bar"></div>
+      <div style="padding:14px 20px 0">
+        <h1 class="h-display" style="font-size:30px">Diário</h1>
+        <p class="small muted" style="margin:6px 0 0">Anote o impulso em vez de enviar. Aqui fica a sua evolução.</p>
+      </div>
+      <section class="card deep mx" style="margin-top:20px;padding:22px">
+        <p class="eyebrow on-wine">Dias sem agir por impulso</p>
+        <div style="display:flex;align-items:flex-end;gap:14px;margin:12px 0 16px">
+          <span class="counter-num">${USER.impulseFree}</span>
+          <span class="small" style="opacity:.85;padding-bottom:6px">Meta da Fase 1: 7 dias.<br>Cumprida.</span>
+          <img src="../brand/badges/sem-impulso-7.svg" width="64" height="64" alt="" style="margin-left:auto">
+        </div>
+        <div class="dots">${Array.from({ length: 7 }, (_, i) => `<i class="${i < USER.impulseFree ? "on" : ""}"></i>`).join("")}</div>
+      </section>
+
+      <section class="card pad mx" style="margin-top:16px">
+        <h2 class="h-display" style="font-size:17px">Registro rápido</h2>
+        <p class="xs muted" style="margin:4px 0 14px">Como você está agora?</p>
+        <div class="mood">${["Difícil", "Ansiosa", "Ok", "Calma", "Bem"].map((m, i) => `<button class="${i === 3 ? "on" : ""}">${m}</button>`).join("")}</div>
+        <div class="quick" style="margin-top:14px">
+          <button>${ic("shield-check")}Segurei o impulso</button>
+          <button>${ic("send-horizontal")}Agi por impulso</button>
+          <button>${ic("message-circle")}Ele fez contato</button>
+        </div>
+        <p class="xs muted" style="margin:12px 0 0">"Agi por impulso" recomeça o contador. Recomeçar faz parte.</p>
+      </section>
+
+      <section class="card pad mx" style="margin-top:16px">
+        <h2 class="h-display" style="font-size:17px">Sinais que você notou</h2>
+        <p class="xs muted" style="margin:4px 0 14px">Observe sem interpretar demais. Ajuste, não insista.</p>
+        <p class="eyebrow" style="margin-bottom:8px">Abertura</p>
+        <div class="chips">${C.signals.open.map((t, i) => `<button class="chip ${i === 0 ? "open-on" : ""}">${i === 0 ? ic("check") : ""}${t}</button>`).join("")}</div>
+        <p class="eyebrow" style="margin:16px 0 8px">Alerta</p>
+        <div class="chips">${C.signals.alert.map((t) => `<button class="chip">${t}</button>`).join("")}</div>
+        <p class="eyebrow" style="margin:16px 0 8px">Pare aqui</p>
+        <div class="chips">${C.signals.stop.map((t) => `<button class="chip">${t}</button>`).join("")}</div>
+      </section>
+
+      <h2 class="h-display mx" style="font-size:17px;margin-top:28px;margin-bottom:12px">Últimos registros</h2>
+      <ul class="card mx" style="list-style:none;padding:0;margin-top:0">
+        <li class="log-row"><span class="ring sm">${ic("hourglass")}</span><div style="flex:1"><b class="small">Rascunho guardado</b><p class="xs muted" style="margin:0">Ontem às 23:41 · pode reler hoje às 23:41</p><p class="draft">"Por que você sumiu? A gente precisa conversar sobre tudo…"</p></div></li>
+        <li class="log-row"><span class="ring sm sage">${ic("shield-check")}</span><div style="flex:1"><b class="small">Segurei o impulso</b><p class="xs muted" style="margin:0">Ontem às 22:10 · Ansiosa</p></div></li>
+        <li class="log-row"><span class="ring sm">${ic("message-circle")}</span><div style="flex:1"><b class="small">Ele fez contato</b><p class="xs muted" style="margin:0">05/10 às 19:02 · sinal: responde mais rápido</p></div></li>
+      </ul>
+      </div>${nav("diary")}`;
+    $("diary-phones").innerHTML = phone("Diário", html);
+  })();
+
+  // ---------- Mais ----------
+  (function more() {
+    const menu = [
+      ["compass", "Meu cenário", "Frio e distante"],
+      ["book-open", "Regras de ouro", ""],
+      ["heart-handshake", "Meu compromisso", ""],
+      ["circle-help", "Suporte", ""],
+      ["download", "Instalar app", ""],
+      ["shield-check", "Privacidade", ""],
+      ["life-buoy", "Apoio emocional", "CVV 188"],
+    ];
+    const html = `<div class="screen" style="padding-bottom:120px"><div class="status-bar"></div>
+      <div style="padding:14px 20px 0"><h1 class="h-display" style="font-size:30px">Mais</h1></div>
+      <section class="card pad mx" style="margin-top:20px;display:flex;gap:16px;align-items:center">
+        <span class="avatar lg">M</span>
+        <div style="flex:1;min-width:0"><h2 class="h-display" style="font-size:19px">${USER.name}</h2>
+        <p class="small muted" style="margin:2px 0 0">Dia ${USER.current} de 21 · Fase 2</p>
+        <p class="small muted" style="margin:0">marina@email.com</p></div>
+        <button class="icon-btn" aria-label="Editar perfil">${ic("pencil")}</button>
+      </section>
+      <div class="card menu mx" style="margin-top:16px">${menu.map(([i, l, d]) => `<button class="menu-row"><span class="ring sm">${ic(i)}</span><span class="grow">${l}</span>${d ? `<span class="detail">${d}</span>` : ""}${ic("chevron-right", "chev")}</button>`).join("")}</div>
+      <button class="btn btn-ghost danger mx" style="margin-top:14px;width:calc(100% - 40px)">${ic("log-out")}Sair</button>
+      <p class="xs muted mx" style="margin-top:10px">Seus registros do Diário são privados. Só você vê.</p>
+      </div>${nav("more")}`;
+
+    const rules = `<div class="screen">${overlayHead("Biblioteca", "Regras de ouro")}
+      <div class="ov-body">
+        <p class="eyebrow eyebrow-rule">Os 3 erros que afastam mais</p>
+        ${C.rules.errors.map((e, i) => `<div style="display:grid;grid-template-columns:54px 1fr;gap:6px;padding:14px 0;border-bottom:var(--hairline)">
+          <span class="h-display gold" style="font-size:38px">0${i + 1}</span>
+          <div><p class="h-display wine" style="font-size:17px">${e.title}</p><p class="small muted" style="margin:4px 0 0">${e.text}</p></div></div>`).join("")}
+        <section class="card deep" style="margin-top:24px;padding:22px">
+          <h2 class="h-display" style="font-size:28px"><span style="color:var(--brand-ivory)">O que</span> <span style="color:var(--brand-gold-light)">nunca enviar</span></h2>
+          <ul class="do-list" style="margin-top:10px">${C.rules.neverSend.map((t) => `<li style="border-color:color-mix(in oklab,var(--brand-gold-light) 30%,transparent)"><span style="color:var(--brand-gold-light)">${ic("x")}</span>${t}</li>`).join("")}</ul>
+          <p class="h-display" style="font-size:19px;color:var(--brand-gold-light);margin-top:14px">Se você precisa de resposta para se sentir bem, ainda não é hora de enviar.</p>
+        </section>
+        <section class="card deep" style="margin-top:16px;padding:22px">
+          <p class="eyebrow on-wine">Como não voltar ao padrão antigo</p>
+          <ol class="numbered" style="margin-top:6px">${C.rules.relapse.map((t, i) => `<li><span class="n">0${i + 1}</span><span class="t">${t}</span></li>`).join("")}</ol>
+        </section>
+      </div></div>`;
+
+    $("more-phones").innerHTML = phone("Mais", html) + phone("Regras de ouro (camada)", rules);
+  })();
+
+  // ---------- Pausa ----------
+  (function pause() {
+    const draft = "Oi, sei que faz tempo. Fiquei pensando em tudo e queria muito que você me explicasse por que…";
+    const head = overlayHead("Ferramenta", "Pausa antes de enviar", "x");
+    const step1 = `<div class="screen">${head}<div class="ov-body">
+      <p class="eyebrow">Passo 1 de 3</p>
+      <h2 class="h-display" style="font-size:24px;margin-top:8px"><span class="wine">Escreva aqui,</span> <span class="gold">não no WhatsApp.</span></h2>
+      <p class="small muted" style="margin:8px 0 16px">Anotar o impulso já tira metade da pressão. Ninguém além de você vê este texto.</p>
+      <textarea class="textarea">${draft}</textarea>
+      <p class="xs muted" style="text-align:right;margin:6px 2px 0">2 linhas · 96 caracteres</p>
+      <button class="btn btn-primary" style="margin-top:18px">Passar pelo checklist ${ic("arrow-right")}</button>
+      <button class="btn btn-ghost" style="margin-top:4px">Só quero guardar no Diário</button>
+      <p class="quote" style="font-size:17px;margin-top:22px">Se você precisa de resposta para se sentir bem, ainda não é hora de enviar.</p>
+    </div></div>`;
+
+    const answers = { curta: "yes", leve: "no", aberta: "no", semResposta: "no", horario: "no", limite: "yes" };
+    const step2 = `<div class="screen">${head}<div class="ov-body">
+      <p class="eyebrow">Passo 2 de 3</p>
+      <h2 class="h-display" style="font-size:24px;margin-top:8px">Checklist da mensagem</h2>
+      <div class="card cream" style="padding:12px 14px;margin:14px 0 6px"><p class="xs" style="margin:0;font-style:italic">"${draft}"</p></div>
+      <div>${C.pause.map((q) => `<div class="check-q"><span class="q">${q.label}<small>${q.hint}</small></span>
+        <span class="yn"><button class="${answers[q.id] === "yes" ? "yes" : ""}">Sim</button><button class="${answers[q.id] === "no" ? "no" : ""}">Não</button></span></div>`).join("")}</div>
+      <button class="btn btn-primary" style="margin-top:18px">Ver resultado</button>
+    </div></div>`;
+
+    const step3a = `<div class="screen">${head}<div class="ov-body">
+      <p class="eyebrow">Resultado</p>
+      <section class="card deep" style="margin-top:12px;padding:24px;text-align:center">
+        <span class="ring on-wine lg" style="margin:0 auto">${ic("hourglass")}</span>
+        <h2 class="h-display" style="font-size:25px;margin-top:14px">Guarde por 24 horas</h2>
+        <p class="small" style="opacity:.85;margin:8px 0 18px">4 respostas pedem mais tempo. Amanhã, se ainda fizer sentido, você reescreve com calma.</p>
+        <p class="timer">23:59:41</p>
+        <p class="xs" style="opacity:.7;margin:6px 0 18px">libera amanhã às 21:40</p>
+        <button class="btn btn-gold">${ic("archive")}Guardar no Diário</button>
+      </section>
+      <h2 class="section-title">O que pesou</h2>
+      <ul class="do-list card" style="padding:4px 16px">${C.pause.filter((q) => answers[q.id] === "no").map((q) => `<li><span class="mark no">${ic("x")}</span><span>${q.hint}</span></li>`).join("")}</ul>
+      <div class="card gold-line" style="padding:16px;margin-top:16px;display:flex;gap:12px;align-items:center">
+        <span class="ring sm">${ic("heart-handshake")}</span><span class="small">Converse com uma amiga, não com ele.</span></div>
+    </div></div>`;
+
+    const ok = "Passando só para desejar uma boa semana.";
+    const step3b = `<div class="screen">${head}<div class="ov-body">
+      <p class="eyebrow">Resultado</p>
+      <section class="card pad" style="margin-top:12px;text-align:center">
+        <span class="ring sage lg" style="margin:0 auto">${ic("check")}</span>
+        <h2 class="h-display" style="font-size:25px;margin-top:14px">Pode enviar, com calma</h2>
+        <p class="small muted" style="margin:8px 0 0">Curta, leve e aberta. O app não envia nada: copie e mande você mesma.</p>
+      </section>
+      <div style="margin-top:20px"><div class="bubble me">${ok}</div></div>
+      <button class="btn btn-primary" style="margin-top:18px">${ic("copy")}Copiar mensagem</button>
+      <section class="card deep" style="margin-top:22px;padding:20px">
+        <p class="quote" style="color:var(--brand-ivory);font-size:20px">Envie uma. Depois, solte o celular.</p>
+        <p class="small" style="opacity:.8;margin:10px 0 0;padding-left:30px">Se ele não responder, está tudo bem. Registre no Diário como você se sentiu.</p>
+      </section>
+    </div></div>`;
+
+    const step3c = `<div class="screen">${head}<div class="ov-body">
+      <p class="eyebrow">Resultado</p>
+      <section class="card pad" style="margin-top:12px;text-align:center">
+        <span class="ring wine lg" style="margin:0 auto">${ic("ban")}</span>
+        <h2 class="h-display" style="font-size:25px;margin-top:14px">Não envie</h2>
+        <p class="small muted" style="margin:8px 0 0">Ele te bloqueou ou pediu distância. Isso é um limite, e respeitar esse limite também é parte do plano.</p>
+      </section>
+      <div class="alert" style="margin-top:16px">${ic("triangle-alert")}<span>Não use outro número, outro perfil ou amigos para mandar a mensagem.</span></div>
+      <button class="btn btn-primary" style="margin-top:18px">${ic("notebook-pen")}Guardar no Diário, só para mim</button>
+      <button class="btn btn-ghost" style="margin-top:4px">Ver o cenário "Ele me bloqueou"</button>
+    </div></div>`;
+
+    $("pause-phones").innerHTML =
+      phone("1 · Escrever o rascunho", step1) +
+      phone("2 · Checklist da mensagem", step2) +
+      phone("3a · Resultado: guardar 24h", step3a) +
+      phone("3b · Resultado: pode enviar", step3b) +
+      phone("3c · Resultado: limite (não envie)", step3c);
+  })();
+
+  lucide.createIcons({ attrs: { "stroke-width": 1.5 } });
+})();
+</script>
+</body>
+</html>

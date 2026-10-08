@@ -1,0 +1,193 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system do Código da Reconquista.
+ *
+ * Mesma estrutura do styles.css do Calm Kids e do CalmBaby (Nunito, cards bem arredondados,
+ * tiles com ilustração 3D, card de meta em degradê, trilha com nós grandes), com as cores do funil
+ * da Reconquista: vinho no texto, framboesa como cor de ação, fundo rosado claro e mel de destaque.
+ *
+ * Todas as cores em oklch. Use os tokens; não espalhe hex/oklch pelos componentes.
+ * Para adicionar uma cor: variável no :root e registro em @theme inline (--color-<nome>).
+ */
+
+@font-face {
+  font-family: "Nunito";
+  src: url("/fonts/nunito-var.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-display: var(--font-heading);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-card: 1.75rem;
+  --radius-tile: 1.25rem;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-app-shell: var(--app-shell);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-highlight: var(--highlight);
+  --color-brand-wine: var(--brand-wine);
+  --color-brand-berry: var(--brand-berry);
+  --color-brand-honey: var(--brand-honey);
+  --color-brand-sage: var(--brand-sage);
+  --color-brand-lavender: var(--brand-lavender);
+  --color-tint-rose: var(--tint-rose);
+  --color-tint-honey: var(--tint-honey);
+  --color-tint-sage: var(--tint-sage);
+  --color-tint-lavender: var(--tint-lavender);
+  --shadow-card: var(--shadow-card);
+  --shadow-app: var(--shadow-app);
+  --shadow-soft: var(--shadow-soft);
+  --shadow-tile: var(--shadow-tile);
+  --shadow-float: var(--shadow-float);
+  --shadow-glow: var(--shadow-glow);
+}
+
+:root {
+  --radius: 1rem;
+  /* Paleta (funil da Reconquista). */
+  --brand-wine: oklch(0.317 0.101 10.1); /* #5A1426 texto e títulos */
+  --brand-berry: oklch(0.494 0.189 14.3); /* #B3123F cor de ação */
+  --brand-honey: oklch(0.815 0.152 78.7); /* #F7B538 destaque */
+  --brand-sage: oklch(0.676 0.137 149.9); /* #4FAE68 conquista */
+  --brand-lavender: oklch(0.653 0.161 295.9); /* #9A78E6 apoio */
+  --brand-blush: oklch(0.976 0.009 26); /* #FDF5F4 fundo */
+  --font-body: "Nunito", system-ui, sans-serif;
+  --font-heading: "Nunito", system-ui, sans-serif;
+
+  --background: var(--brand-blush);
+  --foreground: var(--brand-wine);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand-berry);
+  --primary-foreground: oklch(0.99 0.004 20);
+  --primary-soft: oklch(0.936 0.027 6.2); /* #FBE3E7 */
+  --secondary: oklch(0.946 0.016 22.1);
+  --secondary-foreground: var(--brand-wine);
+  --muted: oklch(0.946 0.016 22.1); /* #F8E9E8 */
+  --muted-foreground: oklch(0.508 0.04 3.1); /* #7A5C63 */
+  --accent: oklch(0.936 0.027 6.2);
+  --accent-foreground: var(--brand-wine);
+  --destructive: oklch(0.577 0.215 27.3);
+  --destructive-foreground: oklch(0.99 0.004 20);
+  --destructive-soft: oklch(0.96 0.03 25);
+  --border: oklch(0.911 0.022 17.6); /* #F0DCDC */
+  --input: oklch(0.88 0.03 17);
+  --ring: var(--primary);
+  --app-shell: oklch(0.95 0.018 20);
+  --success: oklch(0.562 0.133 149.2); /* #2D8A47 texto de conquista */
+  --success-soft: oklch(0.94 0.05 150);
+  --highlight: var(--brand-honey);
+
+  --shadow-card: 0 8px 24px color-mix(in oklab, var(--foreground) 7%, transparent);
+  --shadow-app: 0 24px 64px color-mix(in oklab, var(--foreground) 14%, transparent);
+  --shadow-soft:
+    0 10px 30px color-mix(in oklab, var(--brand-wine) 8%, transparent),
+    0 2px 6px color-mix(in oklab, var(--brand-wine) 5%, transparent);
+  --shadow-tile:
+    0 8px 18px color-mix(in oklab, var(--brand-wine) 10%, transparent),
+    inset 0 -3px 6px color-mix(in oklab, var(--brand-berry) 6%, transparent);
+  --shadow-float:
+    0 -6px 30px color-mix(in oklab, var(--brand-wine) 10%, transparent),
+    0 10px 30px color-mix(in oklab, var(--brand-wine) 12%, transparent);
+  --shadow-glow: 0 14px 28px color-mix(in oklab, var(--brand-berry) 32%, transparent);
+  --tint-rose: color-mix(in oklab, var(--brand-berry) 10%, white);
+  --tint-honey: color-mix(in oklab, var(--brand-honey) 26%, white);
+  --tint-sage: color-mix(in oklab, var(--brand-sage) 22%, white);
+  --tint-lavender: color-mix(in oklab, var(--brand-lavender) 16%, white);
+  --gradient-goal: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--brand-berry) 82%, white) 0%,
+    var(--brand-berry) 48%,
+    color-mix(in oklab, var(--brand-berry) 70%, var(--brand-wine)) 100%
+  );
+  --gradient-play: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--brand-berry) 80%, white),
+    var(--brand-berry)
+  );
+  /* Profundidade discreta no círculo de dia concluído da trilha. */
+  --gradient-node-success: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--success) 22%, white) 0%,
+    var(--success-soft) 78%
+  );
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    letter-spacing: 0;
+    margin: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@utility bg-goal-card {
+  background: var(--gradient-goal);
+}
+
+@utility bg-play-button {
+  background: var(--gradient-play);
+}
+
+@utility bg-node-success {
+  background: var(--gradient-node-success);
+}
+
+/* Rótulo pequeno em caixa alta (PLANO DE HOJE), igual ao do Calm Kids. */
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--eyebrow-color, var(--primary));
+}
+
+/* Rótulo sobre o card em degradê. */
+@utility eyebrow-light {
+  --eyebrow-color: color-mix(in oklab, var(--primary-foreground) 72%, transparent);
+}

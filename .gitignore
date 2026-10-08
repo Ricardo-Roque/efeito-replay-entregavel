@@ -1,0 +1,14 @@
+# Cópias dos projetos de referência e o PDF original (grandes, não fazem parte do código)
+*.zip
+Codigo_da_Reconquista_Protocolo_Digital.pdf
+
+node_modules/
+.output/
+.wrangler/
+dist/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+__pycache__/
