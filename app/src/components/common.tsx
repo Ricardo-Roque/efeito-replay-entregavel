@@ -7,7 +7,7 @@ import type { ScenarioId } from "@/lib/scenarios";
 import { planPhases } from "@/lib/plan";
 import { cn } from "@/lib/utils";
 
-/** Mesmo papel do CalmKidsBrand: logo grande no onboarding, compacto no cabeçalho.
+/** Mesmo papel do CalmKidsBrand: logo grande no login, compacto no cabeçalho.
  * Logo em texto (Nunito black), com "Reconquista" na cor de ação. */
 export function Brand({ compact = false }: { compact?: boolean }) {
   return (

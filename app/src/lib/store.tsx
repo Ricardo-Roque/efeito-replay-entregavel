@@ -10,16 +10,18 @@ import {
 
 import type { SignalKind } from "@/lib/guide";
 import type { ScenarioId } from "@/lib/scenarios";
+import { SUPABASE_URL, supabase } from "@/lib/supabase";
 
-// Fase 1A: tudo fica no localStorage deste aparelho, sem login nem servidor.
-// A API (data + ações que devolvem true/false) é a mesma do store do CalmBaby, para trocar
-// o armazenamento por tabelas cr_* no Supabase sem mexer nas telas.
+// Entrada só com o e-mail da compra (função cr-login, igual ao CalmBaby): quem tem compra paga
+// recebe uma sessão do Supabase. A cada abertura o app confere de novo se a compra continua ativa
+// (reembolso tira o acesso). O progresso, o Diário e os rascunhos ainda ficam no localStorage deste
+// aparelho, separados por e-mail; a API das ações é a mesma que a versão com tabelas cr_* vai usar.
 
 export interface Profile {
   name: string;
-  breakup: string;
-  scenario: ScenarioId;
-  /** ISO: quando terminou o onboarding (início do contador de dias sem impulso). */
+  /** null até ela escolher um cenário (não há mais quiz na entrada). */
+  scenario: ScenarioId | null;
+  /** ISO: primeiro acesso (início do contador de dias sem impulso). */
   startedAt: string;
 }
 
@@ -52,8 +54,15 @@ interface Toast {
   text: string;
 }
 
-const STORAGE_KEY = "codigo-reconquista:v1";
+export type StoreStatus = "loading" | "signed-out" | "no-access" | "error" | "ready";
+export type LoginError = "no_access" | "invalid_email" | "failed";
+
+const STORAGE_PREFIX = "codigo-reconquista:v1:";
+/** Só em desenvolvimento: entra sem servidor, para testar as telas localmente. */
+const DEV_EMAIL_KEY = "codigo-reconquista:dev-email";
 const EMPTY: AppData = { profile: null, completed: {}, journal: [] };
+
+const storageKey = (email: string) => STORAGE_PREFIX + email;
 
 /** uuid v4. crypto.randomUUID só existe em HTTPS/localhost; getRandomValues funciona em qualquer origem. */
 export const newId = () => {
@@ -69,9 +78,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
 /** Lê o que está salvo. Qualquer formato inesperado volta para o estado vazio, sem quebrar o app. */
-function load(): AppData {
+function load(key: string): AppData {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(key);
     if (!raw) return EMPTY;
     const parsed: unknown = JSON.parse(raw);
     if (!isRecord(parsed)) return EMPTY;
@@ -91,8 +100,61 @@ function load(): AppData {
   }
 }
 
-function persist(data: AppData) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+function persist(key: string, data: AppData) {
+  window.localStorage.setItem(key, JSON.stringify(data));
+}
+
+const nameFromEmail = (email: string) => {
+  const local = email.split("@")[0]?.split(/[._-]/)[0] ?? "";
+  return local ? local.charAt(0).toUpperCase() + local.slice(1) : "Você";
+};
+
+/** Dados da conta: carrega do aparelho e, no primeiro acesso, cria o perfil com o nome da compra. */
+function loadAccount(email: string, name: string | null): AppData {
+  const key = storageKey(email);
+  const data = load(key);
+  if (data.profile) return data;
+  const created: AppData = {
+    ...data,
+    profile: {
+      name: name?.trim() || nameFromEmail(email),
+      scenario: null,
+      startedAt: new Date().toISOString(),
+    },
+  };
+  try {
+    persist(key, created);
+  } catch {
+    // Sem armazenamento (modo anônimo): segue só na memória.
+  }
+  return created;
+}
+
+/** Login só com o e-mail da compra: a função cr-login confere a compra e devolve um token que vira sessão. */
+async function loginWithEmail(
+  email: string,
+): Promise<{ ok: true } | { ok: false; error: LoginError }> {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/cr-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const body = (await response.json()) as { ok?: boolean; error?: string; token_hash?: string };
+    if (!body.ok || !body.token_hash) {
+      return {
+        ok: false,
+        error: body.error === "no_access" || body.error === "invalid_email" ? body.error : "failed",
+      };
+    }
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: body.token_hash,
+      type: "magiclink",
+    });
+    return error ? { ok: false, error: "failed" } : { ok: true };
+  } catch {
+    return { ok: false, error: "failed" };
+  }
 }
 
 const sortJournal = (journal: JournalEntry[]) =>
@@ -104,7 +166,14 @@ const sameDay = (a: Date, b: Date) =>
   a.getDate() === b.getDate();
 
 interface StoreValue {
+  status: StoreStatus;
+  email: string;
   data: AppData;
+  reload: () => void;
+  login: (email: string) => Promise<{ ok: true } | { ok: false; error: LoginError }>;
+  /** Só em desenvolvimento (import.meta.env.DEV): entra com um e-mail sem consultar o servidor. */
+  devLogin: (email: string) => void;
+  signOut: () => Promise<void>;
   toast: Toast | null;
   showToast: (text: string, kind?: Toast["kind"]) => void;
   clearToast: () => void;
@@ -123,10 +192,67 @@ interface StoreValue {
 const StoreContext = createContext<StoreValue | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppData>(load);
+  const [status, setStatus] = useState<StoreStatus>("loading");
+  const [email, setEmail] = useState("");
+  const [data, setData] = useState<AppData>(EMPTY);
   const [toast, setToast] = useState<Toast | null>(null);
   const dataRef = useRef(data);
   dataRef.current = data;
+  const keyRef = useRef("");
+  const loadingRef = useRef(0);
+
+  const enter = useCallback((account: string, name: string | null) => {
+    keyRef.current = storageKey(account);
+    setEmail(account);
+    setData(loadAccount(account, name));
+    setStatus("ready");
+  }, []);
+
+  // Confere a sessão e se a compra continua ativa (o RLS só devolve o cadastro com compra paga).
+  const reload = useCallback(async () => {
+    const attempt = ++loadingRef.current;
+    if (import.meta.env.DEV) {
+      const devEmail = window.localStorage.getItem(DEV_EMAIL_KEY);
+      if (devEmail) return enter(devEmail, null);
+    }
+    const { data: session } = await supabase.auth.getSession();
+    if (attempt !== loadingRef.current) return;
+    if (!session.session) {
+      setStatus("signed-out");
+      return;
+    }
+    const { data: client, error } = await supabase
+      .from("cr_clients")
+      .select("email, name")
+      .maybeSingle();
+    if (attempt !== loadingRef.current) return;
+    if (error) {
+      console.error("Falha ao conferir o acesso", error);
+      setStatus("error");
+      return;
+    }
+    if (!client) {
+      // Sessão válida mas sem compra ativa (reembolso, chargeback…).
+      await supabase.auth.signOut();
+      setStatus("no-access");
+      return;
+    }
+    enter(String(client.email), (client.name as string | null) ?? null);
+  }, [enter]);
+
+  useEffect(() => {
+    void reload();
+    const { data: listener } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        loadingRef.current++;
+        keyRef.current = "";
+        setEmail("");
+        setData(EMPTY);
+        setStatus((current) => (current === "no-access" ? current : "signed-out"));
+      }
+    });
+    return () => listener.subscription.unsubscribe();
+  }, [reload]);
 
   const showToast = useCallback(
     (text: string, kind: Toast["kind"] = "info") => setToast({ kind, text }),
@@ -137,7 +263,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Mesmo comportamento do CalmBaby: se não der para gravar, a tela não muda e aparece o aviso.
   const commit = useCallback((next: AppData) => {
     try {
-      persist(next);
+      if (keyRef.current) persist(keyRef.current, next);
     } catch {
       setToast({
         kind: "error",
@@ -152,14 +278,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Outra aba do mesmo navegador mudou os dados: recarrega.
   useEffect(() => {
     const onStorage = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) setData(load());
+      if (keyRef.current && event.key === keyRef.current) setData(load(keyRef.current));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const value: StoreValue = {
+    status,
+    email,
     data,
+    reload: () => void reload(),
+    login: async (account) => {
+      const result = await loginWithEmail(account);
+      if (result.ok) await reload();
+      return result;
+    },
+    devLogin: (account) => {
+      if (!import.meta.env.DEV) return;
+      window.localStorage.setItem(DEV_EMAIL_KEY, account);
+      enter(account, null);
+    },
+    signOut: async () => {
+      if (import.meta.env.DEV) window.localStorage.removeItem(DEV_EMAIL_KEY);
+      await supabase.auth.signOut();
+      keyRef.current = "";
+      setEmail("");
+      setData(EMPTY);
+      setStatus("signed-out");
+    },
     toast,
     showToast,
     clearToast,
@@ -203,14 +350,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (existing) return value.deleteEntry(existing.id);
       return value.addEntry({ type: "signal", signalKind: kind, signal });
     },
+    /** Apaga o progresso, o Diário e os rascunhos desta conta neste aparelho (continua logada). */
     resetAll: () => {
+      const name = dataRef.current.profile?.name ?? null;
       try {
-        window.localStorage.removeItem(STORAGE_KEY);
+        window.localStorage.removeItem(keyRef.current);
       } catch {
         setToast({ kind: "error", text: "Não foi possível apagar os dados deste aparelho." });
         return false;
       }
-      setData(EMPTY);
+      setData(loadAccount(email, name));
       return true;
     },
     shiftDays: (days) => {

@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { ChevronRight, FastForward, Pencil, Phone, RotateCcw, type LucideIcon } from "lucide-react";
+import {
+  ChevronRight,
+  FastForward,
+  LogOut,
+  Pencil,
+  Phone,
+  RotateCcw,
+  type LucideIcon,
+} from "lucide-react";
 
 import { ProfileAvatar } from "@/components/common";
 import { Button } from "@/components/ui/button";
@@ -21,12 +29,12 @@ import { planProgress } from "@/lib/progress";
 import { scenarioById } from "@/lib/scenarios";
 import { initialsOf, useStore } from "@/lib/store";
 
-type Modal = "profile" | "install" | "privacy" | "care" | "reset" | null;
+type Modal = "profile" | "install" | "privacy" | "care" | "reset" | "logout" | null;
 
 const dialogClass = "w-[calc(100%-2rem)] rounded-2xl border-border sm:max-w-md";
 
-/** Mesma aba Perfil do CalmBaby: cartão do perfil, menu em lista e diálogos. Sem login nesta fase:
- * "Sair" vira "Recomeçar do zero", que apaga os dados deste aparelho. */
+/** Mesma aba Perfil do CalmBaby: cartão do perfil, menu em lista, diálogos e "Sair".
+ * "Recomeçar do zero" apaga o progresso desta conta neste aparelho. */
 export function MoreScreen({
   openScenarios,
   openRules,
@@ -36,7 +44,7 @@ export function MoreScreen({
   openRules: () => void;
   openCommitment: () => void;
 }) {
-  const { data, saveProfile, resetAll, shiftDays, showToast } = useStore();
+  const { data, email, saveProfile, resetAll, signOut, shiftDays, showToast } = useStore();
   const profile = data.profile!;
   const progress = planProgress(data);
   const support = whatsappLink("Olá! Preciso de ajuda com o app Código da Reconquista.");
@@ -47,7 +55,7 @@ export function MoreScreen({
     {
       label: "Meu cenário",
       icon: moreIcons.scenario,
-      detail: scenarioById(profile.scenario).label,
+      detail: profile.scenario ? scenarioById(profile.scenario).label : "Escolher",
       onClick: openScenarios,
     },
     { label: "Regras de ouro", icon: moreIcons.rules, onClick: openRules },
@@ -85,9 +93,7 @@ export function MoreScreen({
               ? "Plano concluído"
               : `Dia ${progress.currentDay} de 21 · Fase ${progress.phase.phase}`}
           </p>
-          <p className="truncate text-sm text-muted-foreground">
-            Terminaram: {profile.breakup.toLowerCase()}
-          </p>
+          <p className="truncate text-sm text-muted-foreground">{email}</p>
         </div>
         <button
           type="button"
@@ -127,13 +133,17 @@ export function MoreScreen({
       <Button
         variant="ghost"
         className="mt-5 h-12 w-full justify-start rounded-xl px-5 text-destructive hover:bg-destructive-soft hover:text-destructive"
-        onClick={() => setModal("reset")}
+        onClick={() => setModal("logout")}
       >
-        <RotateCcw /> Recomeçar do zero
+        <LogOut /> Sair
       </Button>
-      <p className="mt-2 px-1 text-xs leading-5 text-muted-foreground">
-        Nesta versão, seus dados ficam só neste aparelho e neste navegador.
-      </p>
+      <button
+        type="button"
+        onClick={() => setModal("reset")}
+        className="mt-1 flex w-full cursor-pointer items-center gap-2 px-5 py-2 text-xs font-bold text-muted-foreground hover:text-foreground"
+      >
+        <RotateCcw className="size-3.5" /> Recomeçar o plano do zero neste aparelho
+      </button>
 
       {import.meta.env.DEV && (
         <section className="mt-6 rounded-card border-2 border-dashed border-border p-4">
@@ -202,9 +212,9 @@ export function MoreScreen({
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Privacidade</DialogTitle>
             <DialogDescription className="leading-6">
-              O seu Diário, os rascunhos e o seu progresso ficam salvos só neste aparelho. Nada é
-              enviado para ninguém, e o app nunca manda mensagens por você. Para apagar tudo, use
-              "Recomeçar do zero".
+              Você entra com o e-mail da compra. O seu Diário, os rascunhos e o seu progresso ficam
+              salvos só neste aparelho. Nada é enviado para ninguém, e o app nunca manda mensagens
+              por você. Para apagar tudo, use "Recomeçar o plano do zero".
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
@@ -252,8 +262,38 @@ export function MoreScreen({
                 Cancelar
               </Button>
             </DialogClose>
-            <Button variant="destructive" className="h-11 rounded-xl" onClick={() => resetAll()}>
+            <Button
+              variant="destructive"
+              className="h-11 rounded-xl"
+              onClick={() => resetAll() && setModal(null)}
+            >
               Apagar e recomeçar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={modal === "logout"} onOpenChange={(open) => !open && setModal(null)}>
+        <DialogContent className={dialogClass}>
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Sair do app?</DialogTitle>
+            <DialogDescription>
+              Seu progresso continua salvo neste aparelho. Para entrar de novo, use o e-mail da
+              compra.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <DialogClose asChild>
+              <Button variant="outline" className="h-11 rounded-xl">
+                Cancelar
+              </Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              className="h-11 rounded-xl"
+              onClick={() => void signOut()}
+            >
+              Sair
             </Button>
           </DialogFooter>
         </DialogContent>

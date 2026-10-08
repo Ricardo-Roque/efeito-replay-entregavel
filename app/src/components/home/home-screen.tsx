@@ -66,7 +66,7 @@ export function HomeScreen({
   const today = dayContent(progress.currentDay);
   const state = dayState(data, progress.currentDay, now);
   const phase = progress.phase;
-  const scenario = scenarioById(profile.scenario);
+  const scenario = profile.scenario ? scenarioById(profile.scenario) : null;
   const impulse = impulseFreeDays(data, now);
 
   return (
@@ -167,19 +167,21 @@ export function HomeScreen({
       </section>
 
       <section className="relative z-10 mx-5 -mt-6 overflow-hidden rounded-card bg-goal-card p-5 text-primary-foreground shadow-glow">
-        <div className="max-w-[64%]">
-          <p className="eyebrow eyebrow-light">Meta da fase {phase.phase}</p>
-          <h2 className="mt-1 font-display text-[18px] font-extrabold leading-snug">
-            {progress.finished ? "Todas as fases concluídas!" : phase.goal}
-          </h2>
-          <p className="mt-1.5 text-[13px] leading-snug text-primary-foreground/85">
-            {phase.objective}
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow eyebrow-light">Meta da fase {phase.phase}</p>
+            <h2 className="mt-1 font-display text-[18px] font-extrabold leading-snug">
+              {progress.finished ? "Todas as fases concluídas!" : phase.goal}
+            </h2>
+            <p className="mt-1.5 text-[13px] leading-snug text-primary-foreground/85">
+              {phase.objective}
+            </p>
+          </div>
+          <Emoji
+            name="estrela"
+            className="pointer-events-none size-20 shrink-0 drop-shadow-[0_10px_14px_rgba(90,20,38,0.28)]"
+          />
         </div>
-        <Emoji
-          name="estrela"
-          className="pointer-events-none absolute -right-1 top-4 size-24 drop-shadow-[0_10px_14px_rgba(90,20,38,0.28)]"
-        />
         <div className="mt-5">
           <div className="flex items-center gap-3">
             <GoalProgress
@@ -210,28 +212,47 @@ export function HomeScreen({
       <section className="mx-5 mt-6 rounded-card bg-card p-5 shadow-soft">
         <div className="flex items-center justify-between">
           <h2 className="font-display text-[16px] font-extrabold text-foreground">Seu cenário</h2>
+          {scenario && (
+            <button
+              type="button"
+              onClick={openScenarios}
+              className="cursor-pointer rounded-full bg-tint-rose px-3 py-1 text-[11px] font-extrabold text-primary"
+            >
+              Trocar
+            </button>
+          )}
+        </div>
+        {scenario ? (
           <button
             type="button"
-            onClick={openScenarios}
-            className="cursor-pointer rounded-full bg-tint-rose px-3 py-1 text-[11px] font-extrabold text-primary"
+            onClick={() => openScenario(scenario.id)}
+            className="mt-4 flex w-full cursor-pointer items-center gap-4 text-left"
           >
-            Trocar
-          </button>
-        </div>
-        <button
-          type="button"
-          onClick={() => openScenario(scenario.id)}
-          className="mt-4 flex w-full cursor-pointer items-center gap-4 text-left"
-        >
-          <ScenarioBadge id={scenario.id} tint={scenario.tint} size="lg" />
-          <span className="min-w-0 flex-1">
-            <span className="block font-display text-[16px] font-extrabold leading-snug">
-              {scenario.label}
+            <ScenarioBadge id={scenario.id} tint={scenario.tint} size="lg" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-display text-[16px] font-extrabold leading-snug">
+                {scenario.label}
+              </span>
+              <span className="mt-0.5 block text-[13px] text-muted-foreground">
+                {scenario.short}
+              </span>
             </span>
-            <span className="mt-0.5 block text-[13px] text-muted-foreground">{scenario.short}</span>
-          </span>
-          <ChevronRight className="size-5 text-muted-foreground" />
-        </button>
+            <ChevronRight className="size-5 text-muted-foreground" />
+          </button>
+        ) : (
+          <>
+            <p className="mt-2 text-[13px] leading-snug text-muted-foreground">
+              Escolha o que está acontecendo agora. O plano e as dicas se adaptam a você.
+            </p>
+            <Button
+              variant="outline"
+              className="mt-4 h-11 w-full rounded-xl bg-card font-bold"
+              onClick={openScenarios}
+            >
+              Escolher meu cenário <ChevronRight />
+            </Button>
+          </>
+        )}
       </section>
 
       <section className="mx-5 mt-6 flex items-center gap-3 rounded-card bg-card p-5 shadow-soft">

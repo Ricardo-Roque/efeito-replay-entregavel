@@ -1,14 +1,7 @@
-// Conteúdo fixo de apoio: regras de ouro, sinais, checklist da Pausa, compromisso e onboarding.
+// Conteúdo fixo de apoio: regras de ouro, sinais, checklist da Pausa e compromisso.
 // RASCUNHO, a partir do PDF do protocolo.
 
-export const breakupOptions = [
-  "Há menos de uma semana",
-  "Entre 1 e 4 semanas",
-  "Entre 1 e 3 meses",
-  "Há mais de 3 meses",
-];
-
-/** Lido e aceito no onboarding; fica visível em Mais > Meu compromisso. */
+/** Os limites do protocolo; ficam em Perfil > Meu compromisso e no Início. */
 export const commitment = [
   "Não vou contornar bloqueio nem usar outros perfis, números ou pessoas para chegar até ele.",
   "Não vou insistir nem pressionar. Um não, ou um pedido de distância, é resposta.",

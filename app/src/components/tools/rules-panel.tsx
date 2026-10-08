@@ -129,7 +129,7 @@ export function RulesPanel({
   );
 }
 
-/** Os limites aceitos no onboarding, sempre à mão. */
+/** Os limites do protocolo, sempre à mão. */
 export function CommitmentPanel({ onClose }: { onClose: () => void }) {
   return (
     <Overlay eyebrow="Você escolheu" title="Meu compromisso" onClose={onClose}>

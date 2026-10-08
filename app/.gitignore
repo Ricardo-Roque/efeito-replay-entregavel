@@ -43,3 +43,6 @@ package-lock.json
 
 # PNG/WebP originais das ilustrações (grandes); o app usa as versões otimizadas de src/assets/ilustracoes
 _originais/
+
+# Arquivos locais do Supabase CLI
+supabase/.temp/

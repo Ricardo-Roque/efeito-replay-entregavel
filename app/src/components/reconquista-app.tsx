@@ -1,18 +1,19 @@
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 
 import { BottomNav, type AppTab } from "@/components/home/bottom-nav";
 import { HomeScreen } from "@/components/home/home-screen";
 import { MilestoneCelebration } from "@/components/plan/milestone-celebration";
 import type { RulesSection } from "@/components/tools/rules-panel";
+import { Button } from "@/components/ui/button";
 import { MILESTONES, type Milestone, type PlanTool } from "@/lib/plan";
 import type { ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-// O Início vem no carregamento inicial; o resto (outras abas, ferramentas e onboarding) vira
-// pedaços separados, carregados sob demanda e pré-carregados quando o navegador fica ocioso.
+// O Início vem no carregamento inicial; o resto (login, outras abas e ferramentas) vira pedaços
+// separados, carregados sob demanda e pré-carregados quando o navegador fica ocioso.
 const loaders = {
-  onboarding: () => import("@/components/onboarding"),
+  login: () => import("@/components/login-screen"),
   plan: () => import("@/components/plan/plan-screen"),
   day: () => import("@/components/plan/day-panel"),
   scenarios: () => import("@/components/scenarios/scenarios-screen"),
@@ -23,7 +24,7 @@ const loaders = {
   rules: () => import("@/components/tools/rules-panel"),
 };
 
-const Onboarding = lazy(() => loaders.onboarding().then((m) => ({ default: m.Onboarding })));
+const LoginScreen = lazy(() => loaders.login().then((m) => ({ default: m.LoginScreen })));
 const PlanScreen = lazy(() => loaders.plan().then((m) => ({ default: m.PlanScreen })));
 const DayPanel = lazy(() => loaders.day().then((m) => ({ default: m.DayPanel })));
 const ScenariosScreen = lazy(() =>
@@ -89,8 +90,16 @@ function Toast() {
   );
 }
 
+function FullScreenMessage({ children }: { children: ReactNode }) {
+  return (
+    <div className="grid min-h-dvh place-items-center bg-background px-6 text-center">
+      <div className="max-w-xs">{children}</div>
+    </div>
+  );
+}
+
 export function ReconquistaApp() {
-  const { data } = useStore();
+  const { status, data, reload } = useStore();
   const [tab, setTab] = useState<AppTab>("home");
   const [layers, setLayers] = useState<Layer[]>([]);
   const [milestone, setMilestone] = useState<Milestone | null>(null);
@@ -99,22 +108,47 @@ export function ReconquistaApp() {
     if (tab !== "plan") window.scrollTo({ top: 0 });
   }, [tab]);
 
-  // "Recomeçar do zero" apaga o perfil: não reaproveita telas abertas.
+  // Ao sair (ou ao entrar com outra conta), não reaproveita telas abertas da conta anterior.
   useEffect(() => {
-    if (!data.profile) {
+    if (status !== "ready") {
       setTab("home");
       setLayers([]);
       setMilestone(null);
     }
-  }, [data.profile]);
+  }, [status]);
 
   usePrefetch();
 
-  if (!data.profile)
+  if (status === "loading")
+    return (
+      <FullScreenMessage>
+        <p className="text-sm text-muted-foreground">Carregando…</p>
+      </FullScreenMessage>
+    );
+  if (status === "error")
+    return (
+      <FullScreenMessage>
+        <h1 className="font-display text-xl font-extrabold">Não foi possível carregar</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          Confira a internet e tente de novo.
+        </p>
+        <Button className="mt-5 h-11 rounded-xl" onClick={reload}>
+          Tentar de novo
+        </Button>
+      </FullScreenMessage>
+    );
+  if (status === "signed-out" || status === "no-access" || !data.profile)
     return (
       <>
         <Suspense fallback={<TabFallback />}>
-          <Onboarding />
+          <LoginScreen
+            {...(status === "no-access"
+              ? {
+                  notice:
+                    "Não encontramos uma compra ativa para este acesso. Se você pediu reembolso, o acesso foi encerrado. Em caso de dúvida, fale com o suporte.",
+                }
+              : {})}
+          />
         </Suspense>
         <Toast />
       </>

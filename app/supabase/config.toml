@@ -1,3 +1,6 @@
-# Funções do Código da Reconquista. Sem verificação de JWT: o webhook confere a chave da Payt.
+# Funções do Código da Reconquista. Sem verificação de JWT: o webhook confere a chave da Payt e o login é público.
 [functions.cr-payt-webhook]
+verify_jwt = false
+
+[functions.cr-login]
 verify_jwt = false
