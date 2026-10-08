@@ -12,3 +12,6 @@ dist/
 .DS_Store
 Thumbs.db
 __pycache__/
+
+# Planilhas de vendas (dados pessoais)
+vendas_*.xlsx

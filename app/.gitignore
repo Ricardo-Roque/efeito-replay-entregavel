@@ -46,3 +46,6 @@ _originais/
 
 # Arquivos locais do Supabase CLI
 supabase/.temp/
+
+# Dados de clientes (planilhas e SQL de importação): nunca vão para o repositório
+/dados/
