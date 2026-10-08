@@ -1,5 +1,6 @@
-// Emojis 3D (Fluent Emoji, licença MIT), os mesmos do funil GoodKids. Fazem o papel das
-// ilustrações 3D do Calm Kids: tiles, cards, trilha e celebrações. Ver src/assets/emoji/LICENSE.md.
+// Ícones 3D próprios (vinho e dourado), no papel das ilustrações 3D do Calm Kids: tiles, cards,
+// trilha e celebrações. Só as carinhas de humor ainda são Fluent Emoji (MIT). Ver
+// src/assets/emoji/LICENSE.md.
 
 import eBrilho from "@/assets/emoji/brilho.webp";
 import eCelular from "@/assets/emoji/celular.webp";
