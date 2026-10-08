@@ -4,15 +4,12 @@
 // Os modelos de mensagem são o "banco de respostas por cenário": pontos de partida curtos e leves,
 // sempre passando pela Pausa. Nenhum promete efeito sobre ele.
 
-import type { EmojiName } from "@/lib/illustrations";
-
 export type ScenarioId = "bloqueou" | "frio" | "outra" | "desinteresse" | "respondeu" | "encontro";
 
 export interface Scenario {
   id: ScenarioId;
   label: string;
   short: string;
-  emoji: EmojiName;
   /** Fundo do tile (mesmo papel dos tints do Calm Kids). */
   tint: "rose" | "honey" | "sage" | "lavender";
   description: string;
@@ -29,7 +26,6 @@ export interface Scenario {
 export const scenarios: Scenario[] = [
   {
     id: "bloqueou",
-    emoji: "bloqueou",
     tint: "rose",
     label: "Ele me bloqueou",
     short: "Um limite que pede respeito",
@@ -55,7 +51,6 @@ export const scenarios: Scenario[] = [
   },
   {
     id: "frio",
-    emoji: "frio",
     tint: "lavender",
     label: "Ele está frio e distante",
     short: "Mudar o clima muda a resposta",
@@ -80,7 +75,6 @@ export const scenarios: Scenario[] = [
   },
   {
     id: "outra",
-    emoji: "outra",
     tint: "rose",
     label: "Ele está com outra pessoa",
     short: "Sem disputa, sem comparação",
@@ -102,7 +96,6 @@ export const scenarios: Scenario[] = [
   },
   {
     id: "desinteresse",
-    emoji: "desinteresse",
     tint: "honey",
     label: "Ele perdeu o interesse",
     short: "Novidade, não insistência",
@@ -120,7 +113,6 @@ export const scenarios: Scenario[] = [
   },
   {
     id: "respondeu",
-    emoji: "respondeu",
     tint: "sage",
     label: "Ele respondeu",
     short: "Leve, curta, sem peso",
@@ -141,7 +133,6 @@ export const scenarios: Scenario[] = [
   },
   {
     id: "encontro",
-    emoji: "encontro",
     tint: "honey",
     label: "Quero chamar para um encontro",
     short: "Convite leve, sem cobrança",

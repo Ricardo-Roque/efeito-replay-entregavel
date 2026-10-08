@@ -1,8 +1,7 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
-  createRootRouteWithContext,
+  createRootRoute,
   useRouter,
   HeadContent,
   Scripts,
@@ -72,7 +71,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -83,15 +82,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Protocolo de 21 dias: controle emocional, comunicação leve e reconstrução gradual.",
       },
-      { name: "theme-color", content: "#5A1426" },
+      // Área de clientes: não deve aparecer em buscadores.
+      { name: "robots", content: "noindex, nofollow" },
+      { name: "theme-color", content: "#FDF5F4" },
+      // Instalado na tela inicial (iPhone e Android) abre sem a barra do navegador.
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Reconquista" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "format-detection", content: "telephone=no" },
     ],
     links: [
-      {
-        rel: "preload",
-        as: "font",
-        type: "font/woff2",
-        crossOrigin: "anonymous",
-      },
       {
         rel: "preload",
         href: "/fonts/nunito-var.woff2",
@@ -126,12 +127,6 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-    </QueryClientProvider>
-  );
+  // Required: nested routes render here. Removing <Outlet /> breaks all child routes.
+  return <Outlet />;
 }

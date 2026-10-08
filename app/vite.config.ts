@@ -7,6 +7,9 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
+  // Imagens sempre como arquivo (nunca embutidas no JS em base64): o JS fica menor e as imagens
+  // ficam no cache do navegador por um ano (/assets/* é imutável).
+  vite: { build: { assetsInlineLimit: 0 } },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

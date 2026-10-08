@@ -52,6 +52,27 @@ Para começar do zero, use **Mais > Recomeçar do zero**.
 
 O conteúdo de `plan.ts`, `scenarios.ts` e `guide.ts` ainda é **rascunho** e precisa de revisão antes de ir para clientes.
 
+## Publicação (Cloudflare)
+
+Igual ao CalmBaby: no painel da Cloudflare, **Workers & Pages → Create → Import a repository**:
+
+- **Root directory:** `app`
+- **Build command:** `npm run build`
+- **Variáveis (opcional):** `VITE_SUPPORT_WHATSAPP`
+
+Cada push na `main` publica de novo.
+
+O que já está ajustado para produção:
+- **Carregamento:** só o Início entra no carregamento inicial. As outras abas e ferramentas carregam sob demanda e são pré-carregadas quando o navegador fica ocioso.
+- **Imagens:** sempre como arquivo, nunca embutidas no JS, com cache de 1 ano.
+- **Fonte:** Nunito reduzida aos caracteres latinos (33 KB).
+- **Segurança:** cabeçalhos aplicados tanto nos arquivos (`public/_headers`) quanto na página (`src/server.ts`).
+- **Buscadores:** `noindex` e `robots.txt`, porque é área de clientes.
+- **Celular:** meta tags para o app instalado na tela inicial (iPhone e Android).
+
+Para testar a build de produção localmente: `npm run build` e depois, dentro de `.output`,
+`npx wrangler dev -c server/wrangler.json`. O `vite preview` não funciona com essa saída.
+
 ## Payt (postback de vendas)
 
 URL do postback, a ser cadastrada nos produtos do Código da Reconquista na Payt:

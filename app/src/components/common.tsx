@@ -56,6 +56,8 @@ export function Emoji({ name, className }: { name: EmojiName; className?: string
       alt=""
       width={192}
       height={192}
+      loading="lazy"
+      decoding="async"
       className={cn("object-contain", className)}
     />
   );
@@ -102,6 +104,7 @@ export function Character({ pose, className }: { pose: Pose; className?: string 
       alt=""
       width={240}
       height={560}
+      decoding="async"
       className={cn("w-auto object-contain", className)}
     />
   );
@@ -115,6 +118,8 @@ export function ScenarioArt({ id, className }: { id: ScenarioId; className?: str
       alt=""
       width={480}
       height={480}
+      loading="lazy"
+      decoding="async"
       className={cn("object-contain", className)}
     />
   );

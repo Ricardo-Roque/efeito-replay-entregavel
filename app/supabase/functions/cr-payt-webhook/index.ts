@@ -8,9 +8,13 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 // Aceitar eventos de teste da Payt: segredo CR_PAYT_ACCEPT_TEST=true.
 // Responde 500 em erro de banco para a Payt tentar de novo; o processamento é idempotente.
 
-const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
-  auth: { persistSession: false },
-});
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  {
+    auth: { persistSession: false },
+  },
+);
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -42,10 +46,18 @@ Deno.serve(async (req) => {
     return json({ error: "invalid_json" }, 400);
   }
   const events = (Array.isArray(payload) ? payload : [payload]) as Record<string, unknown>[];
-  if (!events.length || events.length > MAX_EVENTS || events.some((e) => typeof e !== "object" || e === null || Array.isArray(e))) {
+  if (
+    !events.length ||
+    events.length > MAX_EVENTS ||
+    events.some((e) => typeof e !== "object" || e === null || Array.isArray(e))
+  ) {
     return json({ error: "invalid_payload" }, 400);
   }
-  if (events.some((e) => typeof e.integration_key !== "string" || !safeEqual(e.integration_key, secret))) {
+  if (
+    events.some(
+      (e) => typeof e.integration_key !== "string" || !safeEqual(e.integration_key, secret),
+    )
+  ) {
     console.warn("payt: integration_key inválida");
     return json({ error: "unauthorized" }, 401);
   }
@@ -54,7 +66,10 @@ Deno.serve(async (req) => {
   const results: unknown[] = [];
   for (const event of events) {
     const { integration_key: _key, ...clean } = event;
-    const { data, error } = await supabase.rpc("cr_apply_payt_event", { p_event: clean, p_accept_tests: acceptTests });
+    const { data, error } = await supabase.rpc("cr_apply_payt_event", {
+      p_event: clean,
+      p_accept_tests: acceptTests,
+    });
     if (error) {
       console.error("cr_apply_payt_event falhou", error.message);
       return json({ error: "internal_error" }, 500);

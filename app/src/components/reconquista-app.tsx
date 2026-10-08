@@ -1,21 +1,61 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 
-import { DiaryScreen } from "@/components/diary-screen";
 import { BottomNav, type AppTab } from "@/components/home/bottom-nav";
 import { HomeScreen } from "@/components/home/home-screen";
-import { MoreScreen } from "@/components/more-screen";
-import { Onboarding } from "@/components/onboarding";
-import { DayPanel } from "@/components/plan/day-panel";
-import { MilestoneCelebration } from "@/components/plan/journey";
-import { PlanScreen } from "@/components/plan/plan-screen";
-import { ScenarioPanel } from "@/components/scenarios/scenario-panel";
-import { ScenariosScreen } from "@/components/scenarios/scenarios-screen";
-import { PauseTool } from "@/components/tools/pause-tool";
-import { CommitmentPanel, RulesPanel, type RulesSection } from "@/components/tools/rules-panel";
+import { MilestoneCelebration } from "@/components/plan/milestone-celebration";
+import type { RulesSection } from "@/components/tools/rules-panel";
 import { MILESTONES, type Milestone, type PlanTool } from "@/lib/plan";
 import type { ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+// O Início vem no carregamento inicial; o resto (outras abas, ferramentas e onboarding) vira
+// pedaços separados, carregados sob demanda e pré-carregados quando o navegador fica ocioso.
+const loaders = {
+  onboarding: () => import("@/components/onboarding"),
+  plan: () => import("@/components/plan/plan-screen"),
+  day: () => import("@/components/plan/day-panel"),
+  scenarios: () => import("@/components/scenarios/scenarios-screen"),
+  scenario: () => import("@/components/scenarios/scenario-panel"),
+  diary: () => import("@/components/diary-screen"),
+  more: () => import("@/components/more-screen"),
+  pause: () => import("@/components/tools/pause-tool"),
+  rules: () => import("@/components/tools/rules-panel"),
+};
+
+const Onboarding = lazy(() => loaders.onboarding().then((m) => ({ default: m.Onboarding })));
+const PlanScreen = lazy(() => loaders.plan().then((m) => ({ default: m.PlanScreen })));
+const DayPanel = lazy(() => loaders.day().then((m) => ({ default: m.DayPanel })));
+const ScenariosScreen = lazy(() =>
+  loaders.scenarios().then((m) => ({ default: m.ScenariosScreen })),
+);
+const ScenarioPanel = lazy(() => loaders.scenario().then((m) => ({ default: m.ScenarioPanel })));
+const DiaryScreen = lazy(() => loaders.diary().then((m) => ({ default: m.DiaryScreen })));
+const MoreScreen = lazy(() => loaders.more().then((m) => ({ default: m.MoreScreen })));
+const PauseTool = lazy(() => loaders.pause().then((m) => ({ default: m.PauseTool })));
+const RulesPanel = lazy(() => loaders.rules().then((m) => ({ default: m.RulesPanel })));
+const CommitmentPanel = lazy(() => loaders.rules().then((m) => ({ default: m.CommitmentPanel })));
+
+/** Pré-carrega todos os pedaços quando o navegador estiver livre, para trocar de aba sem espera. */
+function usePrefetch() {
+  useEffect(() => {
+    const run = () => Object.values(loaders).forEach((load) => void load().catch(() => {}));
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(run, { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const timer = window.setTimeout(run, 1500);
+    return () => window.clearTimeout(timer);
+  }, []);
+}
+
+/** Enquanto um pedaço carrega: tela vazia com o fundo do app (sem piscar conteúdo). */
+function TabFallback() {
+  return <div className="min-h-dvh" aria-busy="true" />;
+}
+function LayerFallback() {
+  return <div className="fixed inset-0 z-50 bg-background" aria-busy="true" />;
+}
 
 /** Pilha de camadas, igual à do CalmBaby: cada ferramenta abre por cima e fechar volta para onde estava. */
 type Layer =
@@ -68,10 +108,14 @@ export function ReconquistaApp() {
     }
   }, [data.profile]);
 
+  usePrefetch();
+
   if (!data.profile)
     return (
       <>
-        <Onboarding />
+        <Suspense fallback={<TabFallback />}>
+          <Onboarding />
+        </Suspense>
         <Toast />
       </>
     );
@@ -94,82 +138,72 @@ export function ReconquistaApp() {
     else openRules();
   };
 
+  const renderLayer = (layer: Layer) => {
+    if (layer.kind === "day")
+      return (
+        <DayPanel
+          day={layer.day}
+          onClose={pop}
+          openTool={openTool}
+          onCompleted={(day) => setMilestone(MILESTONES.find((item) => item.day === day) ?? null)}
+        />
+      );
+    if (layer.kind === "scenario")
+      return <ScenarioPanel id={layer.id} onClose={pop} openDay={openDay} openPause={openPause} />;
+    if (layer.kind === "pause")
+      return <PauseTool initialDraft={layer.draft} onClose={pop} openScenario={openScenario} />;
+    if (layer.kind === "rules") return <RulesPanel section={layer.section} onClose={pop} />;
+    return <CommitmentPanel onClose={pop} />;
+  };
+
   return (
     <div className="min-h-dvh bg-app-shell text-foreground">
       <div className="mx-auto min-h-dvh max-w-[430px] overflow-x-clip bg-background md:shadow-app">
         {tab === "plan" ? (
           // Como no CalmBaby: tela própria, sem a navegação inferior, com o cartão flutuante.
-          <PlanScreen onBack={() => setTab("home")} openDay={openDay} />
+          <Suspense fallback={<TabFallback />}>
+            <PlanScreen onBack={() => setTab("home")} openDay={openDay} />
+          </Suspense>
         ) : (
           <>
             <main>
-              {tab === "home" && (
-                <HomeScreen
-                  openDay={openDay}
-                  openPlan={() => setTab("plan")}
-                  openPause={() => openPause()}
-                  openRules={openRules}
-                  openScenario={openScenario}
-                  openScenarios={() => setTab("scenarios")}
-                  openDiary={() => setTab("diary")}
-                  openCommitment={openCommitment}
-                  openMore={() => setTab("more")}
-                />
-              )}
-              {tab === "scenarios" && (
-                <ScenariosScreen openScenario={openScenario} openRules={openRules} />
-              )}
-              {tab === "diary" && <DiaryScreen openPause={openPause} />}
-              {tab === "more" && (
-                <MoreScreen
-                  openScenarios={() => setTab("scenarios")}
-                  openRules={() => openRules()}
-                  openCommitment={openCommitment}
-                />
-              )}
+              <Suspense fallback={<TabFallback />}>
+                {tab === "home" && (
+                  <HomeScreen
+                    openDay={openDay}
+                    openPlan={() => setTab("plan")}
+                    openPause={() => openPause()}
+                    openRules={openRules}
+                    openScenario={openScenario}
+                    openScenarios={() => setTab("scenarios")}
+                    openDiary={() => setTab("diary")}
+                    openCommitment={openCommitment}
+                    openMore={() => setTab("more")}
+                  />
+                )}
+                {tab === "scenarios" && (
+                  <ScenariosScreen openScenario={openScenario} openRules={openRules} />
+                )}
+                {tab === "diary" && <DiaryScreen openPause={openPause} />}
+                {tab === "more" && (
+                  <MoreScreen
+                    openScenarios={() => setTab("scenarios")}
+                    openRules={() => openRules()}
+                    openCommitment={openCommitment}
+                  />
+                )}
+              </Suspense>
             </main>
             <BottomNav active={tab} onSelect={setTab} />
           </>
         )}
       </div>
 
-      {layers.map((layer, index) => {
-        const key = `${layer.kind}-${index}`;
-        if (layer.kind === "day")
-          return (
-            <DayPanel
-              key={key}
-              day={layer.day}
-              onClose={pop}
-              openTool={openTool}
-              onCompleted={(day) =>
-                setMilestone(MILESTONES.find((item) => item.day === day) ?? null)
-              }
-            />
-          );
-        if (layer.kind === "scenario")
-          return (
-            <ScenarioPanel
-              key={key}
-              id={layer.id}
-              onClose={pop}
-              openDay={openDay}
-              openPause={openPause}
-            />
-          );
-        if (layer.kind === "pause")
-          return (
-            <PauseTool
-              key={key}
-              initialDraft={layer.draft}
-              onClose={pop}
-              openScenario={openScenario}
-            />
-          );
-        if (layer.kind === "rules")
-          return <RulesPanel key={key} section={layer.section} onClose={pop} />;
-        return <CommitmentPanel key={key} onClose={pop} />;
-      })}
+      {layers.map((layer, index) => (
+        <Suspense key={`${layer.kind}-${index}`} fallback={<LayerFallback />}>
+          {renderLayer(layer)}
+        </Suspense>
+      ))}
 
       <MilestoneCelebration milestone={milestone} onClose={() => setMilestone(null)} />
       <Toast />

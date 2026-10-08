@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Archive, ArrowRight, Copy, NotebookPen, TriangleAlert, X } from "lucide-react";
 
-import { Emoji, Highlight, Overlay, SectionTitle } from "@/components/common";
+import { Emoji, Highlight, Overlay, ScenarioArt, SectionTitle } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { copyText } from "@/lib/clipboard";
 import { pauseQuestions } from "@/lib/guide";
@@ -269,7 +269,7 @@ export function PauseTool({
       {step === "result" && result === "blocked" && (
         <>
           <section className="rounded-card bg-tint-rose p-6 text-center">
-            <Emoji name="bloqueou" className="mx-auto size-20" />
+            <ScenarioArt id="bloqueou" className="mx-auto size-24" />
             <h2 className="mt-3 font-display text-2xl font-black">Não envie</h2>
             <p className="mt-2 text-[13px] leading-snug text-muted-foreground">
               Ele te bloqueou ou pediu distância. Isso é um limite, e respeitar esse limite também é
