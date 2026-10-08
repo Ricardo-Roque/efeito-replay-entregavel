@@ -23,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { whatsappLink } from "@/lib/config";
+import { openResetOrRequest } from "@/lib/reset/access";
 import { careLines } from "@/lib/guide";
 import { moreIcons } from "@/lib/icons";
 import { planProgress } from "@/lib/progress";
@@ -75,8 +76,8 @@ export function MoreScreen({
     {
       label: "Reset Emocional do Ex",
       icon: moreIcons.reset,
-      detail: entitlements.reset ? "Ativo" : "Conhecer",
-      onClick: openReset,
+      detail: entitlements.reset ? "Liberado" : "Pedir acesso",
+      onClick: () => openResetOrRequest(entitlements.reset, email, openReset),
     },
     // Suporte só aparece com número configurado (VITE_SUPPORT_WHATSAPP): nenhum botão sem destino.
     ...(support

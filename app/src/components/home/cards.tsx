@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Lock } from "lucide-react";
 
 import { Emoji, tintClass } from "@/components/common";
 import type { EmojiName } from "@/lib/illustrations";
@@ -37,6 +37,8 @@ export function FeaturedCard({
   badgeClassName,
   tint,
   emoji,
+  locked = false,
+  action = "Abrir",
   onClick,
 }: {
   title: string;
@@ -45,6 +47,9 @@ export function FeaturedCard({
   badgeClassName: string;
   tint: keyof typeof tintClass;
   emoji: EmojiName;
+  /** Produto não comprado: mostra o cadeado e o texto de ação (ex.: "Pedir acesso"). */
+  locked?: boolean;
+  action?: string;
   onClick: () => void;
 }) {
   return (
@@ -61,8 +66,19 @@ export function FeaturedCard({
         />
         <Emoji
           name={emoji}
-          className="absolute left-1/2 top-[56%] h-auto w-[62%] -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_10px_12px_rgba(90,20,38,0.18)] transition-transform duration-300 group-hover:scale-105"
+          className={cn(
+            "absolute left-1/2 top-[56%] h-auto w-[62%] -translate-x-1/2 -translate-y-1/2 drop-shadow-[0_10px_12px_rgba(90,20,38,0.18)] transition-transform duration-300 group-hover:scale-105",
+            locked && "opacity-80 saturate-[0.85]",
+          )}
         />
+        {locked && (
+          <span
+            aria-hidden
+            className="absolute right-3 top-3 grid size-7 place-items-center rounded-full bg-card text-foreground shadow-sm"
+          >
+            <Lock className="size-3.5" strokeWidth={2.5} />
+          </span>
+        )}
         <span
           className={cn(
             "absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide shadow-sm",
@@ -80,7 +96,7 @@ export function FeaturedCard({
           {subtitle}
         </span>
         <span className="mt-2.5 inline-flex items-center gap-1 text-[12px] font-extrabold text-primary">
-          Abrir <ChevronRight className="size-3.5" strokeWidth={3} />
+          {action} <ChevronRight className="size-3.5" strokeWidth={3} />
         </span>
       </span>
     </button>

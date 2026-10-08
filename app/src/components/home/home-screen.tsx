@@ -11,7 +11,7 @@ import {
   ScenarioBadge,
 } from "@/components/common";
 import { CategoryTile, FeaturedCard } from "@/components/home/cards";
-import { ResetCard } from "@/components/reset/reset-card";
+import { openResetOrRequest } from "@/lib/reset/access";
 import { Button } from "@/components/ui/button";
 import type { RulesSection } from "@/components/tools/rules-panel";
 import { dayContent } from "@/lib/plan";
@@ -62,7 +62,7 @@ export function HomeScreen({
   openReset,
   openMore,
 }: HomeScreenProps) {
-  const { data, entitlements } = useStore();
+  const { data, email, entitlements } = useStore();
   const profile = data.profile!;
   const now = new Date();
   const progress = planProgress(data);
@@ -258,8 +258,6 @@ export function HomeScreen({
         )}
       </section>
 
-      <ResetCard onOpen={openReset} />
-
       <section className="mx-5 mt-6 flex items-center gap-3 rounded-card bg-card p-5 shadow-soft">
         <Emoji name="medalha" className="size-24 shrink-0" />
         <div className="min-w-0 flex-1">
@@ -278,6 +276,19 @@ export function HomeScreen({
       <div className="mt-8">
         <SectionHeader title="Especialmente para você" />
         <div className="mx-5 grid grid-cols-2 gap-4">
+          <FeaturedCard
+            title="Reset Emocional do Ex"
+            subtitle="Protocolo de Reconstrução da Confiança."
+            badge={entitlements.reset ? "Liberado" : "Bloqueado"}
+            badgeClassName={
+              entitlements.reset ? "bg-card text-success" : "bg-card text-muted-foreground"
+            }
+            tint="lavender"
+            emoji="brilho"
+            locked={!entitlements.reset}
+            action={entitlements.reset ? "Abrir" : "Pedir acesso"}
+            onClick={() => openResetOrRequest(entitlements.reset, email, openReset)}
+          />
           <FeaturedCard
             title="Regras de ouro"
             subtitle="Os 3 erros, o que nunca enviar e como não voltar ao padrão."
