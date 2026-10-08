@@ -58,6 +58,8 @@ export type StoreStatus = "loading" | "signed-out" | "no-access" | "error" | "re
 export type LoginError = "no_access" | "invalid_email" | "failed";
 
 const STORAGE_PREFIX = "codigo-reconquista:v1:";
+/** Só em desenvolvimento: simula a compra do Reset Emocional do Ex. */
+const DEV_RESET_KEY = "codigo-reconquista:dev-reset";
 /** Só em desenvolvimento: entra sem servidor, para testar as telas localmente. */
 const DEV_EMAIL_KEY = "codigo-reconquista:dev-email";
 const EMPTY: AppData = { profile: null, completed: {}, journal: [] };
@@ -165,9 +167,25 @@ const sameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
+/** O que a cliente comprou além do app (cr_my_entitlements no Supabase). */
+export interface Entitlements {
+  /** Upsell #01: Reset Emocional do Ex. */
+  reset: boolean;
+}
+
+/** Lê as permissões. Se a função ainda não existir no banco, nada premium é liberado. */
+async function loadEntitlements(): Promise<Entitlements> {
+  const { data, error } = await supabase.rpc("cr_my_entitlements");
+  if (error || !data) return { reset: false };
+  return { reset: Boolean((data as { reset?: boolean }).reset) };
+}
+
 interface StoreValue {
   status: StoreStatus;
   email: string;
+  entitlements: Entitlements;
+  /** Só em desenvolvimento: liga/desliga a compra simulada do Reset. */
+  devSetReset: (on: boolean) => void;
   data: AppData;
   reload: () => void;
   login: (email: string) => Promise<{ ok: true } | { ok: false; error: LoginError }>;
@@ -194,6 +212,7 @@ const StoreContext = createContext<StoreValue | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<StoreStatus>("loading");
   const [email, setEmail] = useState("");
+  const [entitlements, setEntitlements] = useState<Entitlements>({ reset: false });
   const [data, setData] = useState<AppData>(EMPTY);
   const [toast, setToast] = useState<Toast | null>(null);
   const dataRef = useRef(data);
@@ -213,7 +232,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const attempt = ++loadingRef.current;
     if (import.meta.env.DEV) {
       const devEmail = window.localStorage.getItem(DEV_EMAIL_KEY);
-      if (devEmail) return enter(devEmail, null);
+      if (devEmail) {
+        setEntitlements({ reset: window.localStorage.getItem(DEV_RESET_KEY) === "1" });
+        return enter(devEmail, null);
+      }
     }
     const { data: session } = await supabase.auth.getSession();
     if (attempt !== loadingRef.current) return;
@@ -237,8 +259,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setStatus("no-access");
       return;
     }
+    const granted = await loadEntitlements();
+    if (attempt !== loadingRef.current) return;
+    setEntitlements(granted);
     enter(String(client.email), (client.name as string | null) ?? null);
   }, [enter]);
+
+  // Upsell comprado em outra aba (Payt): ao voltar para o app, atualiza o que foi liberado.
+  useEffect(() => {
+    if (status !== "ready" || import.meta.env.DEV) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void loadEntitlements().then(setEntitlements);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [status]);
 
   useEffect(() => {
     void reload();
@@ -287,6 +322,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value: StoreValue = {
     status,
     email,
+    entitlements,
+    devSetReset: (on) => {
+      if (!import.meta.env.DEV) return;
+      if (on) window.localStorage.setItem(DEV_RESET_KEY, "1");
+      else window.localStorage.removeItem(DEV_RESET_KEY);
+      setEntitlements({ reset: on });
+    },
     data,
     reload: () => void reload(),
     login: async (account) => {
@@ -304,6 +346,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       await supabase.auth.signOut();
       keyRef.current = "";
       setEmail("");
+      setEntitlements({ reset: false });
       setData(EMPTY);
       setStatus("signed-out");
     },

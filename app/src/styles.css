@@ -70,6 +70,13 @@
   --color-tint-honey: var(--tint-honey);
   --color-tint-sage: var(--tint-sage);
   --color-tint-lavender: var(--tint-lavender);
+  --color-brand-gold: var(--brand-gold);
+  --color-tint-gold: var(--tint-gold);
+  --color-reset: var(--reset);
+  --color-reset-soft: var(--reset-soft);
+  --color-night: var(--night);
+  --color-night-card: var(--night-card);
+  --color-night-foreground: var(--night-foreground);
   --shadow-card: var(--shadow-card);
   --shadow-app: var(--shadow-app);
   --shadow-soft: var(--shadow-soft);
@@ -132,6 +139,16 @@
   --tint-honey: color-mix(in oklab, var(--brand-honey) 26%, white);
   --tint-sage: color-mix(in oklab, var(--brand-sage) 22%, white);
   --tint-lavender: color-mix(in oklab, var(--brand-lavender) 16%, white);
+
+  /* Reset Emocional do Ex (upsell #01): lilás, rosé e um detalhe dourado. */
+  --brand-gold: oklch(0.66 0.119 80); /* #B8892E detalhe dourado (texto ok sobre branco) */
+  --tint-gold: color-mix(in oklab, var(--brand-gold) 14%, white);
+  --reset: oklch(0.61 0.151 297.3); /* #8E6CD1 lilás */
+  --reset-soft: oklch(0.949 0.022 302.9); /* #F1EBFB */
+  /* Técnica de Reversão Noturna: céu noturno, sem preto puro. */
+  --night: oklch(0.236 0.06 291.2); /* #1F1838 */
+  --night-card: oklch(0.292 0.079 289.8); /* #2C2350 */
+  --night-foreground: oklch(0.938 0.026 300.3); /* #EDE7FA */
   --gradient-goal: linear-gradient(
     135deg,
     color-mix(in oklab, var(--brand-berry) 82%, white) 0%,

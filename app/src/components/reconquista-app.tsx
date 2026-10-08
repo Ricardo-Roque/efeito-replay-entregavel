@@ -22,6 +22,7 @@ const loaders = {
   more: () => import("@/components/more-screen"),
   pause: () => import("@/components/tools/pause-tool"),
   rules: () => import("@/components/tools/rules-panel"),
+  reset: () => import("@/components/reset/reset-screen"),
 };
 
 const LoginScreen = lazy(() => loaders.login().then((m) => ({ default: m.LoginScreen })));
@@ -36,6 +37,7 @@ const MoreScreen = lazy(() => loaders.more().then((m) => ({ default: m.MoreScree
 const PauseTool = lazy(() => loaders.pause().then((m) => ({ default: m.PauseTool })));
 const RulesPanel = lazy(() => loaders.rules().then((m) => ({ default: m.RulesPanel })));
 const CommitmentPanel = lazy(() => loaders.rules().then((m) => ({ default: m.CommitmentPanel })));
+const ResetScreen = lazy(() => loaders.reset().then((m) => ({ default: m.ResetScreen })));
 
 /** Pré-carrega todos os pedaços quando o navegador estiver livre, para trocar de aba sem espera. */
 function usePrefetch() {
@@ -64,7 +66,8 @@ type Layer =
   | { kind: "scenario"; id: ScenarioId }
   | { kind: "pause"; draft: string }
   | { kind: "rules"; section?: RulesSection }
-  | { kind: "commitment" };
+  | { kind: "commitment" }
+  | { kind: "reset" };
 
 /** Aviso no topo (erro de gravação ou confirmação curta), como o SaveErrorToast do CalmBaby. */
 function Toast() {
@@ -166,6 +169,7 @@ export function ReconquistaApp() {
   const openRules = (section?: RulesSection) =>
     push(section ? { kind: "rules", section } : { kind: "rules" });
   const openCommitment = () => push({ kind: "commitment" });
+  const openReset = () => push({ kind: "reset" });
   const openTool = (tool: PlanTool) => {
     if (tool === "diary") goTab("diary");
     else if (tool === "pause") openPause();
@@ -187,6 +191,7 @@ export function ReconquistaApp() {
     if (layer.kind === "pause")
       return <PauseTool initialDraft={layer.draft} onClose={pop} openScenario={openScenario} />;
     if (layer.kind === "rules") return <RulesPanel section={layer.section} onClose={pop} />;
+    if (layer.kind === "reset") return <ResetScreen onClose={pop} />;
     return <CommitmentPanel onClose={pop} />;
   };
 
@@ -212,6 +217,7 @@ export function ReconquistaApp() {
                     openScenarios={() => setTab("scenarios")}
                     openDiary={() => setTab("diary")}
                     openCommitment={openCommitment}
+                    openReset={openReset}
                     openMore={() => setTab("more")}
                   />
                 )}
@@ -224,6 +230,7 @@ export function ReconquistaApp() {
                     openScenarios={() => setTab("scenarios")}
                     openRules={() => openRules()}
                     openCommitment={openCommitment}
+                    openReset={openReset}
                   />
                 )}
               </Suspense>

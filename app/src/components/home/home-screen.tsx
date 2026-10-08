@@ -11,6 +11,7 @@ import {
   ScenarioBadge,
 } from "@/components/common";
 import { CategoryTile, FeaturedCard } from "@/components/home/cards";
+import { ResetCard } from "@/components/reset/reset-card";
 import { Button } from "@/components/ui/button";
 import type { RulesSection } from "@/components/tools/rules-panel";
 import { dayContent } from "@/lib/plan";
@@ -27,6 +28,7 @@ interface HomeScreenProps {
   openScenarios: () => void;
   openDiary: () => void;
   openCommitment: () => void;
+  openReset: () => void;
   openMore: () => void;
 }
 
@@ -57,6 +59,7 @@ export function HomeScreen({
   openScenarios,
   openDiary,
   openCommitment,
+  openReset,
   openMore,
 }: HomeScreenProps) {
   const { data } = useStore();
@@ -254,6 +257,8 @@ export function HomeScreen({
           </>
         )}
       </section>
+
+      <ResetCard onOpen={openReset} />
 
       <section className="mx-5 mt-6 flex items-center gap-3 rounded-card bg-card p-5 shadow-soft">
         <Emoji name="medalha" className="size-24 shrink-0" />

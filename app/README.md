@@ -89,3 +89,20 @@ https://bionetfauvpcwlhqvvum.supabase.co/functions/v1/cr-payt-webhook
 - Tudo que chega fica registrado em `cr_webhook_events`.
 
 O app ainda não tem login: as compras ficam registradas e com acesso liberado no banco, mas a entrada por e-mail (`cr-login`) é a próxima etapa.
+
+## Upsell #01: Reset Emocional do Ex
+
+Módulo premium dentro do app. A entrada fica no card lilás do Início e no Perfil. O código está em `src/components/reset/` e `src/lib/reset/`.
+
+- **Permissão:** só quem tem compra paga de um produto com `grants_reset` vê o conteúdo. Quem comprou só o Código da Reconquista vê apenas a apresentação do produto.
+  - O app lê a permissão por `cr_my_entitlements()`.
+  - Migration: `supabase/migrations/20261008180000_cr_reset_entitlement.sql`.
+  - Enquanto essa migration não estiver aplicada no banco, o Reset fica bloqueado para todas.
+- **Liberação pela Payt:** quando chega um upsell novo cujo nome tem "reset", ele já entra liberando o módulo. Se o nome do produto na Payt for outro, rode:
+  `update public.cr_products set grants_reset = true where code = '<código>';`
+- **Botão de compra:** `VITE_RESET_CHECKOUT_URL` (checkout da Payt). Vazio = a tela do produto não mostra botão de compra.
+- **Conteúdo:** diagnóstico de 6 perguntas com regras de personalização (`diagnosis.ts`), 5 módulos e a jornada de 7 etapas (`content.ts`). É **rascunho** e precisa de revisão.
+- **Limite:** se ela responder que ele pediu para não haver contato ou bloqueou, o app não recomenda contato e não mostra o botão de copiar o pedido de desculpas.
+- **Áudios:** coloque os arquivos em `src/assets/audio/reset/` (ver o `LEIA-ME.md` da pasta). Sem arquivo, o player mostra "Áudio em gravação" e a transcrição, sem simular reprodução.
+- **Progresso:** no aparelho, separado por e-mail (mesma limitação do Diário: não sincroniza entre aparelhos). O histórico de diagnósticos é guardado.
+- **Teste local:** em `npm run dev`, Perfil > Teste local > "Simular compra do Reset".

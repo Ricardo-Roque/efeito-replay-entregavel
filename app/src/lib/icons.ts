@@ -8,6 +8,7 @@ import {
   Download,
   HeartHandshake,
   House,
+  KeyRound,
   LifeBuoy,
   NotebookPen,
   Route,
@@ -34,4 +35,5 @@ export const moreIcons = {
   privacy: ShieldCheck,
   care: LifeBuoy,
   commitment: HeartHandshake,
+  reset: KeyRound,
 } satisfies Record<string, LucideIcon>;

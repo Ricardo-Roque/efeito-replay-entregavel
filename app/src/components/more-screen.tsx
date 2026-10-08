@@ -39,12 +39,24 @@ export function MoreScreen({
   openScenarios,
   openRules,
   openCommitment,
+  openReset,
 }: {
   openScenarios: () => void;
   openRules: () => void;
   openCommitment: () => void;
+  openReset: () => void;
 }) {
-  const { data, email, saveProfile, resetAll, signOut, shiftDays, showToast } = useStore();
+  const {
+    data,
+    email,
+    entitlements,
+    saveProfile,
+    resetAll,
+    signOut,
+    shiftDays,
+    showToast,
+    devSetReset,
+  } = useStore();
   const profile = data.profile!;
   const progress = planProgress(data);
   const support = whatsappLink("Olá! Preciso de ajuda com o app Código da Reconquista.");
@@ -60,6 +72,12 @@ export function MoreScreen({
     },
     { label: "Regras de ouro", icon: moreIcons.rules, onClick: openRules },
     { label: "Meu compromisso", icon: moreIcons.commitment, onClick: openCommitment },
+    {
+      label: "Reset Emocional do Ex",
+      icon: moreIcons.reset,
+      detail: entitlements.reset ? "Ativo" : "Conhecer",
+      onClick: openReset,
+    },
     // Suporte só aparece com número configurado (VITE_SUPPORT_WHATSAPP): nenhum botão sem destino.
     ...(support
       ? [
@@ -158,6 +176,13 @@ export function MoreScreen({
             onClick={() => shiftDays(1) && showToast("Um dia a mais se passou (simulação).")}
           >
             <FastForward /> Simular a passagem de 1 dia
+          </Button>
+          <Button
+            variant="outline"
+            className="mt-2 h-10 w-full rounded-xl bg-card font-bold"
+            onClick={() => devSetReset(!entitlements.reset)}
+          >
+            {entitlements.reset ? "Remover compra simulada do Reset" : "Simular compra do Reset"}
           </Button>
         </section>
       )}
