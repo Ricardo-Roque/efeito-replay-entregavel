@@ -1,0 +1,5 @@
+// Nome fixo do Worker na Cloudflare. O resto da configuração (main, assets, compatibilidade) é gerado
+// pelo build em .output/server/wrangler.json, que o `wrangler deploy` usa automaticamente.
+{
+  "name": "efeito-replay-entregavel",
+}
