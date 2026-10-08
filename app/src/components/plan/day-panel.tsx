@@ -27,10 +27,10 @@ export function DayPanel({
   onCompleted: (day: number) => void;
   openTool: (tool: PlanTool) => void;
 }) {
-  const { data, completeDay } = useStore();
+  const { data, entitlements, completeDay } = useStore();
   const content = dayContent(day);
   const phase = phaseOf(day);
-  const state = dayState(data, day);
+  const state = dayState(data, day, { allDays: entitlements.allDays });
   const alreadyDone = state === "done";
   const [doneSteps, setDoneSteps] = useState<number[]>([]);
   const [confirming, setConfirming] = useState(false);

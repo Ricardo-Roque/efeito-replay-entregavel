@@ -29,7 +29,7 @@ export function ScenarioPanel({
   openDay: (day: number) => void;
   openPause: (draft?: string) => void;
 }) {
-  const { data, setScenario, showToast } = useStore();
+  const { data, entitlements, setScenario, showToast } = useStore();
   const scenario = scenarioById(id);
   const isCurrent = data.profile!.scenario === id;
   const today = currentDay(data);
@@ -152,7 +152,7 @@ export function ScenarioPanel({
       <div className="space-y-3">
         {scenario.days.map((day) => {
           const content = dayContent(day);
-          const state = dayState(data, day);
+          const state = dayState(data, day, { allDays: entitlements.allDays });
           const available = state === "done" || state === "open";
           const status =
             state === "done" ? "done" : state === "open" && day === today ? "current" : "locked";

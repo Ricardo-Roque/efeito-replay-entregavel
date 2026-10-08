@@ -106,3 +106,13 @@ Módulo premium dentro do app. A entrada fica no card lilás do Início e no Per
 - **Áudios:** coloque os arquivos em `src/assets/audio/reset/` (ver o `LEIA-ME.md` da pasta). Sem arquivo, o player mostra "Áudio em gravação" e a transcrição, sem simular reprodução.
 - **Progresso:** no aparelho, separado por e-mail (mesma limitação do Diário: não sincroniza entre aparelhos). O histórico de diagnósticos é guardado.
 - **Teste local:** em `npm run dev`, Perfil > Teste local > "Simular compra do Reset".
+
+## Liberar os 21 dias para uma cliente
+
+Por padrão cada dia abre depois que o anterior foi concluído num dia anterior do calendário. Para abrir todos de uma vez para uma cliente específica (não libera o Reset nem dá acesso ao app):
+
+```sql
+update public.cr_clients set unlock_all = true where email = '<e-mail>';
+```
+
+O app lê a flag por `cr_my_entitlements()` (`all_days`). Migration: `supabase/migrations/20261008210000_cr_unlock_all_days.sql`.

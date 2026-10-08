@@ -62,12 +62,12 @@ export function HomeScreen({
   openReset,
   openMore,
 }: HomeScreenProps) {
-  const { data } = useStore();
+  const { data, entitlements } = useStore();
   const profile = data.profile!;
   const now = new Date();
   const progress = planProgress(data);
   const today = dayContent(progress.currentDay);
-  const state = dayState(data, progress.currentDay, now);
+  const state = dayState(data, progress.currentDay, { now, allDays: entitlements.allDays });
   const phase = progress.phase;
   const scenario = profile.scenario ? scenarioById(profile.scenario) : null;
   const impulse = impulseFreeDays(data, now);

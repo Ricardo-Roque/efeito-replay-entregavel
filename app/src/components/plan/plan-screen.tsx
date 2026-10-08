@@ -22,7 +22,7 @@ export function PlanScreen({
   onBack: () => void;
   openDay: (day: number) => void;
 }) {
-  const { data } = useStore();
+  const { data, entitlements } = useStore();
   const progress = planProgress(data);
   const today = currentDayOf(data);
   const [activePhase, setActivePhase] = useState(phaseOf(today).phase);
@@ -32,7 +32,7 @@ export function PlanScreen({
   const sectionRefs = useRef<Record<number, HTMLElement | null>>({});
 
   const statusOf = (day: number): DayStatus => {
-    const state = dayState(data, day);
+    const state = dayState(data, day, { allDays: entitlements.allDays });
     if (state === "done") return "completed";
     if (state === "open") return day === today ? "current" : "open";
     return state;
@@ -121,7 +121,7 @@ export function PlanScreen({
         day={todayContent}
         emoji={phaseOf(today).emoji}
         finished={progress.finished}
-        waiting={dayState(data, today) === "tomorrow"}
+        waiting={dayState(data, today, { allDays: entitlements.allDays }) === "tomorrow"}
         onStart={() => openDay(today)}
       />
 

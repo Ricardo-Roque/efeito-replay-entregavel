@@ -15,10 +15,15 @@ const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(),
 export const calendarDaysBetween = (from: Date, to: Date) =>
   Math.round((startOfDay(to).getTime() - startOfDay(from).getTime()) / (24 * 60 * 60 * 1000));
 
-/** Mesma regra do CalmBaby: um dia libera quando o anterior foi concluído num dia anterior do calendário. */
-export function dayState(data: AppData, day: number, now = new Date()): DayState {
+/** Mesma regra do CalmBaby: um dia libera quando o anterior foi concluído num dia anterior do calendário.
+ *  allDays (cr_clients.unlock_all) abre todos os dias de uma vez. */
+export function dayState(
+  data: AppData,
+  day: number,
+  { now = new Date(), allDays = false }: { now?: Date; allDays?: boolean } = {},
+): DayState {
   if (data.completed[day]) return "done";
-  if (day === 1) return "open";
+  if (day === 1 || allDays) return "open";
   const previous = data.completed[day - 1];
   if (!previous) return "locked";
   return dateKey(new Date(previous)) < dateKey(now) ? "open" : "tomorrow";

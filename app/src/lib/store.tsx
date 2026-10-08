@@ -171,13 +171,18 @@ const sameDay = (a: Date, b: Date) =>
 export interface Entitlements {
   /** Upsell #01: Reset Emocional do Ex. */
   reset: boolean;
+  /** Todos os 21 dias abertos (cr_clients.unlock_all, ligado manualmente). */
+  allDays: boolean;
 }
 
-/** Lê as permissões. Se a função ainda não existir no banco, nada premium é liberado. */
-async function loadEntitlements(): Promise<Entitlements> {
+const NO_ENTITLEMENTS: Entitlements = { reset: false, allDays: false };
+
+/** Lê as permissões. null = falhou (rede, função ausente): quem chama decide o que manter. */
+async function loadEntitlements(): Promise<Entitlements | null> {
   const { data, error } = await supabase.rpc("cr_my_entitlements");
-  if (error || !data) return { reset: false };
-  return { reset: Boolean((data as { reset?: boolean }).reset) };
+  if (error || !data) return null;
+  const granted = data as { reset?: boolean; all_days?: boolean };
+  return { reset: Boolean(granted.reset), allDays: Boolean(granted.all_days) };
 }
 
 interface StoreValue {
@@ -212,7 +217,7 @@ const StoreContext = createContext<StoreValue | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<StoreStatus>("loading");
   const [email, setEmail] = useState("");
-  const [entitlements, setEntitlements] = useState<Entitlements>({ reset: false });
+  const [entitlements, setEntitlements] = useState<Entitlements>(NO_ENTITLEMENTS);
   const [data, setData] = useState<AppData>(EMPTY);
   const [toast, setToast] = useState<Toast | null>(null);
   const dataRef = useRef(data);
@@ -233,7 +238,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (import.meta.env.DEV) {
       const devEmail = window.localStorage.getItem(DEV_EMAIL_KEY);
       if (devEmail) {
-        setEntitlements({ reset: window.localStorage.getItem(DEV_RESET_KEY) === "1" });
+        setEntitlements({
+          ...NO_ENTITLEMENTS,
+          reset: window.localStorage.getItem(DEV_RESET_KEY) === "1",
+        });
         return enter(devEmail, null);
       }
     }
@@ -261,15 +269,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
     const granted = await loadEntitlements();
     if (attempt !== loadingRef.current) return;
-    setEntitlements(granted);
+    setEntitlements(granted ?? NO_ENTITLEMENTS);
     enter(String(client.email), (client.name as string | null) ?? null);
   }, [enter]);
 
   // Upsell comprado em outra aba (Payt): ao voltar para o app, atualiza o que foi liberado.
+  // Falha de rede mantém o que já estava liberado, em vez de bloquear tudo até recarregar.
   useEffect(() => {
     if (status !== "ready" || import.meta.env.DEV) return;
     const onVisible = () => {
-      if (document.visibilityState === "visible") void loadEntitlements().then(setEntitlements);
+      if (document.visibilityState !== "visible") return;
+      void loadEntitlements().then((granted) => {
+        if (granted) setEntitlements(granted);
+      });
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
@@ -327,7 +339,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (!import.meta.env.DEV) return;
       if (on) window.localStorage.setItem(DEV_RESET_KEY, "1");
       else window.localStorage.removeItem(DEV_RESET_KEY);
-      setEntitlements({ reset: on });
+      setEntitlements((current) => ({ ...current, reset: on }));
     },
     data,
     reload: () => void reload(),
@@ -346,7 +358,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       await supabase.auth.signOut();
       keyRef.current = "";
       setEmail("");
-      setEntitlements({ reset: false });
+      setEntitlements(NO_ENTITLEMENTS);
       setData(EMPTY);
       setStatus("signed-out");
     },
