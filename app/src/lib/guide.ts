@@ -1,6 +1,8 @@
 // Conteúdo fixo de apoio: regras de ouro, sinais, checklist da Pausa e compromisso.
 // RASCUNHO, a partir do PDF do protocolo.
 
+import type { CommStance } from "@/lib/comunicacao/types";
+
 /** Os limites do protocolo; ficam em Perfil > Meu compromisso e no Início. */
 export const commitment = [
   "Não vou contornar bloqueio nem usar outros perfis, números ou pessoas para chegar até ele.",
@@ -65,6 +67,26 @@ export const pauseQuestions: PauseQuestion[] = [
     hardStop: true,
   },
 ];
+
+/**
+ * Checklist do momento dela. Com pedido de tempo ou sem reciprocidade, a iniciativa não é dela
+ * (mesma regra da Central e das 48 horas): só uma resposta a uma mensagem dele pode sair, e
+ * "não" aqui leva a guardar por 24 horas. Com limite, o "não" do limite já vem marcado.
+ */
+export function pauseQuestionsFor(stance: CommStance): PauseQuestion[] {
+  if (stance !== "pausa" && stance !== "espaco") return pauseQuestions;
+  return [
+    ...pauseQuestions,
+    {
+      id: "iniciativa",
+      label: "Ele escreveu primeiro, e você está respondendo?",
+      hint:
+        stance === "pausa"
+          ? "Ele pediu um tempo: enquanto durar, a iniciativa de escrever não é sua."
+          : "Hoje não há reciprocidade: só responda se ele escrever primeiro.",
+    },
+  ];
+}
 
 export const rules = {
   errors: [

@@ -299,9 +299,11 @@ function interrupt(a: DiagnosisAnswers, path: First48Path): First48Activity {
     items: list(
       "Você escreve o que queria mandar, sem enviar.",
       "Um checklist curto mostra se é hora ou se é melhor guardar.",
-      noContactPath(path)
+      path === "limite"
         ? "No seu momento, o resultado é sempre guardar: nada vai para ele."
-        : "Se não for hora, o rascunho fica guardado por 24 horas para você reler com calma.",
+        : noContactPath(path)
+          ? "No seu momento, a Pausa só libera uma resposta a uma mensagem dele. Se a ideia é começar a conversa, o resultado é guardar."
+          : "Se não for hora, o rascunho fica guardado por 24 horas para você reler com calma.",
     ),
   });
   return {

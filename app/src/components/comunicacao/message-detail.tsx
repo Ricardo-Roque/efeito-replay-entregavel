@@ -124,7 +124,7 @@ export function MessageDetail({
 
       {sendable && (
         <>
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2 max-[359px]:grid-cols-1">
             <Button
               variant="outline"
               className="h-11 rounded-xl bg-card font-bold"

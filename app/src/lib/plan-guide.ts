@@ -78,7 +78,12 @@ export function isContactLink({ link }: LabeledLink): boolean {
   if (link.kind === "central") return !link.category || CONTACT_CATEGORIES.includes(link.category);
   if (link.kind === "scenario") return link.id !== undefined && CONTACT_SCENARIOS.includes(link.id);
   if (link.kind === "reply") return link.situation === "encontro";
-  if (link.kind === "message") return messageById(link.id)?.kind === "modelo";
+  if (link.kind === "message") {
+    const message = messageById(link.id);
+    // Reflexões de reencontro (ex.: "Antes de sair de casa") também pressupõem contato com ele.
+    if (!message) return false;
+    return message.kind === "modelo" || CONTACT_CATEGORIES.includes(message.category);
+  }
   return false;
 }
 

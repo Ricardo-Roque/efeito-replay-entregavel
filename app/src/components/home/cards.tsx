@@ -26,7 +26,7 @@ export function CategoryTile({
   const tile = (
     <span
       className={cn(
-        "relative grid size-[68px] place-items-center rounded-tile bg-card shadow-tile ring-1 ring-border/60 transition-transform",
+        "relative grid aspect-square w-full max-w-[68px] place-items-center rounded-tile bg-card shadow-tile ring-1 ring-border/60 transition-transform",
         !soon && "group-active:scale-95",
       )}
     >
@@ -40,19 +40,23 @@ export function CategoryTile({
   );
   if (soon || !onClick)
     return (
-      <div aria-disabled="true" className="flex flex-col items-center gap-2 text-center">
+      <div aria-disabled="true" className="flex min-w-0 flex-col items-center gap-2 text-center">
         {tile}
-        <span className="text-[13px] font-bold leading-tight text-muted-foreground">{label}</span>
+        <span className="text-[13px] font-bold leading-tight text-muted-foreground max-[359px]:text-[12px]">
+          {label}
+        </span>
       </div>
     );
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group flex cursor-pointer flex-col items-center gap-2 text-center"
+      className="group flex min-w-0 cursor-pointer flex-col items-center gap-2 text-center"
     >
       {tile}
-      <span className="text-[13px] font-bold leading-tight text-foreground">{label}</span>
+      <span className="text-[13px] font-bold leading-tight text-foreground max-[359px]:text-[12px]">
+        {label}
+      </span>
     </button>
   );
 }

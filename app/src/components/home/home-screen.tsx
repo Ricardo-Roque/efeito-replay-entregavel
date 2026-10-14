@@ -240,7 +240,7 @@ export function HomeScreen({
 
       {/* 3. Ajuda imediata */}
       <section
-        className="mx-5 mt-4 rounded-card bg-card px-4 pb-6 pt-5 shadow-soft"
+        className="mx-5 mt-4 rounded-card bg-card px-4 pb-6 pt-5 shadow-soft max-[359px]:px-3"
         aria-label="Ajuda imediata"
       >
         <h2 className="font-display text-[16px] font-extrabold leading-snug text-foreground">
@@ -309,12 +309,12 @@ export function HomeScreen({
                 label={`Dias concluídos na fase ${phase.phase}`}
               />
               <span className="shrink-0 text-xs font-bold">
-                {progress.phaseDone} de {progress.phaseTotal} dias
+                {progress.phaseDone} de {progress.phaseTotal} dias da fase
               </span>
             </div>
             <p className="mt-2.5 text-[12px] leading-snug text-primary-foreground/70">
               {progress.phaseDone >= progress.phaseTotal
-                ? "Meta da fase cumprida!"
+                ? "Todos os dias da fase concluídos!"
                 : "Pequenos passos também contam."}
             </p>
           </div>
@@ -333,7 +333,7 @@ export function HomeScreen({
       <div className="mt-8">
         <SectionHeader title="Diário e ferramentas" />
         <section
-          className="mx-5 rounded-card bg-card px-4 pb-5 pt-5 shadow-soft"
+          className="mx-5 rounded-card bg-card px-4 pb-5 pt-5 shadow-soft max-[359px]:px-3"
           aria-label="Diário e ferramentas"
         >
           <div className="grid grid-cols-4 gap-1">

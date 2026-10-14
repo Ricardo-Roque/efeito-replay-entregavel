@@ -195,7 +195,7 @@ export function DiagnosisResult({
         </p>
         <p className="mt-1.5 text-sm leading-6">{map.firstStep.text}</p>
         <Button
-          className="mt-4 h-11 w-full rounded-xl bg-reset font-bold hover:bg-reset/90"
+          className="mt-4 h-auto min-h-11 w-full whitespace-normal rounded-xl bg-reset py-2.5 font-bold hover:bg-reset/90"
           onClick={() => openModule(map.firstStep.module)}
         >
           Abrir {firstModule.title} <ArrowRight />

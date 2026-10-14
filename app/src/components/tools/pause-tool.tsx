@@ -5,7 +5,7 @@ import { Emoji, Highlight, Overlay, ScenarioArt, SectionTitle } from "@/componen
 import { useCommContext } from "@/components/comunicacao/hooks";
 import { Button } from "@/components/ui/button";
 import { copyText } from "@/lib/clipboard";
-import { pauseQuestions } from "@/lib/guide";
+import { pauseQuestionsFor, type PauseQuestion } from "@/lib/guide";
 import { useJornada } from "@/lib/jornada/store";
 import { formatTime } from "@/lib/progress";
 import type { ScenarioId } from "@/lib/scenarios";
@@ -18,9 +18,9 @@ type Result = "ok" | "wait" | "blocked";
 
 const WAIT_HOURS = 24;
 
-function resultOf(answers: Record<string, Answer>): Result {
-  if (pauseQuestions.some((q) => q.hardStop && answers[q.id] === "no")) return "blocked";
-  if (pauseQuestions.some((q) => answers[q.id] === "no")) return "wait";
+function resultOf(questions: PauseQuestion[], answers: Record<string, Answer>): Result {
+  if (questions.some((q) => q.hardStop && answers[q.id] === "no")) return "blocked";
+  if (questions.some((q) => answers[q.id] === "no")) return "wait";
   return "ok";
 }
 
@@ -43,8 +43,11 @@ export function PauseTool({
   const [draft, setDraft] = useState(initialDraft);
   // Mesmo limite da Central e do "Ele respondeu. E agora?" (contextOf): bloqueio, pedido de não
   // contato ou outra relação, pelo diagnóstico ou pelo cenário do perfil. Com ele, o limite já vem
-  // marcado e o resultado é "não envie".
-  const limitKnown = useCommContext().stance === "limite";
+  // marcado, não pode ser desmarcado e o resultado é "não envie". Com pedido de tempo ou sem
+  // reciprocidade, o checklist ganha a pergunta "ele escreveu primeiro?".
+  const { stance } = useCommContext();
+  const pauseQuestions = pauseQuestionsFor(stance);
+  const limitKnown = stance === "limite";
   // Outra relação (sem bloqueio nem pedido de distância) leva ao cenário "outra"; o resto, ao bloqueio.
   const otherRelation =
     limitKnown &&
@@ -59,7 +62,9 @@ export function PauseTool({
   const text = draft.trim();
   const lines = text ? text.split(/\n/).length : 0;
   const allAnswered = pauseQuestions.every((q) => answers[q.id]);
-  const result = resultOf(answers);
+  // Limite registrado não se desfaz aqui: só refazendo o diagnóstico ou trocando o cenário.
+  const result = limitKnown ? "blocked" : resultOf(pauseQuestions, answers);
+  const locked = (question: PauseQuestion) => limitKnown && Boolean(question.hardStop);
   const readyAt = new Date(Date.now() + WAIT_HOURS * 60 * 60 * 1000);
   const stepLabel = { write: "Passo 1 de 3", check: "Passo 2 de 3", result: "Resultado" }[step];
 
@@ -161,7 +166,9 @@ export function PauseTool({
                 <span className="flex-1 text-sm font-bold leading-snug">
                   {question.label}
                   <small className="mt-0.5 block text-xs font-semibold text-muted-foreground">
-                    {question.hint}
+                    {locked(question)
+                      ? "Registrado no seu diagnóstico ou no seu cenário. Se a situação mudou, atualize por lá."
+                      : question.hint}
                   </small>
                 </span>
                 <span className="flex shrink-0 gap-1.5" role="group" aria-label={question.label}>
@@ -172,11 +179,12 @@ export function PauseTool({
                         key={value}
                         type="button"
                         aria-pressed={on}
+                        disabled={locked(question)}
                         onClick={() =>
                           setAnswers((current) => ({ ...current, [question.id]: value }))
                         }
                         className={cn(
-                          "h-9 cursor-pointer rounded-xl px-3 text-[13px] font-extrabold transition-colors",
+                          "h-9 cursor-pointer rounded-xl px-3 text-[13px] font-extrabold transition-colors disabled:cursor-not-allowed",
                           !on && "bg-muted text-muted-foreground",
                           on && value === "yes" && "bg-success text-primary-foreground",
                           on && value === "no" && "bg-primary text-primary-foreground",
