@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, Eye, X } from "lucide-react";
 
-import { ResetShell } from "@/components/reset/reset-common";
+import { LimitNotice, ResetShell, useResetLimit } from "@/components/reset/reset-common";
 import { Button } from "@/components/ui/button";
 import { sayAvoidCategories } from "@/lib/reset/content";
 import { useReset } from "@/lib/reset/store";
@@ -16,6 +16,7 @@ export function SayAvoidModule({
   initialCategory?: string | undefined;
 }) {
   const { data, update } = useReset();
+  const { limit } = useResetLimit();
   const [category, setCategory] = useState(initialCategory ?? sayAvoidCategories[0]!.id);
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const current = sayAvoidCategories.find((c) => c.id === category)!;
@@ -44,6 +45,14 @@ export function SayAvoidModule({
         Padrões de comunicação que podem intensificar ressentimentos, e alternativas mais calmas.
         Leia a situação, veja o que evitar e toque para revelar a alternativa.
       </p>
+      {limit && (
+        <div className="mt-4">
+          <LimitNotice>
+            Estas frases servem para treinar uma forma de falar, com ele no futuro ou com qualquer
+            pessoa. Enquanto o limite valer, nenhuma delas é para enviar a ele.
+          </LimitNotice>
+        </div>
+      )}
       <p className="mt-2 text-xs font-bold text-reset">
         {seen} de {sayAvoidCategories.length} situações estudadas
       </p>

@@ -1,4 +1,4 @@
-import { Check, ChevronRight, Copy, Hourglass, Lock, Play, TriangleAlert, X } from "lucide-react";
+import { Check, ChevronRight, Lock, MessagesSquare, Play, TriangleAlert, X } from "lucide-react";
 
 import {
   EmojiBadge,
@@ -8,39 +8,76 @@ import {
   SectionTitle,
   tintClass,
 } from "@/components/common";
+import { useCommContext } from "@/components/comunicacao/hooks";
+import { BulletList, MessageCard } from "@/components/comunicacao/shared";
+import { ToolLinks } from "@/components/tool-links";
 import { Button } from "@/components/ui/button";
-import { copyText } from "@/lib/clipboard";
+import type { AppLink } from "@/lib/app-link";
+import { messageById } from "@/lib/comunicacao/rules";
+import type { CommMessage } from "@/lib/comunicacao/types";
+import { useJornada } from "@/lib/jornada/store";
 import { dayContent } from "@/lib/plan";
 import { currentDay, dayState } from "@/lib/progress";
-import { scenarioById, type ScenarioId } from "@/lib/scenarios";
+import { scenarioById, type ScenarioId, type ScenarioPoint } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-/** Detalhe do cenário, no lugar do situation-screen do Calm Kids: explicação, faça / evite,
- * modelos de mensagem (quando cabe), quando parar e os dias do plano ligados a ele. */
+function PointList({ items, tone }: { items: ScenarioPoint[]; tone: "do" | "avoid" }) {
+  return (
+    <ul className="space-y-2.5">
+      {items.map((item) => (
+        <li
+          key={item.text}
+          className={cn(
+            "flex items-start gap-3 rounded-xl border px-4 py-3",
+            tone === "do" ? "border-success/30 bg-success-soft" : "border-border bg-card",
+          )}
+        >
+          <span
+            className={cn(
+              "grid size-7 shrink-0 place-items-center rounded-full",
+              tone === "do" ? "bg-success text-primary-foreground" : "bg-primary-soft text-primary",
+            )}
+          >
+            {tone === "do" ? <Check className="size-4" /> : <X className="size-4" />}
+          </span>
+          <span className="text-sm leading-6">
+            <b>{item.text}.</b> <span className="text-muted-foreground">{item.why}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Detalhe do cenário: explicação, desafios, o que fazer e evitar (com o porquê), exemplos,
+ * sinais, mensagens da Central (com a mesma regra de uso da Central), quando parar, próximos
+ * passos, conteúdos relacionados e os dias do plano ligados a ele. */
 export function ScenarioPanel({
   id,
   onClose,
   openDay,
-  openPause,
+  openCentral,
+  openMessage,
+  openLink,
 }: {
   id: ScenarioId;
   onClose: () => void;
   openDay: (day: number) => void;
-  openPause: (draft?: string) => void;
+  /** Abre a Central de Comunicação filtrada por este cenário. */
+  openCentral: () => void;
+  openMessage: (id: string) => void;
+  openLink: (link: AppLink) => void;
 }) {
   const { data, entitlements, setScenario, showToast } = useStore();
+  const { data: jornada } = useJornada();
+  const ctx = useCommContext();
   const scenario = scenarioById(id);
   const isCurrent = data.profile!.scenario === id;
   const today = currentDay(data);
-
-  const copy = async (text: string) => {
-    const ok = await copyText(text);
-    showToast(
-      ok ? "Mensagem copiada." : "Não foi possível copiar. Selecione o texto e copie.",
-      ok ? "info" : "error",
-    );
-  };
+  const messages = scenario.messages
+    .map((messageId) => messageById(messageId))
+    .filter((item): item is CommMessage => Boolean(item));
 
   return (
     <Overlay eyebrow="Cenário" title={scenario.label} onClose={onClose}>
@@ -73,68 +110,65 @@ export function ScenarioPanel({
         </Button>
       )}
 
-      <SectionTitle>O que fazer</SectionTitle>
-      <ul className="space-y-2.5">
-        {scenario.do.map((item) => (
-          <li
-            key={item}
-            className="flex items-center gap-3 rounded-xl border border-success/30 bg-success-soft px-4 py-3 text-sm font-semibold"
-          >
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-success text-primary-foreground">
-              <Check className="size-4" />
-            </span>
-            {item}
-          </li>
+      <SectionTitle>Entenda a situação</SectionTitle>
+      <div className="space-y-3">
+        {scenario.understand.map((paragraph) => (
+          <p key={paragraph} className="text-sm leading-6">
+            {paragraph}
+          </p>
         ))}
-      </ul>
+      </div>
+
+      <SectionTitle>Principais desafios</SectionTitle>
+      <BulletList items={scenario.challenges} tone="info" />
+
+      <SectionTitle>O que fazer</SectionTitle>
+      <PointList items={scenario.do} tone="do" />
 
       <SectionTitle>O que evitar</SectionTitle>
-      <ul className="space-y-2.5">
-        {scenario.avoid.map((item) => (
-          <li
-            key={item}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold"
-          >
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
-              <X className="size-4" />
-            </span>
-            {item}
-          </li>
-        ))}
-      </ul>
+      <PointList items={scenario.avoid} tone="avoid" />
 
-      <SectionTitle>Modelos de mensagem</SectionTitle>
-      {scenario.messages.length > 0 ? (
+      <SectionTitle>Exemplos</SectionTitle>
+      <div className="space-y-3">
+        {scenario.examples.map((example) => (
+          <div key={example.situation} className="rounded-card bg-tint-lavender p-4">
+            <p className="eyebrow mb-1">Situação ilustrativa</p>
+            <p className="text-sm leading-6">{example.situation}</p>
+            <p className="mt-2 rounded-xl bg-card px-3 py-2 text-sm leading-6">
+              <b>O que ajuda:</b> {example.better}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <SectionTitle>Sinais de abertura</SectionTitle>
+      <BulletList items={scenario.openSignals} tone="do" />
+      <SectionTitle>Sinais de limite</SectionTitle>
+      <BulletList items={scenario.limitSignals} tone="avoid" />
+
+      <SectionTitle>Mensagens da Central</SectionTitle>
+      {messages.length > 0 ? (
         <>
-          <p className="-mt-1 mb-4 text-[13px] text-muted-foreground">
-            Pontos de partida. Ajuste com as suas palavras e passe pela Pausa antes de enviar.
+          <p className="-mt-1 mb-4 text-[13px] leading-5 text-muted-foreground">
+            Pontos de partida. O selo mostra se cada uma faz sentido no seu momento. Ajuste com as
+            suas palavras e passe pela Pausa antes de enviar.
           </p>
-          {scenario.messages.map((message) => (
-            <div key={message} className="mb-4">
-              <div className="ml-auto max-w-[88%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-sm font-semibold leading-6 text-primary-foreground shadow-soft">
-                {message}
-              </div>
-              <div className="mt-2 flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 rounded-xl bg-card font-bold"
-                  onClick={() => openPause(message)}
-                >
-                  <Hourglass /> Passar pela Pausa
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 rounded-xl bg-card font-bold"
-                  onClick={() => void copy(message)}
-                >
-                  <Copy /> Copiar
-                </Button>
-              </div>
+          <div className="space-y-3">
+            {messages.map((message) => (
+              <MessageCard
+                key={message.id}
+                message={message}
+                ctx={ctx}
+                favorite={Boolean(jornada.messages.favorites[message.id])}
+                onOpen={openMessage}
+              />
+            ))}
+          </div>
+          {(ctx.stance === "conversa" || ctx.stance === "sem_diagnostico") && (
+            <div className="mt-4">
+              <Highlight emoji="celular">Envie uma. Depois, solte o celular.</Highlight>
             </div>
-          ))}
-          <Highlight emoji="celular">Envie uma. Depois, solte o celular.</Highlight>
+          )}
         </>
       ) : (
         <div className="flex items-center gap-3 rounded-card bg-muted p-4">
@@ -142,11 +176,37 @@ export function ScenarioPanel({
           <p className="text-sm leading-6">{scenario.noMessages}</p>
         </div>
       )}
+      <Button
+        variant="outline"
+        className="mt-3 h-11 w-full rounded-xl bg-card font-bold"
+        onClick={openCentral}
+      >
+        <MessagesSquare />
+        {messages.length > 0 ? "Mais orientações na Central" : "Orientações na Central"}
+      </Button>
 
       <SectionTitle>Quando parar</SectionTitle>
       <div className="rounded-card bg-card p-4 text-sm font-semibold leading-6 shadow-soft">
         {scenario.stop}
       </div>
+
+      <SectionTitle>Próximos passos</SectionTitle>
+      <ol className="space-y-2">
+        {scenario.next.map((step, index) => (
+          <li
+            key={step}
+            className="flex gap-3 rounded-xl bg-card px-4 py-3 text-sm leading-6 shadow-soft"
+          >
+            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-[11px] font-extrabold text-primary">
+              {index + 1}
+            </span>
+            {step}
+          </li>
+        ))}
+      </ol>
+
+      <SectionTitle>Conteúdos relacionados</SectionTitle>
+      <ToolLinks links={scenario.links} onOpen={openLink} />
 
       <SectionTitle>Dias do plano para este cenário</SectionTitle>
       <div className="space-y-3">

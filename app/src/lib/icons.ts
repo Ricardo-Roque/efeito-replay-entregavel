@@ -3,16 +3,21 @@
 
 import {
   BookOpen,
+  CalendarCheck,
   CircleHelp,
+  Gift,
   Compass,
   Download,
   HeartHandshake,
   House,
   KeyRound,
   LifeBuoy,
+  Map,
+  MessagesSquare,
   NotebookPen,
   Route,
   ShieldCheck,
+  TrendingUp,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +33,10 @@ export const navIcons = {
 
 /** Itens do menu do Perfil. */
 export const moreIcons = {
+  diagnosis: Map,
+  first48: CalendarCheck,
+  progress: TrendingUp,
+  central: MessagesSquare,
   scenario: Compass,
   rules: BookOpen,
   support: CircleHelp,
@@ -36,4 +45,5 @@ export const moreIcons = {
   care: LifeBuoy,
   commitment: HeartHandshake,
   reset: KeyRound,
+  benefits: Gift,
 } satisfies Record<string, LucideIcon>;

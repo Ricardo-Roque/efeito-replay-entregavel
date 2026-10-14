@@ -23,8 +23,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { whatsappLink } from "@/lib/config";
-import { openResetOrRequest } from "@/lib/reset/access";
+import { BENEFIT_IDS, BENEFITS, accessLabel, benefitAccess } from "@/lib/benefits";
 import { careLines } from "@/lib/guide";
+import { first48Progress } from "@/lib/jornada/first48";
+import { useJornada } from "@/lib/jornada/store";
 import { moreIcons } from "@/lib/icons";
 import { planProgress } from "@/lib/progress";
 import { scenarioById } from "@/lib/scenarios";
@@ -41,11 +43,23 @@ export function MoreScreen({
   openRules,
   openCommitment,
   openReset,
+  openDiagnosis,
+  openMap,
+  openFirst48,
+  openCentral,
+  openProgress,
+  openBenefits,
 }: {
   openScenarios: () => void;
   openRules: () => void;
   openCommitment: () => void;
   openReset: () => void;
+  openDiagnosis: () => void;
+  openMap: () => void;
+  openFirst48: () => void;
+  openCentral: () => void;
+  openProgress: () => void;
+  openBenefits: () => void;
 }) {
   const {
     data,
@@ -57,7 +71,9 @@ export function MoreScreen({
     shiftDays,
     showToast,
     devSetReset,
+    devSetBenefit,
   } = useStore();
+  const jornada = useJornada();
   const profile = data.profile!;
   const progress = planProgress(data);
   const support = whatsappLink("Olá! Preciso de ajuda com o app Código da Reconquista.");
@@ -66,6 +82,41 @@ export function MoreScreen({
 
   const menu: { label: string; icon: LucideIcon; detail?: string; onClick: () => void }[] = [
     {
+      label: "Meu Mapa de Reconquista",
+      icon: moreIcons.diagnosis,
+      detail: jornada.current ? "Ver ou refazer" : "Fazer diagnóstico",
+      onClick: jornada.current ? openMap : openDiagnosis,
+    },
+    // Só depois do diagnóstico: o plano das 48 horas é montado a partir dele.
+    ...(jornada.current
+      ? [
+          {
+            label: "Meu Plano de 48 Horas",
+            icon: moreIcons.first48,
+            detail: (() => {
+              const progress = first48Progress(jornada.data.first48);
+              return progress.complete ? "Concluído" : `${progress.done} de ${progress.total}`;
+            })(),
+            onClick: openFirst48,
+          },
+        ]
+      : []),
+    {
+      label: "Meu progresso",
+      icon: moreIcons.progress,
+      detail: `${progress.total} de 21 dias`,
+      onClick: openProgress,
+    },
+    {
+      label: "Central de Comunicação",
+      icon: moreIcons.central,
+      detail: (() => {
+        const count = Object.keys(jornada.data.messages.favorites).length;
+        return count === 0 ? "" : count === 1 ? "1 favorito" : `${count} favoritos`;
+      })(),
+      onClick: openCentral,
+    },
+    {
       label: "Meu cenário",
       icon: moreIcons.scenario,
       detail: profile.scenario ? scenarioById(profile.scenario).label : "Escolher",
@@ -73,12 +124,18 @@ export function MoreScreen({
     },
     { label: "Regras de ouro", icon: moreIcons.rules, onClick: openRules },
     { label: "Meu compromisso", icon: moreIcons.commitment, onClick: openCommitment },
-    {
-      label: "Reset Emocional do Ex",
-      icon: moreIcons.reset,
-      detail: entitlements.reset ? "Liberado" : "Pedir acesso",
-      onClick: () => openResetOrRequest(entitlements.reset, email, openReset),
-    },
+    { label: "Meus Benefícios", icon: moreIcons.benefits, onClick: openBenefits },
+    // Reset Emocional do Ex: oferta antiga, fora das ofertas atuais. Só aparece para quem já comprou.
+    ...(entitlements.reset
+      ? [
+          {
+            label: "Reset Emocional do Ex",
+            icon: moreIcons.reset,
+            detail: "Liberado",
+            onClick: openReset,
+          },
+        ]
+      : []),
     // Suporte só aparece com número configurado (VITE_SUPPORT_WHATSAPP): nenhum botão sem destino.
     ...(support
       ? [
@@ -185,6 +242,40 @@ export function MoreScreen({
           >
             {entitlements.reset ? "Remover compra simulada do Reset" : "Simular compra do Reset"}
           </Button>
+          {/* Cada toque passa para o próximo estado: pendente, liberado, não adquirido. */}
+          {BENEFIT_IDS.map((id) => {
+            const grant = entitlements.benefits[id];
+            const next = grant === null ? true : grant ? false : null;
+            return (
+              <Button
+                key={id}
+                variant="outline"
+                className="mt-2 h-auto min-h-10 w-full whitespace-normal rounded-xl bg-card py-2 font-bold"
+                onClick={() => devSetBenefit(id, next)}
+              >
+                {BENEFITS[id].name}: {accessLabel[id][benefitAccess(grant)]}
+              </Button>
+            );
+          })}
+          {jornada.data.first48.startedAt && (
+            <Button
+              variant="outline"
+              className="mt-2 h-10 w-full rounded-xl bg-card font-bold"
+              onClick={() =>
+                jornada.update((d) => ({
+                  ...d,
+                  first48: {
+                    ...d.first48,
+                    startedAt: new Date(
+                      new Date(d.first48.startedAt ?? Date.now()).getTime() - 24 * 60 * 60 * 1000,
+                    ).toISOString(),
+                  },
+                })) && showToast("Plano de 48 horas: 24 horas a mais (simulação).")
+              }
+            >
+              <FastForward /> Simular 24 horas no plano de 48 horas
+            </Button>
+          )}
         </section>
       )}
 
@@ -278,8 +369,8 @@ export function MoreScreen({
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Recomeçar do zero?</DialogTitle>
             <DialogDescription>
-              Isso apaga o seu progresso, o Diário e os rascunhos deste aparelho. Não dá para
-              desfazer.
+              Isso apaga o seu progresso, o Diário, os rascunhos, o diagnóstico e o plano de 48
+              horas deste aparelho. Não dá para desfazer.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -291,7 +382,8 @@ export function MoreScreen({
             <Button
               variant="destructive"
               className="h-11 rounded-xl"
-              onClick={() => resetAll() && setModal(null)}
+              // O diagnóstico fica numa chave própria: apaga junto, para "do zero" valer para tudo.
+              onClick={() => resetAll() && jornada.clear() && setModal(null)}
             >
               Apagar e recomeçar
             </Button>

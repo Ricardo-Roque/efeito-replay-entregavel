@@ -4,6 +4,8 @@
 // As orientações falam do que ELA pode fazer, a partir do que ELA contou. O app não interpreta o
 // que ele pensa nem dá diagnóstico psicológico a ninguém.
 // Limite: se ele pediu para não haver contato ou bloqueou, nenhuma recomendação envolve contato.
+// O limite também vale quando vem do diagnóstico principal do app (bloqueio, pedido de não contato
+// ou outra relação): `buildMap` e `buildTrustMap` recebem `appLimit` para os dois nunca discordarem.
 
 export type Cause = "traicao" | "mentira" | "humilhacao" | "brigas" | "afastamento" | "outro";
 export type Behavior = "nao_responde" | "frio" | "raiva" | "evita_emocional" | "sem_contato";
@@ -32,13 +34,15 @@ export const questions: Question[] = [
   {
     id: "cause",
     title: "O que mais prejudicou a confiança entre vocês?",
+    // As três primeiras falam do que ELA fez: é a elas que se aplicam o reconhecimento e o pedido
+    // de desculpas. Se quem traiu ou mentiu foi ele, a opção certa é "Outro motivo".
     options: [
-      { value: "traicao", label: "Traição ou infidelidade" },
-      { value: "mentira", label: "Uma mentira importante" },
-      { value: "humilhacao", label: "Uma situação de humilhação" },
+      { value: "traicao", label: "Uma traição minha" },
+      { value: "mentira", label: "Uma mentira minha" },
+      { value: "humilhacao", label: "Algo que eu disse ou fiz e que o humilhou" },
       { value: "brigas", label: "Brigas e discussões constantes" },
       { value: "afastamento", label: "Um afastamento gradual" },
-      { value: "outro", label: "Outro motivo" },
+      { value: "outro", label: "Outro motivo (inclusive algo que ele fez)" },
     ],
   },
   {
@@ -117,8 +121,8 @@ export const trustBroken = (a: Answers) =>
   a.cause === "traicao" || a.cause === "mentira" || a.cause === "humilhacao";
 
 export type Mode = "limite" | "pausa" | "aberto";
-export const modeOf = (a: Answers): Mode =>
-  respectsLimit(a) ? "limite" : needsPause(a) ? "pausa" : "aberto";
+export const modeOf = (a: Answers, appLimit = false): Mode =>
+  respectsLimit(a) || appLimit ? "limite" : needsPause(a) ? "pausa" : "aberto";
 
 // ---------- Resultado: Mapa de Reconstrução Emocional ----------
 
@@ -200,9 +204,9 @@ export interface ReconstructionMap {
 
 export type ModuleId = "perdao" | "audios" | "dizer" | "noturno" | "bonus";
 
-function avoidList(a: Answers): string[] {
+function avoidList(a: Answers, limit: boolean): string[] {
   const list: string[] = [];
-  if (respectsLimit(a)) {
+  if (limit) {
     list.push("Criar outro perfil, usar outro número ou pedir para amigos levarem recados.");
     list.push("Aparecer onde ele está ou checar se o bloqueio foi desfeito.");
   }
@@ -219,13 +223,17 @@ function avoidList(a: Answers): string[] {
   if (a.difficulty === "discussoes")
     list.push("Continuar uma conversa que já começou a esquentar. Pausar é melhor que vencer.");
   if (a.elapsed === "ate7")
-    list.push("Tomar decisões ou mandar mensagens longas nos primeiros dias.");
+    list.push(
+      limit
+        ? "Tomar decisões grandes nos primeiros dias, no pico da dor."
+        : "Tomar decisões ou mandar mensagens longas nos primeiros dias.",
+    );
   list.push("Pedir garantias de que ele vai perdoar ou voltar.");
   return list.slice(0, 5);
 }
 
-function firstStep(a: Answers): ReconstructionMap["firstStep"] {
-  if (respectsLimit(a))
+function firstStep(a: Answers, limit: boolean): ReconstructionMap["firstStep"] {
+  if (limit)
     return {
       title: "Não enviar nada e começar pelo Mapa das Mágoas",
       text: "Seu primeiro passo é respeitar o limite que ele colocou e entender, só para você, o que aconteceu. O Mapa das Mágoas ajuda a organizar isso sem enviar nada a ninguém.",
@@ -262,9 +270,8 @@ function firstStep(a: Answers): ReconstructionMap["firstStep"] {
   };
 }
 
-function steps(a: Answers): ReconstructionMap["steps"] {
-  const limit = respectsLimit(a);
-  const pause = needsPause(a);
+function steps(a: Answers, limit: boolean): ReconstructionMap["steps"] {
+  const pause = !limit && needsPause(a);
   return [
     {
       title: "Entendendo a ferida emocional",
@@ -312,20 +319,26 @@ function steps(a: Answers): ReconstructionMap["steps"] {
   ];
 }
 
-export function buildMap(a: Answers): ReconstructionMap {
+/** Aviso quando o limite vem só do diagnóstico principal (o do Reset não registra limite). */
+export const APP_LIMIT_FACTOR =
+  "No seu diagnóstico principal do app há um limite (bloqueio, pedido de não contato ou outra relação). Enquanto ele valer, este plano não sugere nenhum contato.";
+
+export function buildMap(a: Answers, appLimit = false): ReconstructionMap {
+  const limit = respectsLimit(a) || appLimit;
   const factors = [
     causeFactor[a.cause],
     behaviorFactor[a.behavior],
     contactFactor[a.contact],
+    limit && !respectsLimit(a) ? APP_LIMIT_FACTOR : undefined,
     elapsedFactor[a.elapsed],
   ].filter((item): item is string => Boolean(item));
   return {
-    mode: modeOf(a),
+    mode: modeOf(a, appLimit),
     difficulty: difficultyText[a.difficulty],
     factors,
-    avoid: avoidList(a),
-    firstStep: firstStep(a),
-    steps: steps(a),
+    avoid: avoidList(a, limit),
+    firstStep: firstStep(a, limit),
+    steps: steps(a, limit),
   };
 }
 
@@ -382,8 +395,8 @@ export interface TrustMap {
   nextStep: string;
 }
 
-export function buildTrustMap(a: Answers): TrustMap {
-  const limit = respectsLimit(a);
+export function buildTrustMap(a: Answers, appLimit = false): TrustMap {
+  const limit = respectsLimit(a) || appLimit;
   const situation = `${optionLabel("cause", a.cause)}, término ${
     {
       ate7: "há menos de 7 dias",
@@ -398,7 +411,7 @@ export function buildTrustMap(a: Answers): TrustMap {
     barrier: limit
       ? "Limite colocado por ele: o próximo movimento não é seu."
       : barrierByBehavior[a.behavior],
-    harmful: avoidList(a).slice(0, 4),
+    harmful: avoidList(a, limit).slice(0, 4),
     repair: limit
       ? [
           "Respeitar o limite, sem exceções.",

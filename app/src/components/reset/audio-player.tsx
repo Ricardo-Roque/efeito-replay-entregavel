@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Pause, Play, RotateCcw } from "lucide-react";
+import { BookOpenText, Pause, Play, RotateCcw } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const fmt = (seconds: number) =>
   `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
 
-/** Player com controles próprios. Sem arquivo, mostra que o áudio está em gravação (nada é simulado). */
+/** Player com controles próprios. Sem arquivo, avisa que o áudio ainda não está disponível e aponta
+ * para o roteiro em texto: nenhum player falso, nenhuma reprodução simulada. */
 export function AudioPlayer({
   src,
   title,
@@ -40,12 +41,13 @@ export function AudioPlayer({
             night ? "bg-white/10" : "bg-card",
           )}
         >
-          <Mic className={cn("size-5", night ? "text-night-foreground" : "text-reset")} />
+          <BookOpenText className={cn("size-5", night ? "text-night-foreground" : "text-reset")} />
         </span>
         <div className="text-sm leading-snug">
-          <p className="font-extrabold">Áudio em gravação</p>
+          <p className="font-extrabold">Áudio ainda não disponível</p>
           <p className={night ? "text-night-foreground/75" : "text-muted-foreground"}>
-            Cerca de {minutes} min. Enquanto isso, a transcrição completa está abaixo.
+            Por enquanto, a sessão é feita pela leitura do roteiro (cerca de {minutes} min, no seu
+            ritmo).
           </p>
         </div>
       </div>

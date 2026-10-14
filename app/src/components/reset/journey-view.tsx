@@ -2,10 +2,12 @@ import { ArrowRight, Check, CircleCheck, Lock } from "lucide-react";
 
 import {
   CheckRow,
+  LimitNotice,
   NoteField,
   ResetProgress,
   ResetShell,
   SectionLabel,
+  useResetLimit,
 } from "@/components/reset/reset-common";
 import { Button } from "@/components/ui/button";
 import { journeySteps, modules } from "@/lib/reset/content";
@@ -22,7 +24,8 @@ export function JourneyList({
   openStep: (id: number) => void;
 }) {
   const { data, current } = useReset();
-  const titles = current ? buildMap(current.answers).steps : null;
+  const { appLimit } = useResetLimit();
+  const titles = current ? buildMap(current.answers, appLimit).steps : null;
   const done = journeySteps.filter((s) => stepDone(data, s.id)).length;
 
   return (
@@ -106,8 +109,9 @@ export function JourneyStepView({
   openStep: (id: number) => void;
 }) {
   const { data, current, toggleCheck, completeStep } = useReset();
+  const { appLimit, limit } = useResetLimit();
   const step = journeySteps.find((s) => s.id === id)!;
-  const personal = current ? buildMap(current.answers).steps[id - 1] : null;
+  const personal = current ? buildMap(current.answers, appLimit).steps[id - 1] : null;
   const checks = data.journey[id]?.checks ?? [];
   const finished = stepDone(data, id);
   const allChecked = step.checklist.every((_, index) => checks.includes(index));
@@ -129,6 +133,12 @@ export function JourneyStepView({
           </p>
         )}
       </div>
+
+      {limit && (
+        <div className="mt-4">
+          <LimitNotice />
+        </div>
+      )}
 
       <SectionLabel>Conteúdo</SectionLabel>
       <div className="space-y-3">

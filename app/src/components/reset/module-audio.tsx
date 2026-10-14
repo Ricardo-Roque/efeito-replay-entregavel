@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, ChevronDown, CircleCheck } from "lucide-react";
 
 import { AudioPlayer } from "@/components/reset/audio-player";
-import { NoteField, ResetShell } from "@/components/reset/reset-common";
+import { LimitNotice, NoteField, ResetShell, useResetLimit } from "@/components/reset/reset-common";
 import { Button } from "@/components/ui/button";
 import { audioUrl } from "@/lib/reset/audio";
 import { audioSessions } from "@/lib/reset/content";
@@ -12,17 +12,32 @@ import { cn } from "@/lib/utils";
 /** Módulo 02: três sessões, cada uma com player, transcrição, exercício e conclusão. */
 export function AudioModule({ onBack }: { onBack: () => void }) {
   const { data, update } = useReset();
+  const { limit } = useResetLimit();
   const [open, setOpen] = useState<string>(
     audioSessions.find((s) => !data.audioDone[s.id])?.id ?? audioSessions[0]!.id,
   );
-  const [transcript, setTranscript] = useState<string | null>(null);
+  // Sem arquivo gravado, o roteiro é a forma de fazer a sessão: já vem aberto.
+  const anyRecorded = audioSessions.some((session) => audioUrl(session.id));
+  const [transcript, setTranscript] = useState<string | null>(() =>
+    anyRecorded ? null : (audioSessions.find((s) => !data.audioDone[s.id])?.id ?? null),
+  );
 
   return (
     <ResetShell eyebrow="Módulo 02" title="Áudio de Reativação Emocional" onBack={onBack}>
       <p className="text-sm leading-6 text-muted-foreground">
-        Três sessões curtas sobre comunicação acolhedora e consciente. Ouça com calma, de
-        preferência com fones, e faça o exercício de cada uma.
+        Três sessões curtas sobre comunicação acolhedora e consciente.{" "}
+        {anyRecorded
+          ? "Ouça com calma, de preferência com fones, e faça o exercício de cada uma."
+          : "Os áudios ainda não estão disponíveis. Leia o roteiro de cada sessão devagar, de preferência em voz baixa, e faça o exercício."}
       </p>
+      {limit && (
+        <div className="mt-4">
+          <LimitNotice>
+            As sessões falam de comunicação para a vida toda. Nenhum exercício pede para escrever ou
+            falar com ele.
+          </LimitNotice>
+        </div>
+      )}
       <div className="mt-5 space-y-3">
         {audioSessions.map((session, index) => {
           const done = Boolean(data.audioDone[session.id]);
@@ -32,7 +47,10 @@ export function AudioModule({ onBack }: { onBack: () => void }) {
               <button
                 type="button"
                 aria-expanded={expanded}
-                onClick={() => setOpen(expanded ? "" : session.id)}
+                onClick={() => {
+                  setOpen(expanded ? "" : session.id);
+                  if (!expanded && !audioUrl(session.id)) setTranscript(session.id);
+                }}
                 className="flex w-full cursor-pointer items-center gap-3 p-4 text-left"
               >
                 <span
@@ -48,7 +66,8 @@ export function AudioModule({ onBack }: { onBack: () => void }) {
                     {session.title}
                   </span>
                   <span className="block text-xs font-bold text-muted-foreground">
-                    {session.minutes} min{done ? " · concluída" : ""}
+                    {audioUrl(session.id) ? `${session.minutes} min` : "Roteiro para leitura"}
+                    {done ? " · concluída" : ""}
                   </span>
                 </span>
                 <ChevronDown
@@ -73,7 +92,7 @@ export function AudioModule({ onBack }: { onBack: () => void }) {
                       onClick={() => setTranscript(transcript === session.id ? null : session.id)}
                       className="flex w-full cursor-pointer items-center justify-between rounded-xl bg-muted px-4 py-3 text-sm font-bold"
                     >
-                      Transcrição
+                      {audioUrl(session.id) ? "Transcrição" : "Roteiro para leitura"}
                       <ChevronDown
                         className={cn(
                           "size-4 transition-transform",

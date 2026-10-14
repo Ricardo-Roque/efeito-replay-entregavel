@@ -21,7 +21,12 @@ import { BonusModule } from "@/components/reset/module-bonus";
 import { ForgivenessModule } from "@/components/reset/module-forgiveness";
 import { NightModule } from "@/components/reset/module-night";
 import { SayAvoidModule } from "@/components/reset/module-say-avoid";
-import { ResetProgress, ResetShell, SectionLabel } from "@/components/reset/reset-common";
+import {
+  ResetProgress,
+  ResetShell,
+  SectionLabel,
+  useResetLimit,
+} from "@/components/reset/reset-common";
 import { Button } from "@/components/ui/button";
 import { checkoutLink, config, whatsappLink } from "@/lib/config";
 import { modules } from "@/lib/reset/content";
@@ -186,7 +191,8 @@ function Dashboard({
   const { data, current } = useReset();
   const progress = progressOf(data);
   const name = app.profile ? firstName(app.profile.name) : "";
-  const map = current ? buildMap(current.answers) : null;
+  const { appLimit } = useResetLimit();
+  const map = current ? buildMap(current.answers, appLimit) : null;
   const stepTitle = progress.currentStep && map ? map.steps[progress.currentStep - 1]?.title : null;
 
   return (
@@ -371,7 +377,7 @@ function Dashboard({
 const included = [
   "Diagnóstico emocional personalizado e Mapa de Reconstrução Emocional",
   "Módulo 1: Consciência do Perdão, com o Mapa das Mágoas",
-  "Módulo 2: três sessões de áudio sobre comunicação de confiança",
+  "Módulo 2: três sessões guiadas sobre comunicação de confiança (por enquanto, em roteiro para leitura)",
   "Módulo 3: O Que Dizer e O Que Evitar em cada situação",
   "Módulo 4: Técnica de Reversão Noturna (bônus)",
   "Módulo 5: Mapa de Reconstrução da Confiança (bônus secreto)",

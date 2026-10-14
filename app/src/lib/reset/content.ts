@@ -22,25 +22,25 @@ export const modules: ModuleInfo[] = [
     id: "audios",
     number: "02",
     title: "Áudio de Reativação Emocional",
-    subtitle: "Três sessões guiadas para uma comunicação que transmite segurança.",
+    subtitle: "Três sessões guiadas sobre ritmo, defensividade e coerência ao se comunicar.",
   },
   {
     id: "dizer",
     number: "03",
     title: "Guia de Reconexão Subconsciente",
-    subtitle: "O Que Dizer e O Que Evitar em cada situação difícil.",
+    subtitle: "Na prática: o que dizer e o que evitar em seis situações difíceis.",
   },
   {
     id: "noturno",
     number: "04",
     title: "Técnica de Reversão Noturna",
-    subtitle: "Um ritual de 10 minutos para acalmar a mente antes de dormir.",
+    subtitle: "Um ritual de cerca de 10 minutos para acalmar a mente antes de dormir.",
   },
   {
     id: "bonus",
     number: "05",
     title: "Mapa de Reconstrução da Confiança",
-    subtitle: "Bônus secreto: orientações a partir do seu diagnóstico.",
+    subtitle: "Bônus secreto: barreiras, sinais e próximo passo a partir do seu diagnóstico.",
   },
 ];
 
@@ -56,28 +56,37 @@ export const forgivenessLessons: {
     id: "ressentimento",
     title: "O que o ressentimento faz",
     text: [
-      "Ressentimento é a mágoa que fica ativa. Ela faz a pessoa reviver o que aconteceu e se proteger para não sentir aquilo de novo.",
-      "Quem está ressentido tende a desconfiar de gestos bonitos, porque eles lembram o que foi perdido. Por isso, tentativas rápidas de consertar costumam ser recebidas com frieza.",
+      "Ressentimento é a mágoa que continua ativa. A palavra diz muito: é sentir de novo. A pessoa revive o que aconteceu e, para não sentir aquilo outra vez, se protege.",
+      "Essa proteção costuma aparecer como frieza, ironia, silêncio ou desconfiança de gestos bonitos. Não é necessariamente falta de sentimento: muitas vezes é o jeito de não se expor de novo. Por isso, tentativas rápidas de consertar costumam ser recebidas com distância, e insistir tende a reforçar a defesa.",
+      "Ressentimento também mora em você. A sua mágoa, a vergonha e a culpa pelo que aconteceu pesam nas suas reações. Quem age a partir do próprio ressentimento cobra, se explica demais ou ataca sem perceber.",
+      'Entender isso muda a pergunta. Em vez de "como faço ele esquecer?", a pergunta passa a ser "o que eu posso fazer para não reabrir a ferida, nem a dele nem a minha?". Essa é uma pergunta que depende de você.',
     ],
-    reflection: "Quando você pensa no que aconteceu, qual momento dói mais para você?",
+    reflection:
+      "Quando você pensa no que aconteceu, qual momento dói mais para você? E o que você imagina que doeu mais nele?",
   },
   {
     id: "confianca",
     title: "Como a confiança se quebra e se reconstrói",
     text: [
-      "Confiança não se quebra com um único fato: ela se quebra com a sensação de que o outro não é previsível. Por isso, uma conversa não basta para reconstruí-la.",
-      "O que reconstrói confiança é coerência ao longo do tempo: fazer o que diz, não repetir o que feriu e respeitar os limites do outro.",
+      "Confiança é a sensação de que o outro é previsível: que o que ele diz combina com o que ele faz. Ela se quebra quando um fato mostra que não era bem assim. Depois disso, a dúvida costuma se espalhar para outras lembranças.",
+      "Por isso, uma conversa não basta para reconstruí-la, por mais sincera que seja. Palavras pedem que o outro acredite de novo. Atitudes repetidas mostram, sem pedir nada.",
+      "O que reconstrói confiança é coerência ao longo do tempo: fazer o que diz, não repetir o que feriu, respeitar limites e aceitar que o outro precise de provas por um tempo. Isso vale mesmo que vocês não estejam se falando: você está se tornando alguém em quem é possível confiar.",
+      "E existe um limite honesto: a confiança dele não depende só de você. Você pode ser coerente e, mesmo assim, ele decidir não voltar a confiar. O seu trabalho continua valendo, porque muda a forma como você se relaciona daqui em diante.",
     ],
-    reflection: "Que atitude sua, repetida com consistência, mostraria que algo mudou?",
+    reflection:
+      "Que atitude sua, repetida com constância por algumas semanas, mostraria que algo mudou?",
   },
   {
     id: "responsabilidade",
     title: "Responsabilidade não é culpa",
     text: [
-      "Culpa paralisa e faz você querer ser perdoada logo para parar de sofrer. Responsabilidade é reconhecer o que fez, entender o impacto e mudar.",
-      "Assumir a sua parte não significa assumir a parte dele. Significa olhar para o que estava ao seu alcance.",
+      "Culpa é um peso que paralisa. Ela faz você querer ser perdoada logo, para parar de sofrer, e isso transforma o pedido de desculpas em uma cobrança por alívio.",
+      "Responsabilidade é outra coisa: reconhecer o que você fez, entender o impacto que isso teve e mudar o que estiver ao seu alcance. Ela olha para frente. Não exige que você se castigue.",
+      "Assumir a sua parte não significa assumir a parte dele, nem aceitar desrespeito. Se houve agressão, humilhação ou violência dele, isso não é responsabilidade sua. Responsabilidade é olhar para o que estava nas suas mãos, sem aumentar nem diminuir.",
+      'Um jeito prático de separar as duas: a culpa pergunta "o que vão pensar de mim?"; a responsabilidade pergunta "o que eu faço diferente a partir de hoje?".',
     ],
-    reflection: "Escreva, em uma frase, qual foi a sua parte no que aconteceu.",
+    reflection:
+      "Escreva, em uma frase, qual foi a sua parte no que aconteceu. Depois, uma frase sobre o que não foi sua parte.",
   },
 ];
 
@@ -230,6 +239,12 @@ export const sayAvoidCategories: { id: string; title: string; cards: SayAvoidCar
         instead: "Tudo bem. Respeito o seu tempo.",
         why: "Insistir confirma que você não respeita o limite dele. Aceitar mostra o contrário.",
       },
+      {
+        situation: "Ele faz uma acusação que você acha injusta.",
+        avoid: "Isso é mentira, você está distorcendo tudo!",
+        instead: "Eu vejo de outro jeito, mas entendo que para você foi assim.",
+        why: "Discutir a versão dos fatos no meio da raiva vira disputa. Reconhecer a experiência dele não é confessar o que você não fez, e a conversa sobre os fatos pode esperar um momento calmo.",
+      },
     ],
   },
   {
@@ -247,6 +262,12 @@ export const sayAvoidCategories: { id: string; title: string; cards: SayAvoidCar
         avoid: "Pelo visto eu não sou mais prioridade, né?",
         instead: "(Não mandar outra mensagem. Esperar.)",
         why: "Uma mensagem sem resposta não pede outra. O silêncio dele também é uma informação.",
+      },
+      {
+        situation: "Ele diz que precisa de um tempo para pensar.",
+        avoid: "Quanto tempo? Eu preciso saber até quando.",
+        instead: "Tudo bem. Respeito o seu tempo.",
+        why: "Pedir prazo transforma o pedido dele em negociação. Aceitar sem condições é o que mostra que o pedido foi ouvido. Durante esse tempo, a iniciativa de escrever não é sua.",
       },
     ],
   },
@@ -278,6 +299,13 @@ export const sayAvoidCategories: { id: string; title: string; cards: SayAvoidCar
         avoid: "Por que você sempre foge quando eu quero falar de nós?",
         instead: "Que bom conversar com você assim, de forma leve.",
         why: "Valorizar o que existe agora mantém a porta aberta. Forçar o assunto pode fechá-la.",
+      },
+      {
+        situation: 'Ele responde só com "ok" ou com um emoji.',
+        avoid: "Só isso? Você não tem nada para me dizer?",
+        instead:
+          "(Deixar a conversa terminar ali, leve. Não mandar outra mensagem para tirar mais dele.)",
+        why: "Resposta curta não é convite para cobrar mais. Terminar bem uma conversa curta vale mais do que esticar uma conversa que ele não quer agora.",
       },
     ],
   },
@@ -388,15 +416,18 @@ export interface JourneyStep {
   checklist: string[];
 }
 
+// Os checklists continuam com 3 itens na mesma ordem: o progresso salvo é guardado pela posição.
 export const journeySteps: JourneyStep[] = [
   {
     id: 1,
     objective: "Entender o que foi ferido, dos dois lados, antes de pensar em qualquer conversa.",
     content: [
-      "Toda reaproximação começa por entender a ferida. Sem isso, as tentativas de consertar tendem a tocar no lugar errado.",
-      "Olhe para o que aconteceu com honestidade: o fato, o impacto nele e o impacto em você.",
+      "Toda reaproximação começa por entender a ferida. Sem isso, as tentativas de consertar tendem a tocar no lugar errado: você pede desculpas pelo que mais pesa em você, e não necessariamente pelo que mais pesou nele.",
+      "Olhe para o que aconteceu em três camadas. O fato: o que aconteceu, sem adjetivos. O impacto nele: o que aquilo pode ter tirado dele (segurança, orgulho, tranquilidade, confiança). O impacto em você: o que você sente hoje quando lembra.",
+      "Não é um exercício para se culpar. É para trocar uma dor confusa por algo que você consegue nomear. O que tem nome dá para cuidar.",
     ],
-    activity: "Registre pelo menos uma mágoa no Mapa das Mágoas.",
+    activity:
+      "Registre pelo menos uma mágoa no Mapa das Mágoas, com o fato, as consequências e o que poderia reparar.",
     module: "perdao",
     checklist: [
       "Li as lições do Módulo 1",
@@ -408,10 +439,12 @@ export const journeySteps: JourneyStep[] = [
     id: 2,
     objective: "Perceber quais situações fazem você agir no impulso ou entrar em briga.",
     content: [
-      "Gatilhos são situações que disparam reações automáticas: uma mensagem visualizada sem resposta, uma foto, um horário do dia.",
-      "Quando você conhece os seus gatilhos, consegue se preparar antes deles, em vez de reagir depois.",
+      "Gatilhos são situações que disparam reações automáticas: uma mensagem visualizada sem resposta, uma foto nova, uma data, um horário do dia, uma música.",
+      "Repare que o gatilho não é o problema. O problema é o que você faz nos minutos seguintes, quando a emoção ainda está no pico. É nesse intervalo que nascem as mensagens longas, as cobranças e as explicações que depois você queria não ter mandado.",
+      "Quando você conhece os seus gatilhos, consegue se preparar antes deles. Para cada um, defina uma ação pequena e concreta: abrir a Pausa, escrever no Diário, ligar para uma amiga, sair do aplicativo por dez minutos.",
     ],
-    activity: "Liste três gatilhos seus e o que você vai fazer quando cada um aparecer.",
+    activity:
+      "Liste três gatilhos seus e, ao lado de cada um, o que você vai fazer quando ele aparecer.",
     module: "dizer",
     checklist: [
       "Identifiquei três gatilhos",
@@ -423,10 +456,12 @@ export const journeySteps: JourneyStep[] = [
     id: 3,
     objective: "Separar pedir desculpas de pedir uma resposta.",
     content: [
-      "Um pedido de desculpas sincero reconhece o erro e o impacto, sem justificativas e sem cobrar perdão.",
-      "Mesmo que você nunca envie, escrever o pedido ajuda a organizar o que você sente.",
+      "Um pedido de desculpas sincero tem quatro partes: o que você reconhece, o impacto que isso teve, o que mudou em você e a liberdade dele de não responder. Sem a última, o pedido vira cobrança.",
+      'O que costuma estragar um pedido: o "mas", a explicação que vem antes do reconhecimento, lembrar o que ele também fez e mandar mais de uma mensagem seguida.',
+      "Escrever o pedido não obriga você a enviá-lo. Em muitos casos (bloqueio, pedido de distância, outra relação), ele fica guardado. Mesmo assim, escrever organiza o que você sente e mostra o que mudou na forma como você enxerga o que aconteceu.",
     ],
-    activity: "Monte o seu pedido de desculpas no Módulo 1 e passe pelo checklist do que evitar.",
+    activity:
+      "Monte o seu pedido de desculpas no Módulo 1, confira o checklist do que evitar e decida, com calma, se é para guardar ou para um dia enviar.",
     module: "perdao",
     checklist: [
       "Montei o meu pedido de desculpas",
@@ -438,10 +473,12 @@ export const journeySteps: JourneyStep[] = [
     id: 4,
     objective: "Treinar uma comunicação que não desperta defesa.",
     content: [
-      "Frases curtas, sem generalizações e falando da sua experiência mudam o clima de qualquer conversa.",
-      "Essa nova forma de falar vale para ele e para todas as suas relações.",
+      'Três hábitos mudam o clima de qualquer conversa: frases curtas, nada de generalizações ("você sempre", "você nunca") e falar da sua experiência em vez de interpretar a dele.',
+      "Isso se treina como qualquer habilidade. No começo, parece artificial. Com algumas semanas, vira o seu jeito de falar, e não só com ele: com a família, no trabalho, com as amigas.",
+      "As três sessões do Módulo 2 trabalham o ritmo, a defensividade e a coerência. Cada uma termina com um exercício prático, que é o que realmente fixa a mudança.",
     ],
-    activity: "Ouça (ou leia) as três sessões do Módulo 2 e faça os exercícios.",
+    activity:
+      "Faça as três sessões do Módulo 2 (ouvindo ou lendo o roteiro) e os exercícios de cada uma.",
     module: "audios",
     checklist: ["Concluí a sessão 1", "Concluí a sessão 2", "Concluí a sessão 3"],
   },
@@ -449,10 +486,12 @@ export const journeySteps: JourneyStep[] = [
     id: 5,
     objective: "Entender a confiança como algo que se reconstrói com coerência, ao longo do tempo.",
     content: [
-      "Confiança volta quando o outro percebe, repetidas vezes, que você faz o que diz e respeita os limites dele.",
-      "Isso vale mesmo sem contato: é a pessoa que você está se tornando.",
+      "Confiança volta, quando volta, porque o outro percebe repetidas vezes que você faz o que diz e respeita os limites dele. Uma promessa sozinha não faz isso.",
+      'Escolha atitudes pequenas e observáveis. Não "vou ser uma pessoa melhor", e sim "não vou checar as redes dele", "vou responder com calma mesmo quando ele estiver frio", "não vou mentir nem em coisas pequenas".',
+      "Isso vale mesmo sem contato. Coerência não é um recado para ele: é a pessoa que você está se tornando. Se um dia houver conversa, ela vai encontrar alguém diferente. Se não houver, você ganhou do mesmo jeito.",
     ],
-    activity: "Escolha três atitudes que mostram coerência e pratique uma delas esta semana.",
+    activity:
+      "Escolha três atitudes de coerência, escreva cada uma de forma concreta e pratique uma delas nesta semana.",
     module: "bonus",
     checklist: [
       "Consultei o Mapa de Reconstrução da Confiança",
@@ -464,10 +503,12 @@ export const journeySteps: JourneyStep[] = [
     id: 6,
     objective: "Avaliar com honestidade se há abertura, ou se o melhor é respeitar o afastamento.",
     content: [
-      "Os sinais de abertura e de afastamento do seu Mapa ajudam a decidir com calma, sem agir no impulso.",
-      "Se ele pediu distância ou bloqueou, esta etapa é sobre aceitar o limite e cuidar de você.",
+      "Os sinais de abertura e de afastamento do seu Mapa ajudam a decidir com calma. Leia como possibilidades, não como certezas: ninguém sabe o que o outro sente.",
+      "Abertura é reciprocidade que se repete: ele puxa conversa, pergunta de você, fala do que aconteceu sem agressividade. Um contato isolado, educado ou nostálgico, não é a mesma coisa.",
+      "Se ele pediu distância, bloqueou ou está com outra pessoa, esta etapa é sobre aceitar o limite e cuidar de você. Respeitar não é desistir de si: é parar de gastar energia numa porta que ele fechou.",
     ],
-    activity: "Releia os sinais do seu Mapa e decida o seu próximo passo.",
+    activity:
+      "Releia os sinais do seu Mapa, anote o que você tem observado de fato (sem interpretar) e decida o seu próximo passo.",
     module: "bonus",
     checklist: [
       "Reli os sinais de abertura e de afastamento",
@@ -479,10 +520,11 @@ export const journeySteps: JourneyStep[] = [
     id: 7,
     objective: "Definir o que você leva desta jornada, qualquer que seja a resposta dele.",
     content: [
-      "A reaproximação não depende só de você. O que você aprendeu sobre si, sobre comunicação e sobre limites, sim.",
-      "Feche esta jornada escolhendo o que vai manter na sua vida daqui para frente.",
+      "A reaproximação não depende só de você. O que você aprendeu sobre si, sobre comunicação e sobre limites, sim, e isso fica com você.",
+      "Olhe para trás: o que você faz hoje de forma diferente de quando começou? Talvez seja esperar antes de responder, falar de você sem acusar ou dormir sem o celular na mão. Esses ganhos são reais e não dependem de ninguém.",
+      "Feche a jornada escolhendo um hábito para manter. Se a situação mudou (ele voltou a falar, pediu distância, começou outra relação), refaça o diagnóstico: o app se ajusta ao momento atual.",
     ],
-    activity: "Escreva três aprendizados desta jornada.",
+    activity: "Escreva três aprendizados desta jornada e o hábito que você vai manter.",
     checklist: [
       "Escrevi três aprendizados",
       "Escolhi um hábito para manter",

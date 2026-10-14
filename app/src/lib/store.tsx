@@ -8,8 +8,15 @@ import {
   type ReactNode,
 } from "react";
 
+import {
+  NO_BENEFIT_GRANTS,
+  parseBenefitGrants,
+  type BenefitGrants,
+  type BenefitId,
+} from "@/lib/benefits";
 import type { SignalKind } from "@/lib/guide";
-import type { ScenarioId } from "@/lib/scenarios";
+import { MILESTONES } from "@/lib/plan";
+import { scenarioById, type ScenarioId } from "@/lib/scenarios";
 import { SUPABASE_URL, supabase } from "@/lib/supabase";
 
 // Entrada só com o e-mail da compra (função cr-login, igual ao CalmBaby): quem tem compra paga
@@ -27,6 +34,31 @@ export interface Profile {
 
 export type EntryType = "mood" | "held" | "acted" | "contact" | "draft" | "signal" | "note";
 
+/**
+ * De onde veio o registro (opcional, só para rotular e filtrar no Diário). Entradas antigas não
+ * têm o campo e continuam valendo como antes; o tipo (`type`) segue sendo o que conta nas regras.
+ */
+export type EntrySource =
+  | "diagnostico"
+  | "first48"
+  | "cenario"
+  | "contato"
+  | "nao_enviar"
+  | "progresso"
+  | "plano"
+  | "central";
+
+export const ENTRY_SOURCES: readonly EntrySource[] = [
+  "diagnostico",
+  "first48",
+  "cenario",
+  "contato",
+  "nao_enviar",
+  "progresso",
+  "plano",
+  "central",
+];
+
 export interface JournalEntry {
   id: string;
   type: EntryType;
@@ -38,6 +70,7 @@ export interface JournalEntry {
   readyAt?: string;
   signalKind?: SignalKind;
   signal?: string;
+  source?: EntrySource;
 }
 
 export interface AppData {
@@ -60,6 +93,8 @@ export type LoginError = "no_access" | "invalid_email" | "failed";
 const STORAGE_PREFIX = "codigo-reconquista:v1:";
 /** Só em desenvolvimento: simula a compra do Reset Emocional do Ex. */
 const DEV_RESET_KEY = "codigo-reconquista:dev-reset";
+/** Só em desenvolvimento: simula o estado dos três benefícios (Meus Benefícios). */
+const DEV_BENEFITS_KEY = "codigo-reconquista:dev-benefits";
 /** Só em desenvolvimento: entra sem servidor, para testar as telas localmente. */
 const DEV_EMAIL_KEY = "codigo-reconquista:dev-email";
 const EMPTY: AppData = { profile: null, completed: {}, journal: [] };
@@ -162,6 +197,13 @@ async function loginWithEmail(
 const sortJournal = (journal: JournalEntry[]) =>
   [...journal].sort((a, b) => a.at.localeCompare(b.at));
 
+/** Acrescenta um registro ao Diário (na ordem por data). Usado para gravar junto com outra mudança. */
+export function withEntry(data: AppData, entry: NewEntry): AppData {
+  const { at, ...rest } = entry;
+  const created: JournalEntry = { ...rest, id: newId(), at: at ?? new Date().toISOString() };
+  return { ...data, journal: sortJournal([...data.journal, created]) };
+}
+
 const sameDay = (a: Date, b: Date) =>
   a.getFullYear() === b.getFullYear() &&
   a.getMonth() === b.getMonth() &&
@@ -169,20 +211,39 @@ const sameDay = (a: Date, b: Date) =>
 
 /** O que a cliente comprou além do app (cr_my_entitlements no Supabase). */
 export interface Entitlements {
-  /** Upsell #01: Reset Emocional do Ex. */
+  /** Reset Emocional do Ex: upsell antigo, mantido para quem já comprou. */
   reset: boolean;
+  /** Conselheiro, Círculo e Acesso Total Vitalício. null = o servidor ainda não informa. */
+  benefits: BenefitGrants;
   /** Todos os 21 dias abertos (cr_clients.unlock_all, ligado manualmente). */
   allDays: boolean;
 }
 
-const NO_ENTITLEMENTS: Entitlements = { reset: false, allDays: false };
+const NO_ENTITLEMENTS: Entitlements = {
+  reset: false,
+  benefits: NO_BENEFIT_GRANTS,
+  allDays: false,
+};
+
+function devBenefits(): BenefitGrants {
+  try {
+    const raw = window.localStorage.getItem(DEV_BENEFITS_KEY);
+    return raw ? parseBenefitGrants(JSON.parse(raw) as Record<string, unknown>) : NO_BENEFIT_GRANTS;
+  } catch {
+    return NO_BENEFIT_GRANTS;
+  }
+}
 
 /** Lê as permissões. null = falhou (rede, função ausente): quem chama decide o que manter. */
 async function loadEntitlements(): Promise<Entitlements | null> {
   const { data, error } = await supabase.rpc("cr_my_entitlements");
   if (error || !data) return null;
-  const granted = data as { reset?: boolean; all_days?: boolean };
-  return { reset: Boolean(granted.reset), allDays: Boolean(granted.all_days) };
+  const granted = data as Record<string, unknown>;
+  return {
+    reset: granted["reset"] === true,
+    benefits: parseBenefitGrants(granted),
+    allDays: granted["all_days"] === true,
+  };
 }
 
 interface StoreValue {
@@ -191,6 +252,8 @@ interface StoreValue {
   entitlements: Entitlements;
   /** Só em desenvolvimento: liga/desliga a compra simulada do Reset. */
   devSetReset: (on: boolean) => void;
+  /** Só em desenvolvimento: simula liberado (true), não adquirido (false) ou pendente (null). */
+  devSetBenefit: (id: BenefitId, grant: boolean | null) => void;
   data: AppData;
   reload: () => void;
   login: (email: string) => Promise<{ ok: true } | { ok: false; error: LoginError }>;
@@ -241,6 +304,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setEntitlements({
           ...NO_ENTITLEMENTS,
           reset: window.localStorage.getItem(DEV_RESET_KEY) === "1",
+          benefits: devBenefits(),
         });
         return enter(devEmail, null);
       }
@@ -318,6 +382,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       });
       return false;
     }
+    // Atualiza já a referência: duas ações seguidas no mesmo toque não leem dados velhos.
+    dataRef.current = next;
     setData(next);
     return true;
   }, []);
@@ -340,6 +406,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (on) window.localStorage.setItem(DEV_RESET_KEY, "1");
       else window.localStorage.removeItem(DEV_RESET_KEY);
       setEntitlements((current) => ({ ...current, reset: on }));
+    },
+    devSetBenefit: (id, grant) => {
+      if (!import.meta.env.DEV) return;
+      const next = { ...devBenefits(), [id]: grant };
+      window.localStorage.setItem(DEV_BENEFITS_KEY, JSON.stringify(next));
+      setEntitlements((current) => ({ ...current, benefits: next }));
     },
     data,
     reload: () => void reload(),
@@ -366,30 +438,55 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     showToast,
     clearToast,
     saveProfile: (profile) => commit({ ...dataRef.current, profile }),
+    // Trocar de cenário fica registrado no Diário, na mesma gravação.
     setScenario: (scenario) => {
       const profile = dataRef.current.profile;
       if (!profile) return false;
-      return commit({ ...dataRef.current, profile: { ...profile, scenario } });
+      if (profile.scenario === scenario) return true;
+      const next = { ...dataRef.current, profile: { ...profile, scenario } };
+      const from = profile.scenario ? scenarioById(profile.scenario).label : null;
+      const to = scenarioById(scenario).label;
+      return commit(
+        withEntry(next, {
+          type: "note",
+          source: "cenario",
+          text: from
+            ? `Mudei o meu cenário de "${from}" para "${to}".`
+            : `Escolhi o meu cenário: "${to}".`,
+        }),
+      );
     },
+    // Os marcos (dias 7, 14 e 21) também ficam no Diário como registro de progresso.
     completeDay: (day) => {
       if (dataRef.current.completed[day]) return true;
-      return commit({
+      const next = {
         ...dataRef.current,
         completed: { ...dataRef.current.completed, [day]: new Date().toISOString() },
-      });
+      };
+      const milestone = MILESTONES.find((item) => item.day === day);
+      return commit(
+        milestone
+          ? withEntry(next, {
+              type: "note",
+              source: "progresso",
+              text: `Marco alcançado: concluí o Dia ${day} do plano. ${milestone.title}`,
+            })
+          : next,
+      );
     },
     addEntry: (entry) => {
-      const { at, ...rest } = entry;
-      const created: JournalEntry = { ...rest, id: newId(), at: at ?? new Date().toISOString() };
-      let journal = dataRef.current.journal;
+      let base = dataRef.current;
       // Um humor por dia: o novo substitui o de hoje.
-      if (created.type === "mood") {
-        const now = new Date(created.at);
-        journal = journal.filter(
-          (item) => !(item.type === "mood" && sameDay(new Date(item.at), now)),
-        );
+      if (entry.type === "mood") {
+        const now = new Date(entry.at ?? Date.now());
+        base = {
+          ...base,
+          journal: base.journal.filter(
+            (item) => !(item.type === "mood" && sameDay(new Date(item.at), now)),
+          ),
+        };
       }
-      return commit({ ...dataRef.current, journal: sortJournal([...journal, created]) });
+      return commit(withEntry(base, entry));
     },
     deleteEntry: (id) =>
       commit({

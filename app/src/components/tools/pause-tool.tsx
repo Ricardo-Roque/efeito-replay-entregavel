@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Archive, ArrowRight, Copy, NotebookPen, TriangleAlert, X } from "lucide-react";
 
 import { Emoji, Highlight, Overlay, ScenarioArt, SectionTitle } from "@/components/common";
+import { useCommContext } from "@/components/comunicacao/hooks";
 import { Button } from "@/components/ui/button";
 import { copyText } from "@/lib/clipboard";
 import { pauseQuestions } from "@/lib/guide";
+import { useJornada } from "@/lib/jornada/store";
 import { formatTime } from "@/lib/progress";
 import type { ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
@@ -36,11 +38,23 @@ export function PauseTool({
 }) {
   const { data, addEntry, showToast } = useStore();
   const scenario = data.profile!.scenario;
+  const { result: diagnosis } = useJornada();
   const [step, setStep] = useState<Step>("write");
   const [draft, setDraft] = useState(initialDraft);
-  // Se o cenário é bloqueio, o limite já vem marcado: o resultado é "não envie".
+  // Mesmo limite da Central e do "Ele respondeu. E agora?" (contextOf): bloqueio, pedido de não
+  // contato ou outra relação, pelo diagnóstico ou pelo cenário do perfil. Com ele, o limite já vem
+  // marcado e o resultado é "não envie".
+  const limitKnown = useCommContext().stance === "limite";
+  // Outra relação (sem bloqueio nem pedido de distância) leva ao cenário "outra"; o resto, ao bloqueio.
+  const otherRelation =
+    limitKnown &&
+    diagnosis?.attention.id !== "bloqueio" &&
+    diagnosis?.attention.id !== "pedido_sem_contato" &&
+    scenario !== "bloqueou" &&
+    (diagnosis?.attention.id === "outra_relacao" || scenario === "outra");
+  const limitScenario: ScenarioId = otherRelation ? "outra" : "bloqueou";
   const [answers, setAnswers] = useState<Record<string, Answer>>(
-    scenario === "bloqueou" ? { limite: "no" } : {},
+    limitKnown ? { limite: "no" } : {},
   );
   const text = draft.trim();
   const lines = text ? text.split(/\n/).length : 0;
@@ -51,8 +65,12 @@ export function PauseTool({
 
   const saveDraft = (wait: boolean) => {
     const ok = wait
-      ? addEntry({ type: "draft", text, readyAt: readyAt.toISOString() })
-      : addEntry({ type: "note", text: `Mensagem que eu não enviei: ${text}` });
+      ? addEntry({ type: "draft", source: "nao_enviar", text, readyAt: readyAt.toISOString() })
+      : addEntry({
+          type: "note",
+          source: "nao_enviar",
+          text: `Mensagem que eu não enviei: ${text}`,
+        });
     if (!ok) return;
     showToast(
       wait
@@ -269,11 +287,12 @@ export function PauseTool({
       {step === "result" && result === "blocked" && (
         <>
           <section className="rounded-card bg-tint-rose p-6 text-center">
-            <ScenarioArt id="bloqueou" className="mx-auto size-24" />
+            <ScenarioArt id={limitScenario} className="mx-auto size-24" />
             <h2 className="mt-3 font-display text-2xl font-black">Não envie</h2>
             <p className="mt-2 text-[13px] leading-snug text-muted-foreground">
-              Ele te bloqueou ou pediu distância. Isso é um limite, e respeitar esse limite também é
-              parte do plano.
+              {otherRelation
+                ? "Ele está em outra relação. Não interferir é um limite, e respeitar esse limite também é parte do plano."
+                : "Ele te bloqueou ou pediu distância. Isso é um limite, e respeitar esse limite também é parte do plano."}
             </p>
           </section>
           <div className="mt-4 flex gap-3 rounded-xl border border-destructive/30 bg-destructive-soft px-4 py-3 text-sm leading-6">
@@ -289,9 +308,11 @@ export function PauseTool({
           <Button
             variant="ghost"
             className="mt-1 h-11 w-full font-bold text-primary"
-            onClick={() => openScenario("bloqueou")}
+            onClick={() => openScenario(limitScenario)}
           >
-            Ver o cenário "Ele me bloqueou"
+            {otherRelation
+              ? 'Ver o cenário "Ele está com outra pessoa"'
+              : 'Ver o cenário "Ele me bloqueou"'}
           </Button>
         </>
       )}

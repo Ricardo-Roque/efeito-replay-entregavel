@@ -60,8 +60,8 @@ export const pauseQuestions: PauseQuestion[] = [
   },
   {
     id: "limite",
-    label: "Ele não te bloqueou nem pediu distância?",
-    hint: "Bloqueio e pedido de distância são limites.",
+    label: "Ele não te bloqueou, não pediu distância e não está com outra pessoa?",
+    hint: "Bloqueio, pedido de distância e outra relação são limites.",
     hardStop: true,
   },
 ];

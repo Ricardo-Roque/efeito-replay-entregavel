@@ -7,6 +7,7 @@ import {
   NoteField,
   ResetShell,
   SectionLabel,
+  useResetLimit,
 } from "@/components/reset/reset-common";
 import { Button } from "@/components/ui/button";
 import { copyText } from "@/lib/clipboard";
@@ -16,7 +17,6 @@ import {
   forgivenessLessons,
   responsibilityPrompts,
 } from "@/lib/reset/content";
-import { respectsLimit } from "@/lib/reset/diagnosis";
 import { useReset } from "@/lib/reset/store";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 export function ForgivenessModule({ onBack }: { onBack: () => void }) {
   const { data, current, update, addHurt, removeHurt } = useReset();
   const { showToast } = useStore();
-  const limit = current ? respectsLimit(current.answers) : false;
+  const { limit } = useResetLimit();
   const [open, setOpen] = useState<string | null>(forgivenessLessons[0]!.id);
   const [hurt, setHurt] = useState({ event: "", consequences: "", repair: "" });
 

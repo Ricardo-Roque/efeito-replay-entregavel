@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, Check, Phone, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { careLines } from "@/lib/guide";
 import { cenarioArte, emoji, personagem, type EmojiName, type Pose } from "@/lib/illustrations";
 import type { ScenarioId } from "@/lib/scenarios";
 import { planPhases } from "@/lib/plan";
@@ -182,8 +183,19 @@ export function PhaseBar({ completed }: { completed: number }) {
   );
 }
 
-/** Barra de progresso do card em degradê (Meta da semana do Calm Kids). */
-export function GoalProgress({ value, max, label }: { value: number; max: number; label: string }) {
+/** Barra de progresso do card em degradê (Meta da semana do Calm Kids).
+ * `tone="primary"` é a mesma barra sobre fundo claro (cards brancos). */
+export function GoalProgress({
+  value,
+  max,
+  label,
+  tone = "light",
+}: {
+  value: number;
+  max: number;
+  label: string;
+  tone?: "light" | "primary";
+}) {
   return (
     <div
       role="progressbar"
@@ -191,10 +203,16 @@ export function GoalProgress({ value, max, label }: { value: number; max: number
       aria-valuemin={0}
       aria-valuemax={max}
       aria-valuenow={value}
-      className="h-2.5 flex-1 overflow-hidden rounded-full bg-card/25"
+      className={cn(
+        "h-2.5 flex-1 overflow-hidden rounded-full",
+        tone === "light" ? "bg-card/25" : "bg-primary/15",
+      )}
     >
       <div
-        className="h-full rounded-full bg-card transition-all"
+        className={cn(
+          "h-full rounded-full transition-all",
+          tone === "light" ? "bg-card" : "bg-primary",
+        )}
         style={{ width: `${Math.min(100, (value / max) * 100)}%` }}
       />
     </div>
@@ -259,6 +277,68 @@ export function Highlight({
     <div className={cn("flex items-center gap-3 rounded-card p-4", tintClass[tint])}>
       <Emoji name={name} className="size-10 shrink-0" />
       <p className="font-display text-[15px] font-extrabold leading-snug">{children}</p>
+    </div>
+  );
+}
+
+/** Item de checklist marcável (Reset e Meu Plano de 48 Horas). */
+export function CheckRow({
+  checked,
+  onToggle,
+  children,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={checked}
+      onClick={onToggle}
+      className={cn(
+        "flex w-full cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm leading-6 transition-colors",
+        checked ? "border-success/40 bg-success-soft" : "border-border bg-card hover:bg-muted",
+      )}
+    >
+      <span
+        className={cn(
+          "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border-2",
+          checked ? "border-success bg-success text-primary-foreground" : "border-border",
+        )}
+      >
+        {checked && <Check className="size-3.5" strokeWidth={3} />}
+      </span>
+      {children}
+    </button>
+  );
+}
+
+/** Rede de apoio (CVV 188 e 180). `highlight` põe em destaque quando o diagnóstico pede. */
+export function CareLines({ highlight }: { highlight: boolean }) {
+  return (
+    <div
+      className={cn(
+        "rounded-card p-4",
+        highlight ? "bg-tint-rose" : "border border-border bg-card",
+      )}
+    >
+      <p className="text-sm font-extrabold">
+        Se a dor estiver pesada demais, fale com alguém agora.
+      </p>
+      <div className="mt-3 space-y-2">
+        {careLines.map((line) => (
+          <a
+            key={line.phone}
+            href={`tel:${line.phone}`}
+            className="flex items-center gap-3 rounded-xl bg-card px-3 py-2.5 shadow-soft hover:bg-muted"
+          >
+            <Phone className="size-4 shrink-0 text-primary" />
+            <span className="flex-1 text-[13px] font-semibold">{line.label}</span>
+            <span className="font-display text-lg font-black text-primary">{line.phone}</span>
+          </a>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Hourglass, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Hourglass, Trash2 } from "lucide-react";
 
 import { Emoji, GoalProgress } from "@/components/common";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,13 @@ import {
   impulseFreeDays,
   isDraftReady,
 } from "@/lib/progress";
-import { useStore, type EntryType, type JournalEntry } from "@/lib/store";
+import {
+  ENTRY_SOURCES,
+  useStore,
+  type EntrySource,
+  type EntryType,
+  type JournalEntry,
+} from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 const entryInfo: Record<EntryType, { label: string; emoji: EmojiName }> = {
@@ -24,6 +30,54 @@ const entryInfo: Record<EntryType, { label: string; emoji: EmojiName }> = {
   signal: { label: "Sinal percebido", emoji: "sinais" },
   note: { label: "Anotação", emoji: "escrever" },
 };
+
+/** Rótulo pela origem (registros feitos pelas outras ferramentas). Sem origem, vale o tipo. */
+const sourceInfo: Record<EntrySource, { label: string; emoji: EmojiName }> = {
+  diagnostico: { label: "Diagnóstico", emoji: "ok" },
+  first48: { label: "Meu Plano de 48 Horas", emoji: "estrela" },
+  cenario: { label: "Mudança de cenário", emoji: "sinais" },
+  contato: { label: "Ele fez contato", emoji: "contato" },
+  nao_enviar: { label: "Decidi não enviar", emoji: "escudo" },
+  progresso: { label: "Progresso", emoji: "medalha" },
+  plano: { label: "Plano de 21 dias", emoji: "diario" },
+  central: { label: "Central de Comunicação", emoji: "celular" },
+};
+
+const sourceOf = (entry: JournalEntry): EntrySource | null =>
+  entry.source && ENTRY_SOURCES.includes(entry.source) ? entry.source : null;
+
+function infoOf(entry: JournalEntry) {
+  const source = sourceOf(entry);
+  // O rascunho da Pausa continua com o rótulo próprio (ele tem o botão de reler).
+  if (source && entry.type !== "draft") return sourceInfo[source];
+  return entryInfo[entry.type];
+}
+
+type Filter = "all" | "notes" | "contact" | "held" | "progress";
+
+const filters: { id: Filter; label: string }[] = [
+  { id: "all", label: "Tudo" },
+  { id: "notes", label: "Reflexões" },
+  { id: "contact", label: "Contato" },
+  { id: "held", label: "Não enviei" },
+  { id: "progress", label: "Progresso" },
+];
+
+function matchesFilter(entry: JournalEntry, filter: Filter) {
+  const source = sourceOf(entry);
+  if (filter === "all") return true;
+  if (filter === "contact") return entry.type === "contact";
+  if (filter === "held")
+    return entry.type === "held" || entry.type === "draft" || source === "nao_enviar";
+  if (filter === "progress")
+    return source === "progresso" || source === "diagnostico" || source === "cenario";
+  return (
+    entry.type === "note" &&
+    (source === null || source === "plano" || source === "first48" || source === "central")
+  );
+}
+
+const PAGE = 20;
 
 const moodEmoji: EmojiName[] = ["humor1", "humor2", "humor3", "humor4", "humor5"];
 
@@ -41,9 +95,19 @@ function entryDetail(entry: JournalEntry, now: Date) {
 
 /** Aba Diário, no formato do Diário do sono do CalmBaby: evolução no topo, registrar,
  * sinais e últimos registros. */
-export function DiaryScreen({ openPause }: { openPause: (draft?: string) => void }) {
+export function DiaryScreen({
+  openPause,
+  openReply,
+}: {
+  openPause: (draft?: string) => void;
+  /** "Ele respondeu. E agora?", oferecido logo depois de registrar que ele fez contato. */
+  openReply: () => void;
+}) {
   const { data, addEntry, deleteEntry, toggleSignal, showToast } = useStore();
   const [note, setNote] = useState("");
+  const [contacted, setContacted] = useState(false);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [limit, setLimit] = useState(PAGE);
   const now = new Date();
   const impulse = impulseFreeDays(data, now);
   const todayMood = [...data.journal]
@@ -58,13 +122,15 @@ export function DiaryScreen({ openPause }: { openPause: (draft?: string) => void
       )
       .map((entry) => entry.signal),
   );
-  const recent = [...data.journal]
+  // Nenhum registro antigo some: a lista mostra 20 de cada vez, com "Ver registros anteriores".
+  const history = [...data.journal]
     .reverse()
-    .filter((entry) => entry.type !== "mood")
-    .slice(0, 20);
+    .filter((entry) => entry.type !== "mood" && matchesFilter(entry, filter));
+  const recent = history.slice(0, limit);
 
   const quick = (type: "held" | "acted" | "contact") => {
     if (!addEntry({ type })) return;
+    if (type === "contact") setContacted(true);
     showToast(
       type === "held"
         ? "Registrado. Cada impulso segurado conta."
@@ -157,6 +223,15 @@ export function DiaryScreen({ openPause }: { openPause: (draft?: string) => void
         <p className="mt-3 text-xs leading-snug text-muted-foreground">
           "Agi por impulso" recomeça o contador. Recomeçar faz parte.
         </p>
+        {contacted && (
+          <Button
+            variant="outline"
+            className="mt-3 h-11 w-full justify-between rounded-xl bg-card font-bold"
+            onClick={openReply}
+          >
+            Ele escreveu? Veja o que fazer agora <ArrowRight />
+          </Button>
+        )}
       </section>
 
       <section className="mt-5 rounded-card bg-card p-5 shadow-soft">
@@ -222,17 +297,44 @@ export function DiaryScreen({ openPause }: { openPause: (draft?: string) => void
       </section>
 
       <h2 className="mb-3 mt-8 font-display text-[17px] font-extrabold">Últimos registros</h2>
+      <div
+        className="-mx-5 mb-3 flex gap-2 overflow-x-auto px-5 pb-1"
+        aria-label="Filtrar registros"
+      >
+        {filters.map((item) => {
+          const on = filter === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={on}
+              onClick={() => {
+                setFilter(item.id);
+                setLimit(PAGE);
+              }}
+              className={cn(
+                "shrink-0 cursor-pointer rounded-full px-3.5 py-2 text-[13px] font-bold transition-colors",
+                on ? "bg-primary text-primary-foreground" : "bg-card text-foreground shadow-soft",
+              )}
+            >
+              {item.label}
+            </button>
+          );
+        })}
+      </div>
       {recent.length === 0 ? (
         <section className="flex items-center gap-3 rounded-card bg-tint-rose p-5">
           <Emoji name="diario" className="size-14 shrink-0" />
           <p className="text-[13px] leading-snug text-foreground">
-            Seus registros aparecem aqui. Comece pelo "Registrar" acima.
+            {filter === "all"
+              ? 'Seus registros aparecem aqui. Comece pelo "Registrar" acima.'
+              : 'Nenhum registro deste tipo ainda. Toque em "Tudo" para ver os outros.'}
           </p>
         </section>
       ) : (
         <ul className="overflow-hidden rounded-card bg-card shadow-soft">
           {recent.map((entry) => {
-            const info = entryInfo[entry.type];
+            const info = infoOf(entry);
             const ready = entry.type === "draft" && isDraftReady(entry, now);
             return (
               <li
@@ -280,6 +382,15 @@ export function DiaryScreen({ openPause }: { openPause: (draft?: string) => void
             );
           })}
         </ul>
+      )}
+      {history.length > recent.length && (
+        <Button
+          variant="outline"
+          className="mt-3 h-11 w-full rounded-xl bg-card font-bold"
+          onClick={() => setLimit((current) => current + PAGE)}
+        >
+          Ver registros anteriores ({history.length - recent.length})
+        </Button>
       )}
     </div>
   );

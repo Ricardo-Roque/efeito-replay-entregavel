@@ -5,7 +5,8 @@ const env = (key: string) => String(import.meta.env[key] ?? "").trim();
 
 export const config = {
   supportWhatsapp: env("VITE_SUPPORT_WHATSAPP").replace(/\D/g, ""),
-  /** Checkout da Payt do Reset Emocional do Ex (upsell #01). Vazio = sem botão de compra. */
+  /** Checkout da Payt do Reset Emocional do Ex (oferta antiga, fora das ofertas atuais). Só é usado
+   * na tela bloqueada do Reset, que nenhum atalho abre para quem não comprou. Vazio = sem botão. */
   resetCheckoutUrl: env("VITE_RESET_CHECKOUT_URL"),
 };
 

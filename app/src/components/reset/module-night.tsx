@@ -216,7 +216,7 @@ export function NightModule({ onBack }: { onBack: () => void }) {
             onClick={() => setScript(!script)}
             className="mt-3 flex w-full cursor-pointer items-center justify-between rounded-xl bg-white/10 px-4 py-3 text-sm font-bold"
           >
-            Roteiro do áudio
+            {audioUrl("noturno") ? "Roteiro do áudio" : "Roteiro completo para leitura"}
             <ChevronDown className={cn("size-4 transition-transform", script && "rotate-180")} />
           </button>
           {script && (

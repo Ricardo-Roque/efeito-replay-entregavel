@@ -6,6 +6,7 @@ import {
   ResetProgress,
   ResetShell,
   SectionLabel,
+  useResetLimit,
 } from "@/components/reset/reset-common";
 import { Button } from "@/components/ui/button";
 import {
@@ -138,8 +139,9 @@ export function DiagnosisResult({
   redo: () => void;
 }) {
   const { current, data } = useReset();
+  const { appLimit } = useResetLimit();
   if (!current) return null;
-  const map = buildMap(current.answers);
+  const map = buildMap(current.answers, appLimit);
   const firstModule = modules.find((m) => m.id === map.firstStep.module)!;
   const history = data.diagnoses.slice(0, -1).reverse();
 

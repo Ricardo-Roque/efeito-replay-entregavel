@@ -2,9 +2,9 @@ import { useState, type ReactNode } from "react";
 import { Check, Compass, KeyRound, Lock, X } from "lucide-react";
 
 import { Emoji } from "@/components/common";
-import { LimitNotice, ResetShell } from "@/components/reset/reset-common";
+import { LimitNotice, ResetShell, useResetLimit } from "@/components/reset/reset-common";
 import { Button } from "@/components/ui/button";
-import { buildTrustMap, respectsLimit } from "@/lib/reset/diagnosis";
+import { buildTrustMap } from "@/lib/reset/diagnosis";
 import { useReset } from "@/lib/reset/store";
 import { cn } from "@/lib/utils";
 
@@ -75,6 +75,7 @@ export function BonusModule({
   startDiagnosis: () => void;
 }) {
   const { data, current, update } = useReset();
+  const { appLimit, limit } = useResetLimit();
   const [revealing, setRevealing] = useState(false);
 
   if (!current)
@@ -103,7 +104,7 @@ export function BonusModule({
       </ResetShell>
     );
 
-  const map = buildTrustMap(current.answers);
+  const map = buildTrustMap(current.answers, appLimit);
   const revealed = Boolean(data.bonusRevealedAt);
 
   if (!revealed)
@@ -160,7 +161,7 @@ export function BonusModule({
             pensa ou sente.
           </p>
         </div>
-        {respectsLimit(current.answers) && <LimitNotice />}
+        {limit && <LimitNotice />}
         <Block title="Situação atual">{map.situation}</Block>
         <Block title="Principal barreira de comunicação">{map.barrier}</Block>
         <Block title="Atitudes que podem prejudicar a confiança" tone="warn">

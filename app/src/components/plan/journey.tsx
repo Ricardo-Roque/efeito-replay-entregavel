@@ -313,7 +313,7 @@ export function DaySheet({
                 {statusCopy[status].label}
               </span>
               <DrawerTitle className="font-display text-2xl">{day.title}</DrawerTitle>
-              <DrawerDescription className="text-sm leading-6">{day.lesson[0]}</DrawerDescription>
+              <DrawerDescription className="text-sm leading-6">{day.goal}</DrawerDescription>
             </DrawerHeader>
             <div className="space-y-3 px-4 pb-2">
               <div className="flex items-center gap-2 rounded-xl bg-muted px-3 py-2.5 text-sm">

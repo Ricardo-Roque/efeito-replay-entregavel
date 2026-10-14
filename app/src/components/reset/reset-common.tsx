@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 
+import { useCommContext } from "@/components/comunicacao/hooks";
 import { Button } from "@/components/ui/button";
+import { respectsLimit } from "@/lib/reset/diagnosis";
 import { useReset } from "@/lib/reset/store";
 import { cn } from "@/lib/utils";
 
@@ -148,47 +150,29 @@ export function NoteField({
   );
 }
 
-export function CheckRow({
-  checked,
-  onToggle,
-  children,
-}: {
-  checked: boolean;
-  onToggle: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={checked}
-      onClick={onToggle}
-      className={cn(
-        "flex w-full cursor-pointer items-start gap-3 rounded-xl border px-4 py-3 text-left text-sm leading-6 transition-colors",
-        checked ? "border-success/40 bg-success-soft" : "border-border bg-card hover:bg-muted",
-      )}
-    >
-      <span
-        className={cn(
-          "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border-2",
-          checked ? "border-success bg-success text-primary-foreground" : "border-border",
-        )}
-      >
-        {checked && <Check className="size-3.5" strokeWidth={3} />}
-      </span>
-      {children}
-    </button>
-  );
+// Mora em components/common.tsx (também usado no Meu Plano de 48 Horas).
+export { CheckRow } from "@/components/common";
+
+/**
+ * Limite valendo no Reset: o do diagnóstico do Reset ou o do diagnóstico principal do app (mesma
+ * regra da Central). Assim, o upsell nunca sugere contato quando o resto do app diz que não.
+ */
+export function useResetLimit() {
+  const { current } = useReset();
+  const appLimit = useCommContext().stance === "limite";
+  return { appLimit, limit: appLimit || (current ? respectsLimit(current.answers) : false) };
 }
 
 /** Aviso fixo quando ele pediu para não haver contato ou bloqueou. */
-export function LimitNotice() {
+export function LimitNotice({ children }: { children?: ReactNode }) {
   return (
     <div
       role="note"
       className="rounded-xl border border-reset/30 bg-reset-soft px-4 py-3 text-sm leading-6 text-foreground"
     >
-      <b>Seu plano respeita o limite que ele colocou.</b> Nada aqui envolve entrar em contato com
-      ele. Tudo o que você escrever fica só com você.
+      <b>Seu plano respeita o limite que ele colocou.</b>{" "}
+      {children ??
+        "Nada aqui envolve entrar em contato com ele. Tudo o que você escrever fica só com você."}
     </div>
   );
 }

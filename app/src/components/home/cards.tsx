@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ChevronRight, Lock } from "lucide-react";
 
 import { Emoji, tintClass } from "@/components/common";
@@ -10,21 +11,47 @@ import { cn } from "@/lib/utils";
 export function CategoryTile({
   label,
   emoji,
+  icon,
   onClick,
+  soon = false,
 }: {
   label: string;
   emoji: EmojiName;
-  onClick: () => void;
+  /** Substitui o emoji (ex.: a arte do cenário). */
+  icon?: ReactNode;
+  onClick?: () => void;
+  /** Função ainda sem destino: aparece apagada, com "Em breve", e não é um botão. */
+  soon?: boolean;
 }) {
+  const tile = (
+    <span
+      className={cn(
+        "relative grid size-[68px] place-items-center rounded-tile bg-card shadow-tile ring-1 ring-border/60 transition-transform",
+        !soon && "group-active:scale-95",
+      )}
+    >
+      {icon ?? <Emoji name={emoji} className={cn("size-11", soon && "opacity-50 grayscale")} />}
+      {soon && (
+        <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-muted-foreground">
+          Em breve
+        </span>
+      )}
+    </span>
+  );
+  if (soon || !onClick)
+    return (
+      <div aria-disabled="true" className="flex flex-col items-center gap-2 text-center">
+        {tile}
+        <span className="text-[13px] font-bold leading-tight text-muted-foreground">{label}</span>
+      </div>
+    );
   return (
     <button
       type="button"
       onClick={onClick}
       className="group flex cursor-pointer flex-col items-center gap-2 text-center"
     >
-      <span className="grid size-[68px] place-items-center rounded-tile bg-card shadow-tile ring-1 ring-border/60 transition-transform group-active:scale-95">
-        <Emoji name={emoji} className="size-11" />
-      </span>
+      {tile}
       <span className="text-[13px] font-bold leading-tight text-foreground">{label}</span>
     </button>
   );
