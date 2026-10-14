@@ -1040,3 +1040,16 @@ Escopo: trocar o Reset Emocional do Ex pelas três ofertas atuais (Conselheiro d
    - **liberado:** o Vitalício lista os materiais com status;
    - **não adquirido:** só a oferta, com "Conhecer a oferta" apenas se houver checkout configurado.
 4. Toque em "Simular compra do Reset". O card do Reset volta ao Início e ao Perfil, e aparece em "Outros conteúdos da sua conta".
+
+---
+
+## Etapa: auditoria de QA antes da publicação
+
+O relatório completo está em `docs/qa-evolucao.md`. Ele reúne os testes feitos, os resultados, os problemas corrigidos, os problemas restantes classificados por gravidade e as recomendações antes de publicar.
+
+O que mudou no app nesta etapa:
+
+- **Pausa com limite registrado:** a pergunta do limite fica travada e o resultado é sempre "Não envie".
+- **Pausa com pedido de tempo ou sem reciprocidade:** o checklist pergunta "Ele escreveu primeiro?".
+- **Plano de 21 dias com limite:** os atalhos de reencontro não aparecem mais.
+- **Telas de 320 px:** três ajustes de layout.

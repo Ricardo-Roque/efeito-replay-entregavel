@@ -10,7 +10,7 @@ Este documento serve para revisar a VSL. Ele lista o que a publicidade promete e
 | Reconquista em 7 dias | mesmo problema | "Os primeiros 7 dias sem agir por impulso" (meta real da Fase 1) |
 | Garantia vinculada a 30 dias | se a garantia for de satisfação ou reembolso (CDC, 7 dias no mínimo para compra online), deixar claro que não depende de ele voltar | explicitar o tipo e as condições da garantia |
 | Controle dos sentimentos dele, despertar interesse e saudade "com certeza" | ninguém controla o que outra pessoa sente, e o app não interpreta o que ele sente | "Como se comunicar de forma leve e respeitosa" |
-| Protocolo personalizado | só é verdade depois que o diagnóstico for integrado (etapa seguinte) | manter apenas quando o diagnóstico estiver no ar |
+| Protocolo personalizado | o diagnóstico de 6 perguntas já está no app e ajusta Mapa, 48 horas, Central, Pausa e plano por regras explícitas. O resultado (reconquista) continua não dependendo do app | "Um plano personalizado para a sua situação" (ver `docs/matriz-vsl-entregavel.md`, linha 1) |
 | Técnicas com nome próprio (lista abaixo) | o app ainda não tem o conteúdo que as define | não citar na VSL uma técnica que o app não entrega |
 
 ## Técnicas citadas, aguardando material
@@ -40,5 +40,5 @@ Critérios para aceitar o material:
 - Os 6 cenários, cada um com o que fazer, o que evitar e quando parar.
 - O Diário emocional, com os sinais de abertura, alerta e pare.
 - As Regras de ouro.
-- Assim que forem integrados: o diagnóstico de entrada, as primeiras 48 horas (estabilização) e a central de mensagens, com o guia do que responder quando ele entra em contato.
-- O Reset Emocional do Ex (upsell).
+- O diagnóstico de entrada, o Meu Plano de 48 Horas (estabilização) e a Central de Comunicação, com o guia "Ele respondeu. E agora?".
+- O Reset Emocional do Ex não é mais uma oferta atual: continua só para quem já comprou. As ofertas atuais estão em `docs/estrutura-comercial-upsells.md`.

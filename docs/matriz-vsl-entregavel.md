@@ -49,9 +49,9 @@ Este documento cruza cada promessa feita na venda com o que o app entrega hoje. 
 | 22 | Casos e prints de clientes que reconquistaram (quiz, tela 7) | Não verificável ou não garantível | Não há depoimentos no app | Usar só depoimentos reais, com autorização |
 | 23 | Garantia de 30 dias | Não verificável ou não garantível (pelo app) | Depende da política de reembolso da Payt. O app não depende de ele voltar para valer | Deixar claro que é garantia de satisfação |
 
-## Reset Emocional do Ex (upsell)
+## Reset Emocional do Ex (oferta antiga, só para quem já comprou)
 
-O sistema de compra e as permissões não foram alterados: sem a compra, o card abre o WhatsApp ou a tela do produto, e o conteúdo nunca aparece.
+O Reset deixou de ser uma oferta atual (ver `docs/estrutura-comercial-upsells.md`, seção 7). O sistema de compra e as permissões não foram alterados: sem a compra, o app não mostra o Reset em lugar nenhum, e o conteúdo nunca aparece. O pedido de acesso pelo WhatsApp foi removido. As linhas abaixo valem para quem já tem o Reset.
 
 | # | Promessa | Classificação | O que o app tem de fato | Recomendação |
 |---|---|---|---|---|
@@ -71,6 +71,7 @@ O sistema de compra e as permissões não foram alterados: sem a compra, o card 
 |---|---|---|---|
 | 33 | Conselheiro com acompanhamento individual "até você reconquistar seu ex" (up1) | Não verificável ou não garantível | O serviço é por WhatsApp, fora do app. "Até reconquistar" não tem fim garantido. A própria página diz que depende da vontade dele |
 | 34 | Círculo da Reconquista, comunidade (up2) | Não verificável (pelo app) | Fora do app |
+| 35 | Acesso Total Vitalício: acesso vitalício, "todos os produtos digitais da linha" e "todas as futuras atualizações" (up3) | Não verificável (pelo app) | A permissão `vitalicio` ainda não existe no banco: quem compra vê "Acesso pendente de configuração". A lista de produtos da linha não foi definida e nenhuma atualização foi publicada. O acesso ao app hoje depende da compra principal continuar `paid` (ver `docs/estrutura-comercial-upsells.md`, seção 4) |
 
 ## Resumo
 
@@ -79,6 +80,6 @@ O sistema de compra e as permissões não foram alterados: sem a compra, o card 
 | Atendida | 9 |
 | Parcialmente atendida | 6 |
 | Pendente de conteúdo original | 7 |
-| Não verificável ou não garantível | 10 (mais 2 ofertas fora do app) |
+| Não verificável ou não garantível | 10 (mais 3 ofertas: 2 fora do app e o Vitalício, ainda sem permissão no banco) |
 
 Prioridade para a VSL: tirar a promessa de fazer ele responder mesmo com bloqueio (linha 20) e a de reconquista em 48 horas (linha 17). Hoje as duas contradizem diretamente o que a cliente encontra no app.

@@ -70,4 +70,5 @@ Depois de aprovado, trocar o `status` para `aprovado`. A tela não muda.
 | Com limite, a Central abre só para leitura e o atalho "Mensagens" some do Início, mas continua no Perfil, nos cenários e no plano | Esconder a Central inteira nesse caso |
 | Com pausa (ele pediu tempo) ou espaço (sem reciprocidade), só ficam disponíveis as respostas, e apenas se ele escrever primeiro | Bloquear também as respostas |
 | Sem diagnóstico, tudo fica disponível, com aviso e com a Pausa | Exigir o diagnóstico antes de liberar a cópia |
+| Na Pausa, com pedido de tempo ou sem reciprocidade, o checklist pergunta "Ele escreveu primeiro?". "Não" leva a guardar por 24 horas. Com limite registrado, a pergunta do limite fica travada (auditoria de QA, `docs/qa-evolucao.md`) | Deixar a Pausa igual para todos os momentos |
 | O atalho "Ele respondeu?" do Início abre o guia "Ele respondeu. E agora?" em vez do cenário "Ele respondeu" | Manter o cenário |
