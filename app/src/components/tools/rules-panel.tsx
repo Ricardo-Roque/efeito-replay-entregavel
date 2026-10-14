@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Check, X } from "lucide-react";
 
-import { Character, Emoji, Highlight, Overlay, SectionTitle } from "@/components/common";
-import { commitment, rules, signalTitle, signals, type SignalKind } from "@/lib/guide";
+import { Emoji, Highlight, Overlay, SectionTitle } from "@/components/common";
+import { rules, signalTitle, signals, type SignalKind } from "@/lib/guide";
 import { cn } from "@/lib/utils";
 
 export type RulesSection = "errors" | "never" | "relapse" | "signals";
@@ -125,35 +125,6 @@ export function RulesPanel({
           Observe sem interpretar demais. Ajuste, não insista.
         </Highlight>
       </section>
-    </Overlay>
-  );
-}
-
-/** Os limites do protocolo, sempre à mão. */
-export function CommitmentPanel({ onClose }: { onClose: () => void }) {
-  return (
-    <Overlay eyebrow="Você escolheu" title="Meu compromisso" onClose={onClose}>
-      <div className="flex items-center gap-4 rounded-card bg-tint-sage p-4">
-        <Character pose="maoNoPeito" className="-my-2 h-28 shrink-0" />
-        <h2 className="font-display text-xl font-black leading-tight">A mudança começa em você.</h2>
-      </div>
-      <ul className="mt-5 space-y-3">
-        {commitment.map((item) => (
-          <li
-            key={item}
-            className="flex items-start gap-3 rounded-xl border border-success/40 bg-success-soft px-4 py-3"
-          >
-            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-success text-primary-foreground">
-              <Check className="size-4" />
-            </span>
-            <span className="text-sm leading-6">{item}</span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-6 text-sm leading-6 text-muted-foreground">
-        Este protocolo não é sobre manipular ninguém. É sobre mudar a sua forma de agir e de se
-        comunicar. O resultado não depende só de você, e o que você constrói aqui continua seu.
-      </p>
     </Overlay>
   );
 }

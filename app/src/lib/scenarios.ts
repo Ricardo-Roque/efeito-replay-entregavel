@@ -151,7 +151,6 @@ export const scenarios: Scenario[] = [
         label: "Por que não usar outros caminhos",
       },
       { link: { kind: "diary" } },
-      { link: { kind: "commitment" } },
     ],
     days: [2, 3, 4, 5, 11],
   },

@@ -124,7 +124,7 @@ export type AttentionId =
 
 /** Para onde o primeiro passo leva. Só destinos que já existem no app. */
 export type StepTarget =
-  "pause" | "diary" | "rules" | "signals" | "never" | "commitment" | "scenario" | "plan" | "care";
+  "pause" | "diary" | "rules" | "signals" | "never" | "scenario" | "plan" | "care";
 
 export interface FirstStep {
   title: string;

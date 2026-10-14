@@ -8,7 +8,6 @@ import {
   Gift,
   Compass,
   Download,
-  HeartHandshake,
   House,
   KeyRound,
   LifeBuoy,
@@ -43,7 +42,6 @@ export const moreIcons = {
   install: Download,
   privacy: ShieldCheck,
   care: LifeBuoy,
-  commitment: HeartHandshake,
   reset: KeyRound,
   benefits: Gift,
 } satisfies Record<string, LucideIcon>;

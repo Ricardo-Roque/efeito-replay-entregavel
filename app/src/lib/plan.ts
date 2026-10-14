@@ -179,7 +179,7 @@ const c = (id: string, text: string): PlanCheck => ({ id, text });
 // Ferramentas mais usadas.
 const DIARY: LabeledLink = { link: { kind: "diary" } };
 const PAUSE: LabeledLink = { link: { kind: "pause" } };
-const COMMITMENT: LabeledLink = { link: { kind: "commitment" } };
+const RULES: LabeledLink = { link: { kind: "rules" } };
 const MAP: LabeledLink = { link: { kind: "map" } };
 const DIAGNOSIS: LabeledLink = { link: { kind: "diagnosis" } };
 const SIGNALS: LabeledLink = { link: { kind: "rules", section: "signals" } };
@@ -230,7 +230,7 @@ export const planDays: PlanDay[] = [
     practice: [
       "Registre como você está hoje no Diário: o humor do dia e duas ou três frases, sem se corrigir.",
       "Confira o seu diagnóstico e o seu cenário. São eles que ajustam as orientações de cada dia.",
-      "Leia o Meu compromisso e escolha uma frase para lembrar nos momentos difíceis.",
+      "Leia as Regras de ouro e escolha uma frase para lembrar nos momentos difíceis.",
     ],
     avoid: [
       "Ler o plano inteiro hoje procurando o dia da mensagem.",
@@ -254,9 +254,9 @@ export const planDays: PlanDay[] = [
     checklist: [
       c("d1-cenario", "Conferir o meu diagnóstico e o meu cenário"),
       c("d1-diario", "Fazer o primeiro registro no Diário"),
-      c("d1-compromisso", "Ler o Meu compromisso"),
+      c("d1-compromisso", "Ler as Regras de ouro"),
     ],
-    tools: [DIARY, MAP, COMMITMENT],
+    tools: [DIARY, MAP, RULES],
     guide: {
       conversa: {
         text: [
@@ -432,7 +432,6 @@ export const planDays: PlanDay[] = [
     ],
     tools: [
       DIARY,
-      COMMITMENT,
       { link: { kind: "message", id: "perg-pratico" }, label: "Exemplo de resposta prática" },
     ],
     guide: {
@@ -600,7 +599,7 @@ export const planDays: PlanDay[] = [
       c("d5-apoio", "Combinar um apoio com alguém de confiança"),
       c("d5-celular", "Deixar o celular longe na hora de dormir"),
     ],
-    tools: [DIARY, PAUSE, COMMITMENT],
+    tools: [DIARY, PAUSE],
     guide: {
       conversa: {
         text: [
@@ -681,7 +680,7 @@ export const planDays: PlanDay[] = [
       c("d6-algo", "Fazer uma coisa só para mim"),
       c("d6-vinculo", "Conversar com alguém de confiança"),
     ],
-    tools: [DIARY, COMMITMENT],
+    tools: [DIARY, { link: { kind: "rules", section: "relapse" } }],
     guide: {
       conversa: {
         text: [
@@ -1263,7 +1262,7 @@ export const planDays: PlanDay[] = [
         ]),
         checklist: [
           c("d11-carta", "Escrever a carta sem envio no Diário"),
-          c("d11-limite", "Reler o limite dele e o Meu compromisso"),
+          c("d11-limite", "Reler o limite dele no meu cenário"),
           c("d11-cuidar", "Fazer algo por mim depois de escrever"),
         ],
         tools: [
@@ -1294,7 +1293,7 @@ export const planDays: PlanDay[] = [
         ]),
         checklist: [
           c("d11-carta", "Escrever a carta sem envio no Diário"),
-          c("d11-limite", "Reler o limite dele e o Meu compromisso"),
+          c("d11-limite", "Reler o limite dele no meu cenário"),
           c("d11-cuidar", "Fazer algo por mim depois de escrever"),
         ],
         tools: [
@@ -2004,7 +2003,7 @@ export const planDays: PlanDay[] = [
       c("d18-mudancas", "Anotar três mudanças"),
       c("d18-manter", "Escolher uma para manter"),
     ],
-    tools: [DIARY, MAP, COMMITMENT],
+    tools: [DIARY, MAP],
     guide: {
       conversa: {
         text: [

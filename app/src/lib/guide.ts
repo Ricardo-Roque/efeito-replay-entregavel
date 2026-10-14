@@ -1,14 +1,7 @@
-// Conteúdo fixo de apoio: regras de ouro, sinais, checklist da Pausa e compromisso.
+// Conteúdo fixo de apoio: regras de ouro, sinais e checklist da Pausa.
 // RASCUNHO, a partir do PDF do protocolo.
 
 import type { CommStance } from "@/lib/comunicacao/types";
-
-/** Os limites do protocolo; ficam em Perfil > Meu compromisso e no Início. */
-export const commitment = [
-  "Não vou contornar bloqueio nem usar outros perfis, números ou pessoas para chegar até ele.",
-  "Não vou insistir nem pressionar. Um não, ou um pedido de distância, é resposta.",
-  "Vou cuidar de mim primeiro. O plano é sobre a minha forma de agir, não sobre controlar ele.",
-];
 
 export type SignalKind = "open" | "alert" | "stop";
 

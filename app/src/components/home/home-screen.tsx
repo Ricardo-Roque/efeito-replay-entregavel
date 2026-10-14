@@ -22,6 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { benefitAccess, type BenefitId } from "@/lib/benefits";
+import type { EmojiName } from "@/lib/illustrations";
 import { buildFirst48Plan, first48Progress } from "@/lib/jornada/first48";
 import { useJornada } from "@/lib/jornada/store";
 import type { First48ActivityId, StepTarget } from "@/lib/jornada/types";
@@ -40,8 +42,6 @@ interface HomeScreenProps {
   openScenario: (id: ScenarioId) => void;
   openScenarios: () => void;
   openDiary: () => void;
-  openCommitment: () => void;
-  openReset: () => void;
   openMore: () => void;
   openDiagnosis: () => void;
   openMap: () => void;
@@ -50,7 +50,7 @@ interface HomeScreenProps {
   openCentral: () => void;
   openReply: () => void;
   openProgress: () => void;
-  openBenefits: () => void;
+  openBenefits: (only: BenefitId) => void;
 }
 
 function SectionHeader({ title }: { title: string }) {
@@ -60,6 +60,37 @@ function SectionHeader({ title }: { title: string }) {
     </div>
   );
 }
+
+/** Cards dos três upsells atuais (textos curtos; o detalhe fica na tela de cada benefício). */
+const UPSELL_CARDS: {
+  id: BenefitId;
+  title: string;
+  subtitle: string;
+  tint: "rose" | "lavender" | "honey";
+  emoji: EmojiName;
+}[] = [
+  {
+    id: "conselheiro",
+    title: "Conselheiro da Reconquista",
+    subtitle: "Orientação individual pelo WhatsApp.",
+    tint: "rose",
+    emoji: "escrever",
+  },
+  {
+    id: "circulo",
+    title: "Círculo da Reconquista",
+    subtitle: "Comunidade de mulheres para trocar experiências.",
+    tint: "lavender",
+    emoji: "estrela",
+  },
+  {
+    id: "vitalicio",
+    title: "Acesso Total Vitalício",
+    subtitle: "Sem mensalidade nem renovação.",
+    tint: "honey",
+    emoji: "trofeu",
+  },
+];
 
 const centralSubtitle: Record<string, string> = {
   conversa: "Modelos, orientações e o que não enviar, para o seu momento.",
@@ -88,8 +119,6 @@ export function HomeScreen({
   openScenario,
   openScenarios,
   openDiary,
-  openCommitment,
-  openReset,
   openMore,
   openDiagnosis,
   openMap,
@@ -363,53 +392,29 @@ export function HomeScreen({
         </button>
       </div>
 
-      {/* 7. Conteúdos complementares. O Reset Emocional do Ex (oferta antiga) só aparece para quem
-          já comprou; para as demais, o lugar é de Meus Benefícios (as três ofertas atuais). */}
+      {/* 7. Conteúdos complementares: um card por upsell atual. O selo "Liberado" vem só do
+          servidor (cr_my_entitlements); sem ele, o card mostra a oferta. */}
       <div className="mt-8">
         <SectionHeader title="Conteúdos complementares" />
         <div className="mx-5 grid grid-cols-2 gap-4">
-          {entitlements.reset ? (
-            <FeaturedCard
-              title="Reset Emocional do Ex"
-              subtitle="Protocolo de Reconstrução da Confiança."
-              badge="Liberado"
-              badgeClassName="bg-card text-success"
-              tint="lavender"
-              emoji="brilho"
-              onClick={openReset}
-            />
-          ) : (
-            <FeaturedCard
-              title="Meus Benefícios"
-              subtitle="Conselheiro, Círculo e Acesso Total Vitalício."
-              badge="Seus"
-              badgeClassName="bg-card text-foreground"
-              tint="honey"
-              emoji="trofeu"
-              action="Ver"
-              onClick={openBenefits}
-            />
-          )}
-          <FeaturedCard
-            title="Meu compromisso"
-            subtitle="Os limites que você escolheu respeitar."
-            badge="Seu"
-            badgeClassName="bg-card text-success"
-            tint="sage"
-            emoji="compromisso"
-            onClick={openCommitment}
-          />
+          {UPSELL_CARDS.map((card) => {
+            const owned = benefitAccess(entitlements.benefits[card.id]) === "liberado";
+            return (
+              <FeaturedCard
+                key={card.id}
+                title={card.title}
+                subtitle={card.subtitle}
+                badge={owned ? "Liberado" : "Extra"}
+                badgeClassName={owned ? "bg-card text-success" : "bg-card text-foreground"}
+                tint={card.tint}
+                emoji={card.emoji}
+                locked={!owned}
+                action={owned ? "Abrir" : "Conhecer"}
+                onClick={() => openBenefits(card.id)}
+              />
+            );
+          })}
         </div>
-        {entitlements.reset && (
-          <button
-            type="button"
-            onClick={openBenefits}
-            className="mx-5 mt-4 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-3 rounded-card bg-card px-5 py-4 text-left shadow-soft"
-          >
-            <span className="flex-1 font-display text-[15px] font-extrabold">Meus Benefícios</span>
-            <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
-        )}
       </div>
 
       <Dialog open={care} onOpenChange={setCare}>

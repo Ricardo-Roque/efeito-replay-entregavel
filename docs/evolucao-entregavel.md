@@ -1053,3 +1053,17 @@ O que mudou no app nesta etapa:
 - **Pausa com pedido de tempo ou sem reciprocidade:** o checklist pergunta "Ele escreveu primeiro?".
 - **Plano de 21 dias com limite:** os atalhos de reencontro não aparecem mais.
 - **Telas de 320 px:** três ajustes de layout.
+
+---
+
+## Etapa: Meu compromisso removido e um card por upsell
+
+- **Meu compromisso:** a tela saiu do app, assim como o card do Início, o item do Perfil e o tipo de link `commitment`. Os pontos do conteúdo que levavam a ela agora levam a outras ferramentas:
+  - Dia 1: Regras de ouro;
+  - Dia 6: "Como não voltar ao padrão";
+  - Dia 11: o limite no próprio cenário;
+  - Mapa: a Pausa (pedido de tempo) ou o Diário (afastamento);
+  - 48 horas: Regras de ouro, o cenário ou "O que nunca enviar".
+  
+  Os ids dos checklists não mudaram, então o progresso salvo continua valendo.
+- **Conteúdos complementares:** um card para cada upsell atual (Conselheiro, Círculo e Acesso Total Vitalício). Cada card abre a tela daquele benefício (`BenefitsScreen` com `only`). O card do Reset Emocional do Ex saiu do Início. Quem comprou o Reset continua acessando pelo Perfil, por Meus Benefícios e por Meu progresso.

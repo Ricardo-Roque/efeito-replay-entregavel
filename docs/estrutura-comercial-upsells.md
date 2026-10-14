@@ -57,7 +57,9 @@ O app separa três tipos de item (`LIFETIME_ITEMS`):
 
 ## 3. O que aparece no app
 
-**Meus Benefícios** (`components/benefits-screen.tsx`) abre pelo Perfil e pelo card "Meus Benefícios" em Conteúdos complementares, no Início. A tela mostra um card por oferta, cada um com um destes estados:
+**No Início**, em Conteúdos complementares, cada oferta tem o seu card: Conselheiro da Reconquista, Círculo da Reconquista e Acesso Total Vitalício. Com o benefício liberado pelo servidor, o card mostra "Liberado" e "Abrir". Sem ele, mostra "Extra", o cadeado e "Conhecer". Cada card abre a tela daquele benefício.
+
+**Meus Benefícios** (`components/benefits-screen.tsx`) abre pelo Perfil, com as três ofertas juntas. A tela mostra um card por oferta, cada um com um destes estados:
 
 | Estado | Quando | O que aparece |
 |---|---|---|
@@ -143,6 +145,6 @@ Só links `https://` são aceitos. Nenhum número, link ou convite foi inventado
 
 - O Reset deixou de ser uma oferta atual. Não aparece mais como promoção nem como "Pedir acesso" para quem não comprou.
 - O código do módulo, o conteúdo, o store (`codigo-reconquista:reset:v1:<email>`), a permissão `grants_reset`, a chave `reset` e o gatilho do webhook continuam iguais.
-- Quem já comprou continua vendo o Reset no Início (card "Liberado"), no Perfil, em Meus Benefícios ("Outros conteúdos da sua conta") e em Meu progresso.
+- Quem já comprou continua vendo o Reset no Perfil, em Meus Benefícios ("Outros conteúdos da sua conta") e em Meu progresso. O card do Reset saiu do Início.
 - Saiu do app só o pedido de acesso pelo WhatsApp (`lib/reset/access.ts` e `VITE_RESET_WHATSAPP`). `VITE_RESET_CHECKOUT_URL` continua, usado apenas na tela bloqueada do Reset.
 - Nenhum nome ou código de produto antigo foi renomeado. Antes de qualquer migração (por exemplo, dar o Reset a quem tem o Vitalício), é preciso aprovar uma política.

@@ -425,13 +425,13 @@ const choiceDef: Record<First48ChoiceId, First48Choice> = {
     id: "parar",
     label: "Parar as tentativas e dar espaço",
     text: "Sem novas mensagens. A energia que ia para as tentativas vai para você.",
-    next: { tool: "commitment", label: "Rever Meu compromisso" },
+    next: { tool: "rules", label: "Ler as Regras de ouro" },
   },
   respeitar: {
     id: "respeitar",
     label: "Respeitar o que ele pediu e cuidar de mim",
     text: "Nada de contato, por nenhum caminho. O plano de 21 dias segue por você.",
-    next: { tool: "commitment", label: "Rever Meu compromisso" },
+    next: { tool: "scenario", label: "Ver o meu cenário" },
   },
   diario: {
     id: "diario",
@@ -537,7 +537,7 @@ function guidanceOf(a: DiagnosisAnswers, path: First48Path): First48Block[] {
       items: list(
         "Escrever no Diário o que você gostaria de dizer.",
         "Fazer o dia de hoje do plano de 21 dias.",
-        "Reler Meu compromisso quando a vontade apertar.",
+        "Escrever na Pausa quando a vontade apertar: nada sai do app.",
         a.otherPerson === "sim" && "Silenciar os perfis que fazem você se comparar.",
       ),
     },
@@ -567,7 +567,7 @@ function choose(a: DiagnosisAnswers, path: First48Path): First48Activity {
     tools:
       path === "conversa"
         ? [{ tool: "signals", label: "Ver os sinais" }]
-        : [{ tool: "commitment", label: "Meu compromisso" }],
+        : [{ tool: "rules", label: "Regras de ouro" }],
   };
 }
 
@@ -579,7 +579,7 @@ function toolsOf(path: First48Path): First48ToolLink[] {
     { tool: "diary", label: "Meu diário" },
     path === "conversa"
       ? { tool: "signals", label: "Sinais" }
-      : { tool: "commitment", label: "Meu compromisso" },
+      : { tool: "never", label: "O que nunca enviar" },
     { tool: "rules", label: "Regras de ouro" },
     { tool: "scenario", label: "Meu cenário" },
     { tool: "map", label: "Meu Mapa" },

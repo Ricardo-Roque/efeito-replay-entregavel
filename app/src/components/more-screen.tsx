@@ -41,7 +41,6 @@ const dialogClass = "w-[calc(100%-2rem)] rounded-2xl border-border sm:max-w-md";
 export function MoreScreen({
   openScenarios,
   openRules,
-  openCommitment,
   openReset,
   openDiagnosis,
   openMap,
@@ -52,7 +51,6 @@ export function MoreScreen({
 }: {
   openScenarios: () => void;
   openRules: () => void;
-  openCommitment: () => void;
   openReset: () => void;
   openDiagnosis: () => void;
   openMap: () => void;
@@ -123,8 +121,7 @@ export function MoreScreen({
       onClick: openScenarios,
     },
     { label: "Regras de ouro", icon: moreIcons.rules, onClick: openRules },
-    { label: "Meu compromisso", icon: moreIcons.commitment, onClick: openCommitment },
-    { label: "Meus Benefícios", icon: moreIcons.benefits, onClick: openBenefits },
+    { label: "Meus Benefícios", icon: moreIcons.benefits, onClick: () => openBenefits() },
     // Reset Emocional do Ex: oferta antiga, fora das ofertas atuais. Só aparece para quem já comprou.
     ...(entitlements.reset
       ? [

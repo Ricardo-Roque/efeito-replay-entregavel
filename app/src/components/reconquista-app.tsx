@@ -10,6 +10,7 @@ import { JornadaProvider } from "@/lib/jornada/store";
 import type { CommCategoryId, ReplySituationId } from "@/lib/comunicacao/types";
 import type { First48ActivityId, StepTarget } from "@/lib/jornada/types";
 import type { AppLink } from "@/lib/app-link";
+import type { BenefitId } from "@/lib/benefits";
 import { MILESTONES, type Milestone } from "@/lib/plan";
 import type { ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
@@ -49,7 +50,6 @@ const DiaryScreen = lazy(() => loaders.diary().then((m) => ({ default: m.DiarySc
 const MoreScreen = lazy(() => loaders.more().then((m) => ({ default: m.MoreScreen })));
 const PauseTool = lazy(() => loaders.pause().then((m) => ({ default: m.PauseTool })));
 const RulesPanel = lazy(() => loaders.rules().then((m) => ({ default: m.RulesPanel })));
-const CommitmentPanel = lazy(() => loaders.rules().then((m) => ({ default: m.CommitmentPanel })));
 const ResetScreen = lazy(() => loaders.reset().then((m) => ({ default: m.ResetScreen })));
 const DiagnosisFlow = lazy(() => loaders.diagnosis().then((m) => ({ default: m.DiagnosisFlow })));
 const MapScreen = lazy(() => loaders.map().then((m) => ({ default: m.MapScreen })));
@@ -116,7 +116,6 @@ type Layer =
   | { kind: "scenario"; id: ScenarioId }
   | { kind: "pause"; draft: string }
   | { kind: "rules"; section?: RulesSection }
-  | { kind: "commitment" }
   | { kind: "reset" }
   | { kind: "diagnosis" }
   | { kind: "map" }
@@ -125,7 +124,7 @@ type Layer =
   | { kind: "message"; id: string }
   | { kind: "reply"; situation?: ReplySituationId }
   | { kind: "progress" }
-  | { kind: "benefits" };
+  | { kind: "benefits"; only?: BenefitId };
 
 /** Aviso no topo (erro de gravação ou confirmação curta), como o SaveErrorToast do CalmBaby. */
 function Toast() {
@@ -232,7 +231,6 @@ export function ReconquistaApp() {
   const openPause = (draft = "") => push({ kind: "pause", draft });
   const openRules = (section?: RulesSection) =>
     push(section ? { kind: "rules", section } : { kind: "rules" });
-  const openCommitment = () => push({ kind: "commitment" });
   const openReset = () => push({ kind: "reset" });
   const openDiagnosis = () => push({ kind: "diagnosis" });
   const openMap = () => push({ kind: "map" });
@@ -244,13 +242,13 @@ export function ReconquistaApp() {
   const openReply = (situation?: ReplySituationId) =>
     push(situation ? { kind: "reply", situation } : { kind: "reply" });
   const openProgress = () => push({ kind: "progress" });
-  const openBenefits = () => push({ kind: "benefits" });
+  const openBenefits = (only?: BenefitId) =>
+    push(only ? { kind: "benefits", only } : { kind: "benefits" });
   /** Atalhos do plano de 21 dias e dos cenários (lib/app-link.ts). */
   const openLink = (link: AppLink) => {
     if (link.kind === "pause") openPause();
     else if (link.kind === "diary") goTab("diary");
     else if (link.kind === "rules") openRules(link.section);
-    else if (link.kind === "commitment") openCommitment();
     else if (link.kind === "central") openCentral(link.category ? { category: link.category } : {});
     else if (link.kind === "message") openMessage(link.id);
     else if (link.kind === "reply") openReply(link.situation);
@@ -269,7 +267,6 @@ export function ReconquistaApp() {
     else if (target === "pause") openPause();
     else if (target === "rules") openRules();
     else if (target === "signals" || target === "never") openRules(target);
-    else if (target === "commitment") openCommitment();
     else if (target === "scenario") openScenario(scenario);
     else goTab("more");
   };
@@ -372,8 +369,7 @@ export function ReconquistaApp() {
           openDiary={() => goTab("diary")}
         />
       );
-    if (layer.kind === "benefits") return <BenefitsScreen onClose={pop} openReset={openReset} />;
-    return <CommitmentPanel onClose={pop} />;
+    return <BenefitsScreen only={layer.only} onClose={pop} openReset={openReset} />;
   };
 
   return (
@@ -398,8 +394,6 @@ export function ReconquistaApp() {
                       openScenario={openScenario}
                       openScenarios={() => setTab("scenarios")}
                       openDiary={() => setTab("diary")}
-                      openCommitment={openCommitment}
-                      openReset={openReset}
                       openMore={() => setTab("more")}
                       openDiagnosis={openDiagnosis}
                       openMap={openMap}
@@ -421,7 +415,6 @@ export function ReconquistaApp() {
                     <MoreScreen
                       openScenarios={() => setTab("scenarios")}
                       openRules={() => openRules()}
-                      openCommitment={openCommitment}
                       openReset={openReset}
                       openDiagnosis={openDiagnosis}
                       openMap={openMap}

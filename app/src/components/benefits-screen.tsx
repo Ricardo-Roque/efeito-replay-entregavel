@@ -262,16 +262,28 @@ function LifetimeCard({ access, onClose }: { access: BenefitAccess; onClose: () 
 /**
  * Meus Benefícios: os três upsells atuais, cada um com o estado que o servidor confirma.
  * O Reset Emocional do Ex (oferta antiga) só aparece para quem já comprou.
+ * Com `only`, mostra um benefício só (card do upsell em Conteúdos complementares, no Início).
  */
 export function BenefitsScreen({
+  only,
   onClose,
   openReset,
 }: {
+  only?: BenefitId | undefined;
   onClose: () => void;
   openReset: () => void;
 }) {
   const { entitlements } = useStore();
   const access = (id: BenefitId) => benefitAccess(entitlements.benefits[id]);
+
+  if (only)
+    return (
+      <Overlay eyebrow="Conteúdos complementares" title={BENEFITS[only].name} onClose={onClose}>
+        {only === "conselheiro" && <CounselorCard access={access("conselheiro")} />}
+        {only === "circulo" && <CircleCard access={access("circulo")} />}
+        {only === "vitalicio" && <LifetimeCard access={access("vitalicio")} onClose={onClose} />}
+      </Overlay>
+    );
 
   return (
     <Overlay eyebrow="Perfil" title="Meus Benefícios" onClose={onClose}>

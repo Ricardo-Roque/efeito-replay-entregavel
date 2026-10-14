@@ -247,7 +247,7 @@ function doNowOf(a: DiagnosisAnswers, mode: ContactMode, attention: AttentionId)
     interpretar: "Registrar as respostas dele no Diário, sem tirar conclusão de uma mensagem só",
     frieza: "Manter o seu ritmo, sem cobrar atenção",
     confianca: "Mostrar coerência com o tempo, sem promessas grandes",
-    afastamento: "Reler o Meu compromisso para lembrar os limites que você escolheu",
+    afastamento: "Escrever no Diário, e não para ele, nos dias em que o afastamento pesa mais",
   };
 
   const byTried = [
@@ -323,10 +323,10 @@ function firstStepOf(a: DiagnosisAnswers, mode: ContactMode, attention: Attentio
     };
   if (mode === "pausa")
     return {
-      title: "Reveja o seu compromisso",
-      text: "Releia os limites que você escolheu respeitar. Eles também valem para o tempo que ele pediu.",
-      target: "commitment",
-      action: "Abrir Meu compromisso",
+      title: "Antes de escrever, use a Pausa",
+      text: "Ele pediu um tempo. Se der vontade de escrever, comece pela Pausa: enquanto o tempo durar, a mensagem fica guardada com você.",
+      target: "pause",
+      action: "Abrir a Pausa",
     };
   if (attention === "insistencia" || a.difficulty === "ansiedade" || a.difficulty === "se_contato")
     return {
@@ -365,10 +365,10 @@ function firstStepOf(a: DiagnosisAnswers, mode: ContactMode, attention: Attentio
     };
   if (a.difficulty === "afastamento")
     return {
-      title: "Reveja o seu compromisso",
-      text: "Releia os limites que você escolheu respeitar. Eles ajudam nos dias em que o afastamento pesa mais.",
-      target: "commitment",
-      action: "Abrir Meu compromisso",
+      title: "Escreva no Diário o que você sente",
+      text: "Nos dias em que o afastamento pesa mais, escreva no Diário o que você gostaria de dizer. Fica só com você.",
+      target: "diary",
+      action: "Abrir o Diário",
     };
   return {
     title: "Comece pelo dia de hoje do plano",

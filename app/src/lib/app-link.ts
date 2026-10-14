@@ -11,7 +11,6 @@ export type AppLink =
   | { kind: "pause" }
   | { kind: "diary" }
   | { kind: "rules"; section?: RulesAnchor }
-  | { kind: "commitment" }
   /** Central de Comunicação, opcionalmente já filtrada. */
   | { kind: "central"; category?: CommCategoryId }
   /** Um conteúdo da Central (id de lib/comunicacao/library.ts). */
@@ -40,8 +39,6 @@ export function linkLabel(link: AppLink): string {
       return "Meu diário";
     case "rules":
       return link.section ? rulesLabel[link.section] : "Regras de ouro";
-    case "commitment":
-      return "Meu compromisso";
     case "central":
       return "Central de Comunicação";
     case "message":
