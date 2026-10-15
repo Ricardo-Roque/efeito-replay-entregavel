@@ -11,34 +11,35 @@ Este documento serve para revisar a VSL. Ele lista o que a publicidade promete e
 | Garantia vinculada a 30 dias | se a garantia for de satisfação ou reembolso (CDC, 7 dias no mínimo para compra online), deixar claro que não depende de ele voltar | explicitar o tipo e as condições da garantia |
 | Controle dos sentimentos dele, despertar interesse e saudade "com certeza" | ninguém controla o que outra pessoa sente, e o app não interpreta o que ele sente | "Como se comunicar de forma leve e respeitosa" |
 | Protocolo personalizado | o diagnóstico de 6 perguntas já está no app e ajusta Mapa, 48 horas, Central, Pausa e plano por regras explícitas. O resultado (reconquista) continua não dependendo do app | "Um plano personalizado para a sua situação" (ver `docs/matriz-vsl-entregavel.md`, linha 1) |
-| Técnicas com nome próprio (lista abaixo) | o app ainda não tem o conteúdo que as define | não citar na VSL uma técnica que o app não entrega |
+| Técnicas com nome próprio (lista abaixo) | o app entrega versões editoriais próprias, e não uma reprodução de material original da VSL | descrever como ferramentas do aplicativo e revisar as frases da venda contra o conteúdo real |
 
-## Técnicas citadas, aguardando material
+## Técnicas citadas, com versões editoriais no aplicativo
 
-Nenhum texto foi inventado para estas técnicas. No código, elas estão em `app/src/lib/jornada/messages.ts` (`vslTechniques`) com `status: "aguardando_material"` e não aparecem para a cliente. O que foi procurado, o que pedir ao autor e como incluir: `docs/pendencias-central-comunicacao.md`.
+As sete técnicas foram criadas como conteúdo editorial próprio do Código da Reconquista. No código, estão em `app/src/lib/jornada/messages.ts` (`vslTechniques`) com `status: "rascunho"` e abrem módulos completos na Home. Como o material original da VSL não foi fornecido, a interface informa a origem editorial e não apresenta os textos como reprodução de um método anterior.
 
-| Técnica | O que falta |
+| Técnica | Versão entregue no app |
 |---|---|
-| Mensagem de três palavras | o texto e o contexto de uso |
-| Mensagem que começa com H | o texto e o contexto de uso |
-| Mensagem "pensando aqui" | o texto e o contexto de uso |
-| Frase número 3 | o texto, e de que lista ela é a número 3 |
-| Frase do Replay | o texto e o contexto de uso |
-| Técnica do buraco negro emocional | a definição. Se envolver manipular os sentimentos dele, provocar ciúme ou culpa, não entra no app |
+| Mensagem de três palavras | “Lembrei de você.”, somente com contato aberto e lembrança verdadeira |
+| Mensagem que começa com H | lembrança concreta iniciada por “Hoje”, com campos para lugar e lembrança |
+| Mensagem "pensando aqui" | reconhecimento de uma conversa recente, sem pedido ou cobrança |
+| Frase número 3 | “Entendi. Vamos com calma.”, usada apenas como resposta |
+| Frase do Replay | fechamento respeitoso de uma conversa recente e recíproca |
+| Técnica do buraco negro emocional | pausa de 30 minutos para absorver o próprio impulso, sem sumiço calculado |
+| Técnica noturna mencionada na oferta | prática de encerramento da noite, distinta do módulo noturno do Reset |
 
-Critérios para aceitar o material:
+Critérios aplicados às versões editoriais:
 
 - A técnica não contorna bloqueio nem pedido de distância.
 - Não usa terceiros para chegar até ele.
 - Não promete efeito sobre ele.
 - Passa pela Pausa antes de enviar.
 
-## O que o app entrega e pode ser anunciado
+## O que o app entrega na experiência principal
 
-- O plano de 21 dias em 4 fases, com meta de 7 dias sem agir por impulso.
-- A ferramenta Pausa antes de enviar, com a proteção de 24h no pico emocional.
-- Os 6 cenários, cada um com o que fazer, o que evitar e quando parar.
-- O Diário emocional, com os sinais de abertura, alerta e pare.
-- As Regras de ouro.
-- O diagnóstico de entrada, o Meu Plano de 48 Horas (estabilização) e a Central de Comunicação, com o guia "Ele respondeu. E agora?".
+- Meu Protocolo Personalizado: diagnóstico de seis perguntas e Mapa com situação, orientações, o que fazer primeiro e o que evitar.
+- Mensagens e Técnicas: Central de Comunicação e sete módulos editoriais completos, com mensagens condicionadas ao diagnóstico e práticas de autorregulação.
+- O Que Fazer Depois: o guia "Ele respondeu. E agora?", com dez situações e caminhos práticos, além da Pausa antes de enviar.
+- Situações Especiais: seis cenários com o que fazer, o que evitar, sinais e quando parar.
+- Regras de ouro e orientações de segurança continuam acessíveis no Perfil e nos fluxos relacionados.
+- O plano de 21 dias, o Diário, o Meu Plano de 48 Horas e o progresso estão preservados no código e nos dados locais, mas ocultos na experiência atual.
 - O Reset Emocional do Ex não é mais uma oferta atual: continua só para quem já comprou. As ofertas atuais estão em `docs/estrutura-comercial-upsells.md`.

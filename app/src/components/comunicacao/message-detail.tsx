@@ -21,6 +21,7 @@ import {
   relatedOf,
 } from "@/lib/comunicacao/rules";
 import { useJornada } from "@/lib/jornada/store";
+import { features } from "@/lib/features";
 import { cn } from "@/lib/utils";
 
 /**
@@ -92,11 +93,7 @@ export function MessageDetail({
       </div>
 
       <SectionTitle>
-        {avoid
-          ? "Exemplo do que evitar"
-          : reflection
-            ? "Texto para o seu Diário"
-            : "Modelo de mensagem"}
+        {avoid ? "Exemplo do que evitar" : reflection ? "Texto para você" : "Modelo de mensagem"}
       </SectionTitle>
       {avoid ? (
         <div className="rounded-2xl border-2 border-dashed border-destructive/40 bg-destructive-soft px-4 py-3">
@@ -142,7 +139,7 @@ export function MessageDetail({
           </p>
         </>
       )}
-      {reflection && (
+      {reflection && features.diary && (
         <Button
           variant="outline"
           className="mt-3 h-11 w-full rounded-xl bg-card font-bold"

@@ -6,9 +6,10 @@ import { HomeScreen } from "@/components/home/home-screen";
 import { MilestoneCelebration } from "@/components/plan/milestone-celebration";
 import type { RulesSection } from "@/components/tools/rules-panel";
 import { Button } from "@/components/ui/button";
+import { features } from "@/lib/features";
 import { JornadaProvider } from "@/lib/jornada/store";
 import type { CommCategoryId, ReplySituationId } from "@/lib/comunicacao/types";
-import type { First48ActivityId, StepTarget } from "@/lib/jornada/types";
+import type { First48ActivityId, StepTarget, VslTechniqueId } from "@/lib/jornada/types";
 import type { AppLink } from "@/lib/app-link";
 import type { BenefitId } from "@/lib/benefits";
 import { MILESTONES, type Milestone } from "@/lib/plan";
@@ -16,8 +17,8 @@ import type { ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-// O Início vem no carregamento inicial; o resto (login, outras abas e ferramentas) vira pedaços
-// separados, carregados sob demanda e pré-carregados quando o navegador fica ocioso.
+// O Início vem no carregamento inicial; login, outras abas e ferramentas ficam em pedaços
+// separados e só são carregados quando usados, evitando tráfego dos módulos ocultos.
 const loaders = {
   login: () => import("@/components/login-screen"),
   plan: () => import("@/components/plan/plan-screen"),
@@ -32,6 +33,7 @@ const loaders = {
   diagnosis: () => import("@/components/jornada/diagnosis-flow"),
   map: () => import("@/components/jornada/map-screen"),
   first48: () => import("@/components/jornada/first48-screen"),
+  technique: () => import("@/components/jornada/technique-detail"),
   central: () => import("@/components/comunicacao/central-screen"),
   message: () => import("@/components/comunicacao/message-detail"),
   reply: () => import("@/components/comunicacao/reply-guide"),
@@ -54,24 +56,14 @@ const ResetScreen = lazy(() => loaders.reset().then((m) => ({ default: m.ResetSc
 const DiagnosisFlow = lazy(() => loaders.diagnosis().then((m) => ({ default: m.DiagnosisFlow })));
 const MapScreen = lazy(() => loaders.map().then((m) => ({ default: m.MapScreen })));
 const First48Screen = lazy(() => loaders.first48().then((m) => ({ default: m.First48Screen })));
+const TechniqueDetail = lazy(() =>
+  loaders.technique().then((m) => ({ default: m.TechniqueDetail })),
+);
 const CentralScreen = lazy(() => loaders.central().then((m) => ({ default: m.CentralScreen })));
 const MessageDetail = lazy(() => loaders.message().then((m) => ({ default: m.MessageDetail })));
 const ReplyGuideScreen = lazy(() => loaders.reply().then((m) => ({ default: m.ReplyGuideScreen })));
 const ProgressScreen = lazy(() => loaders.progress().then((m) => ({ default: m.ProgressScreen })));
 const BenefitsScreen = lazy(() => loaders.benefits().then((m) => ({ default: m.BenefitsScreen })));
-
-/** Pré-carrega todos os pedaços quando o navegador estiver livre, para trocar de aba sem espera. */
-function usePrefetch() {
-  useEffect(() => {
-    const run = () => Object.values(loaders).forEach((load) => void load().catch(() => {}));
-    if (typeof window.requestIdleCallback === "function") {
-      const id = window.requestIdleCallback(run, { timeout: 3000 });
-      return () => window.cancelIdleCallback(id);
-    }
-    const timer = window.setTimeout(run, 1500);
-    return () => window.clearTimeout(timer);
-  }, []);
-}
 
 /** Indicador discreto que só aparece se a espera passar de 400 ms (em conexão boa, nada pisca). */
 function Spinner() {
@@ -122,6 +114,7 @@ type Layer =
   | { kind: "first48"; activity?: First48ActivityId }
   | { kind: "central"; category?: CommCategoryId; scenario?: ScenarioId }
   | { kind: "message"; id: string }
+  | { kind: "technique"; id: VslTechniqueId }
   | { kind: "reply"; situation?: ReplySituationId }
   | { kind: "progress" }
   | { kind: "benefits"; only?: BenefitId };
@@ -176,8 +169,6 @@ export function ReconquistaApp() {
       setMilestone(null);
     }
   }, [status]);
-
-  usePrefetch();
 
   if (status === "loading")
     return (
@@ -239,6 +230,7 @@ export function ReconquistaApp() {
   const openCentral = (filter: { category?: CommCategoryId; scenario?: ScenarioId } = {}) =>
     push({ kind: "central", ...filter });
   const openMessage = (id: string) => push({ kind: "message", id });
+  const openTechnique = (id: VslTechniqueId) => push({ kind: "technique", id });
   const openReply = (situation?: ReplySituationId) =>
     push(situation ? { kind: "reply", situation } : { kind: "reply" });
   const openProgress = () => push({ kind: "progress" });
@@ -247,8 +239,11 @@ export function ReconquistaApp() {
   /** Atalhos do plano de 21 dias e dos cenários (lib/app-link.ts). */
   const openLink = (link: AppLink) => {
     if (link.kind === "pause") openPause();
-    else if (link.kind === "diary") goTab("diary");
-    else if (link.kind === "rules") openRules(link.section);
+    // Diário oculto: escrever sem enviar acontece na Pausa.
+    else if (link.kind === "diary") {
+      if (features.diary) goTab("diary");
+      else openPause();
+    } else if (link.kind === "rules") openRules(link.section);
     else if (link.kind === "central") openCentral(link.category ? { category: link.category } : {});
     else if (link.kind === "message") openMessage(link.id);
     else if (link.kind === "reply") openReply(link.situation);
@@ -256,15 +251,21 @@ export function ReconquistaApp() {
       const id = link.id ?? data.profile?.scenario;
       if (id) openScenario(id);
       else goTab("scenarios");
-    } else if (link.kind === "day") openDay(link.day);
-    else if (link.kind === "map") openMap();
+    } else if (link.kind === "day") {
+      if (features.plan21) openDay(link.day);
+    } else if (link.kind === "map") openMap();
     else openDiagnosis();
   };
-  /** Destino do primeiro passo do Mapa e dos atalhos do Meu Plano Pessoal. */
+  /** Destino do primeiro passo do Mapa e dos atalhos do protocolo personalizado. */
   const openStep = (target: StepTarget, scenario: ScenarioId) => {
-    if (target === "plan") goTab("plan");
-    else if (target === "diary") goTab("diary");
-    else if (target === "pause") openPause();
+    // Plano e Diário ocultos: o cenário e a Pausa ficam no lugar (lib/features.ts).
+    if (target === "plan") {
+      if (features.plan21) goTab("plan");
+      else openScenario(scenario);
+    } else if (target === "diary") {
+      if (features.diary) goTab("diary");
+      else openPause();
+    } else if (target === "pause") openPause();
     else if (target === "rules") openRules();
     else if (target === "signals" || target === "never") openRules(target);
     else if (target === "scenario") openScenario(scenario);
@@ -344,6 +345,8 @@ export function ReconquistaApp() {
           openPause={openPause}
         />
       );
+    if (layer.kind === "technique")
+      return <TechniqueDetail id={layer.id} onClose={pop} openPause={openPause} />;
     if (layer.kind === "reply")
       return (
         <ReplyGuideScreen
@@ -399,8 +402,9 @@ export function ReconquistaApp() {
                       openMap={openMap}
                       openStep={openStep}
                       openFirst48={openFirst48}
-                      openCentral={() => openCentral()}
-                      openReply={() => openReply()}
+                      openCentral={(category) => openCentral(category ? { category } : {})}
+                      openTechnique={openTechnique}
+                      openReply={openReply}
                       openProgress={openProgress}
                       openBenefits={openBenefits}
                     />

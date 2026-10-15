@@ -108,7 +108,7 @@ export const availabilityLabel: Record<CommAvailability, string> = {
 export function availabilityNote(message: CommMessage, ctx: CommContext): string | null {
   const status = availabilityOf(message, ctx);
   if (message.kind === "evitar") return "Exemplo do que não enviar. Não é para copiar.";
-  if (message.kind === "reflexao") return "Este texto é para o seu Diário, não para ele.";
+  if (message.kind === "reflexao") return "Este texto é para você, não para ele.";
   if (status === "so_resposta")
     return ctx.stance === "pausa"
       ? "Ele pediu um tempo. Use só se ele mesmo escrever, e sem reabrir o assunto da relação."

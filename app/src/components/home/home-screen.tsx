@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { ArrowRight, ChevronRight, Play, TrendingUp } from "lucide-react";
 
 import {
   Brand,
-  CareLines,
   Character,
   Emoji,
   EmojiBadge,
@@ -15,18 +13,14 @@ import {
 import { useCommContext } from "@/components/comunicacao/hooks";
 import { CategoryTile, FeaturedCard } from "@/components/home/cards";
 import { PersonalPlanCard } from "@/components/home/personal-plan-card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { benefitAccess, type BenefitId } from "@/lib/benefits";
+import type { CommCategoryId, ReplySituationId } from "@/lib/comunicacao/types";
+import { features } from "@/lib/features";
+import { vslTechniques } from "@/lib/jornada/messages";
 import type { EmojiName } from "@/lib/illustrations";
 import { buildFirst48Plan, first48Progress } from "@/lib/jornada/first48";
 import { useJornada } from "@/lib/jornada/store";
-import type { First48ActivityId, StepTarget } from "@/lib/jornada/types";
+import type { First48ActivityId, StepTarget, VslTechniqueId } from "@/lib/jornada/types";
 import { Button } from "@/components/ui/button";
 import type { RulesSection } from "@/components/tools/rules-panel";
 import { dayContent } from "@/lib/plan";
@@ -47,8 +41,9 @@ interface HomeScreenProps {
   openMap: () => void;
   openStep: (target: StepTarget, scenario: ScenarioId) => void;
   openFirst48: (activity?: First48ActivityId) => void;
-  openCentral: () => void;
-  openReply: () => void;
+  openCentral: (category?: CommCategoryId) => void;
+  openTechnique: (id: VslTechniqueId) => void;
+  openReply: (situation?: ReplySituationId) => void;
   openProgress: () => void;
   openBenefits: (only: BenefitId) => void;
 }
@@ -92,10 +87,22 @@ const UPSELL_CARDS: {
   },
 ];
 
+/** Arte do atalho de cada técnica editorial. */
+const TECHNIQUE_EMOJI: Record<VslTechniqueId, EmojiName> = {
+  tres_palavras: "escrever",
+  comeca_com_h: "contato",
+  pensando_aqui: "celular",
+  frase_3: "regras",
+  frase_replay: "brilho",
+  buraco_negro: "sinais",
+  tecnica_noturna: "estrela",
+};
+
 const centralSubtitle: Record<string, string> = {
   conversa: "Modelos, orientações e o que não enviar, para o seu momento.",
   pausa: "Hoje, só respostas, e só se ele escrever primeiro.",
   espaco: "Hoje, só respostas, e só se ele escrever primeiro.",
+  limite: "Orientações para cuidar de você, sem sugerir contato ou contornar limites.",
   sem_diagnostico: "Modelos e orientações. O diagnóstico ajusta tudo ao seu momento.",
 };
 
@@ -107,10 +114,10 @@ function impulseMessage(days: number) {
   return `${label} sem agir por impulso. A meta da Fase 1 foi cumprida. Que avanço!`;
 }
 
-// Hierarquia do Início: 1) Meu Plano Pessoal (diagnóstico e Mapa), 2) próxima atividade (48 horas
-// ou o dia do plano), 3) ajuda imediata, 4) Central de Comunicação, 5) jornada de 21 dias,
-// 6) Diário e ferramentas (com o acesso ao progresso), 7) conteúdos complementares.
-// Cada destino aparece uma vez: o dia do plano não se repete na jornada quando já é a próxima atividade.
+// Hierarquia do Início, só com o que a VSL promete: 1) protocolo personalizado, 2) mensagens e
+// técnicas, 3) o que fazer depois e 4) situações especiais. Os upsells continuam abaixo, sem se
+// misturar ao produto principal. A jornada de 21 dias, o Diário, as 48 horas e o progresso só
+// reaparecem se forem ligados em lib/features.ts.
 export function HomeScreen({
   openDay,
   openPlan,
@@ -125,13 +132,13 @@ export function HomeScreen({
   openStep,
   openFirst48,
   openCentral,
+  openTechnique,
   openReply,
   openProgress,
   openBenefits,
 }: HomeScreenProps) {
   const { data, entitlements } = useStore();
   const { current, result, data: jornada } = useJornada();
-  const [care, setCare] = useState(false);
   const profile = data.profile!;
   const now = new Date();
   const progress = planProgress(data);
@@ -141,15 +148,12 @@ export function HomeScreen({
   const impulse = impulseFreeDays(data, now);
   // Atalho "Meu cenário": o escolhido no perfil; sem ele, o sugerido pelo diagnóstico.
   const shortcutScenario = profile.scenario ?? result?.scenario ?? null;
-  // Com limite (diagnóstico ou cenário do perfil), o card da Central não aparece no Início.
-  // A Central continua no Perfil e nos cenários, só como leitura.
   const stance = useCommContext().stance;
-  const showCentral = stance !== "limite";
 
   // Próxima atividade: o Meu Plano de 48 Horas enquanto não termina; depois, o dia do plano.
   const first48 = first48Progress(jornada.first48);
   const nextFirst48 =
-    current && !first48.complete && first48.next
+    features.first48 && current && !first48.complete && first48.next
       ? (buildFirst48Plan(current, profile.scenario).activities.find(
           (item) => item.id === first48.next,
         ) ?? null)
@@ -211,91 +215,73 @@ export function HomeScreen({
             Olá, {firstName(profile.name)}!
           </p>
           <h1 className="mt-1 font-display text-[26px] font-black leading-[1.12] text-foreground">
-            {progress.finished ? "Você chegou até o fim do plano!" : "Um passo de cada vez, hoje."}
+            {features.plan21 && progress.finished
+              ? "Você chegou até o fim do plano!"
+              : "Um passo de cada vez, hoje."}
           </h1>
         </div>
         <Character
-          pose={progress.finished ? "comemorando" : phase.pose}
+          pose={features.plan21 && progress.finished ? "comemorando" : phase.pose}
           className="pointer-events-none absolute -bottom-6 right-3 z-0 h-[236px] drop-shadow-[0_14px_16px_rgba(90,20,38,0.14)]"
         />
       </section>
 
-      {/* 1. Meu Plano Pessoal */}
+      {/* 1. Meu Protocolo Personalizado */}
       <div className="relative z-10">
         <PersonalPlanCard openDiagnosis={openDiagnosis} openMap={openMap} openStep={openStep} />
       </div>
 
-      {/* 2. Próxima atividade */}
-      <div className="mt-4">
-        {nextFirst48 ? (
-          <section className="mx-5 rounded-card bg-card p-5 shadow-soft">
-            <div className="flex items-center justify-between gap-3">
-              <p className="eyebrow">Próxima atividade</p>
-              <span className="shrink-0 text-[11px] font-bold text-muted-foreground">
-                {first48.done} de {first48.total}
-              </span>
-            </div>
-            <div className="mt-3 flex items-center gap-4">
-              <EmojiBadge name="estrela" tint="honey" size="lg" />
-              <div className="min-w-0 flex-1">
-                <h2 className="font-display text-lg font-extrabold leading-snug">
-                  {nextFirst48.n}. {nextFirst48.title}
-                </h2>
-                <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
-                  Meu Plano de 48 Horas
-                </p>
+      {/* Próxima atividade: só com as 48 horas ou o plano de 21 dias ligados */}
+      {(nextFirst48 || features.plan21) && (
+        <div className="mt-4">
+          {nextFirst48 ? (
+            <section className="mx-5 rounded-card bg-card p-5 shadow-soft">
+              <div className="flex items-center justify-between gap-3">
+                <p className="eyebrow">Próxima atividade</p>
+                <span className="shrink-0 text-[11px] font-bold text-muted-foreground">
+                  {first48.done} de {first48.total}
+                </span>
               </div>
-            </div>
-            <div className="mt-4 flex">
-              <GoalProgress
-                tone="primary"
-                value={first48.done}
-                max={first48.total}
-                label="Atividades concluídas do plano de 48 horas"
-              />
-            </div>
-            <Button
-              className="mt-4 h-12 w-full rounded-xl text-sm font-bold"
-              onClick={() => openFirst48(nextFirst48.id)}
-            >
-              {first48.done === 0 ? "Começar meu plano de 48 horas" : "Continuar meu plano"}{" "}
-              <ArrowRight />
-            </Button>
-          </section>
-        ) : (
-          todayCard("Próxima atividade · Plano de hoje")
-        )}
-      </div>
-
-      {/* 3. Ajuda imediata */}
-      <section
-        className="mx-5 mt-4 rounded-card bg-card px-4 pb-6 pt-5 shadow-soft max-[359px]:px-3"
-        aria-label="Ajuda imediata"
-      >
-        <h2 className="font-display text-[16px] font-extrabold leading-snug text-foreground">
-          Precisa de ajuda agora?
-        </h2>
-        <div className="mt-4 grid grid-cols-4 gap-1">
-          <CategoryTile label="Vontade de escrever" emoji="pausa" onClick={openPause} />
-          <CategoryTile label="Ele respondeu?" emoji="contato" onClick={openReply} />
-          <CategoryTile
-            label="Meu cenário"
-            emoji="sinais"
-            {...(shortcutScenario
-              ? { icon: <ScenarioArt id={shortcutScenario} className="size-12" /> }
-              : {})}
-            onClick={() => (shortcutScenario ? openScenario(shortcutScenario) : openScenarios())}
-          />
-          <CategoryTile label="Apoio emocional" emoji="escudo" onClick={() => setCare(true)} />
+              <div className="mt-3 flex items-center gap-4">
+                <EmojiBadge name="estrela" tint="honey" size="lg" />
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-display text-lg font-extrabold leading-snug">
+                    {nextFirst48.n}. {nextFirst48.title}
+                  </h2>
+                  <p className="mt-0.5 text-[13px] leading-snug text-muted-foreground">
+                    Meu Plano de 48 Horas
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex">
+                <GoalProgress
+                  tone="primary"
+                  value={first48.done}
+                  max={first48.total}
+                  label="Atividades concluídas do plano de 48 horas"
+                />
+              </div>
+              <Button
+                className="mt-4 h-12 w-full rounded-xl text-sm font-bold"
+                onClick={() => openFirst48(nextFirst48.id)}
+              >
+                {first48.done === 0 ? "Começar meu plano de 48 horas" : "Continuar meu plano"}{" "}
+                <ArrowRight />
+              </Button>
+            </section>
+          ) : (
+            todayCard("Próxima atividade · Plano de hoje")
+          )}
         </div>
-      </section>
+      )}
 
-      {/* 4. Central de Comunicação */}
-      {showCentral && (
+      {/* 2. Mensagens e Técnicas */}
+      <div className="mt-8">
+        <SectionHeader title="Mensagens e técnicas" />
         <button
           type="button"
-          onClick={openCentral}
-          className="mx-5 mt-4 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-4 rounded-card bg-card p-5 text-left shadow-soft transition-transform active:scale-[0.99]"
+          onClick={() => openCentral()}
+          className="mx-5 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-4 rounded-card bg-card p-5 text-left shadow-soft transition-transform active:scale-[0.99]"
         >
           <EmojiBadge name="celular" tint="lavender" size="lg" />
           <span className="min-w-0 flex-1">
@@ -308,91 +294,210 @@ export function HomeScreen({
           </span>
           <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
         </button>
-      )}
 
-      {/* 5. Jornada de 21 dias */}
+        {/* Técnicas editoriais: itens completos abrem o detalhe; pendências continuam "Em breve". */}
+        <section
+          className="mx-5 mt-4 rounded-card bg-card px-4 pb-6 pt-5 shadow-soft max-[359px]:px-3"
+          aria-label="Técnicas do aplicativo"
+        >
+          <div className="grid grid-cols-4 gap-x-1 gap-y-5">
+            {vslTechniques.map((technique) => (
+              <CategoryTile
+                key={technique.id}
+                label={technique.shortName}
+                emoji={TECHNIQUE_EMOJI[technique.id]}
+                soon={technique.status === "aguardando_material"}
+                onClick={() => openTechnique(technique.id)}
+              />
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* 3. O Que Fazer Depois: atalhos para o mesmo assistente, sem duplicar conteúdo. */}
       <div className="mt-8">
-        <SectionHeader title="Sua jornada de 21 dias" />
-        {nextFirst48 && <div className="mb-4">{todayCard("Plano de hoje")}</div>}
-        <section className="mx-5 overflow-hidden rounded-card bg-goal-card p-5 text-primary-foreground shadow-glow">
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="eyebrow eyebrow-light">Meta da fase {phase.phase}</p>
-              <h2 className="mt-1 font-display text-[18px] font-extrabold leading-snug">
-                {progress.finished ? "Todas as fases concluídas!" : phase.goal}
-              </h2>
-              <p className="mt-1.5 text-[13px] leading-snug text-primary-foreground/85">
-                {phase.objective}
-              </p>
-            </div>
-            <Emoji
-              name="estrela"
-              className="pointer-events-none size-20 shrink-0 drop-shadow-[0_10px_14px_rgba(90,20,38,0.28)]"
+        <SectionHeader title="O que fazer depois" />
+        <section
+          className="mx-5 rounded-card bg-card px-4 pb-6 pt-5 shadow-soft max-[359px]:px-3"
+          aria-label="O que fazer depois"
+        >
+          <div className="grid grid-cols-4 gap-x-1 gap-y-5">
+            <CategoryTile label="Ele respondeu" emoji="contato" onClick={() => openReply()} />
+            <CategoryTile label="Resposta fria" emoji="celular" onClick={() => openReply("frio")} />
+            <CategoryTile label="Ressentimento" emoji="sinais" onClick={() => openReply("magoa")} />
+            <CategoryTile
+              label="Não respondeu"
+              emoji="nunca"
+              onClick={() => openReply("visualizou")}
+            />
+            <CategoryTile
+              label="Quer conversar"
+              emoji="escrever"
+              onClick={() => openReply("conversar")}
+            />
+            <CategoryTile
+              label="Sugeriu encontro"
+              emoji="estrela"
+              onClick={() => openReply("encontro")}
+            />
+            <CategoryTile
+              label="Continuar conversa"
+              emoji="brilho"
+              onClick={() => openReply("pergunta")}
+            />
+            <CategoryTile
+              label="Reconstruir confiança"
+              emoji="escudo"
+              onClick={() => openCentral("confianca")}
             />
           </div>
-          <div className="mt-5">
-            <div className="flex items-center gap-3">
-              <GoalProgress
-                value={progress.phaseDone}
-                max={progress.phaseTotal}
-                label={`Dias concluídos na fase ${phase.phase}`}
-              />
-              <span className="shrink-0 text-xs font-bold">
-                {progress.phaseDone} de {progress.phaseTotal} dias da fase
-              </span>
-            </div>
-            <p className="mt-2.5 text-[12px] leading-snug text-primary-foreground/70">
-              {progress.phaseDone >= progress.phaseTotal
-                ? "Todos os dias da fase concluídos!"
-                : "Pequenos passos também contam."}
-            </p>
-          </div>
-        </section>
-
-        <button
-          type="button"
-          onClick={openPlan}
-          className="mx-5 mt-4 flex w-[calc(100%-2.5rem)] cursor-pointer items-center justify-center gap-1 py-1 text-[13px] font-bold text-primary"
-        >
-          Ver caminho completo do plano <ChevronRight className="size-4" />
-        </button>
-      </div>
-
-      {/* 6. Diário e ferramentas */}
-      <div className="mt-8">
-        <SectionHeader title="Diário e ferramentas" />
-        <section
-          className="mx-5 rounded-card bg-card px-4 pb-5 pt-5 shadow-soft max-[359px]:px-3"
-          aria-label="Diário e ferramentas"
-        >
-          <div className="grid grid-cols-4 gap-1">
-            <CategoryTile label="Meu diário" emoji="diario" onClick={openDiary} />
-            <CategoryTile label="Regras de ouro" emoji="regras" onClick={() => openRules()} />
-            <CategoryTile label="Sinais" emoji="sinais" onClick={() => openRules("signals")} />
-            <CategoryTile label="Nunca enviar" emoji="nunca" onClick={() => openRules("never")} />
-          </div>
         </section>
         <button
           type="button"
-          onClick={openProgress}
-          className="mx-5 mt-4 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-3 rounded-card bg-card p-5 text-left shadow-soft transition-transform active:scale-[0.99]"
+          onClick={openPause}
+          className="mx-5 mt-4 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-4 rounded-card bg-card p-5 text-left shadow-soft transition-transform active:scale-[0.99]"
         >
-          <Emoji name="medalha" className="size-24 shrink-0" />
+          <EmojiBadge name="pausa" tint="honey" size="lg" />
           <span className="min-w-0 flex-1">
-            <span className="block font-display text-[15px] font-extrabold text-foreground">
-              Pequenos avanços
+            <span className="block font-display text-[16px] font-extrabold leading-snug">
+              Pausa antes de enviar
             </span>
-            <span className="mt-1.5 block text-[13px] leading-snug text-muted-foreground">
-              {impulseMessage(impulse)}
-            </span>
-            <span className="mt-3 inline-flex items-center gap-1 text-[12px] font-extrabold text-primary">
-              <TrendingUp className="size-3.5" strokeWidth={3} /> Ver meu progresso
+            <span className="mt-0.5 block text-[13px] leading-snug text-muted-foreground">
+              Escreva, confira os limites e decida sem agir por impulso.
             </span>
           </span>
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
         </button>
       </div>
 
-      {/* 7. Conteúdos complementares: um card por upsell atual. O selo "Liberado" vem só do
+      {/* 4. Situações Especiais: reaproveita os cenários já existentes. */}
+      <div className="mt-8">
+        <SectionHeader title="Situações especiais" />
+        <button
+          type="button"
+          onClick={() => (shortcutScenario ? openScenario(shortcutScenario) : openScenarios())}
+          className="mx-5 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-4 rounded-card bg-card p-5 text-left shadow-soft transition-transform active:scale-[0.99]"
+        >
+          {shortcutScenario ? (
+            <span className="grid size-16 shrink-0 place-items-center rounded-2xl bg-primary-soft">
+              <ScenarioArt id={shortcutScenario} className="size-14" />
+            </span>
+          ) : (
+            <EmojiBadge name="sinais" tint="rose" size="lg" />
+          )}
+          <span className="min-w-0 flex-1">
+            <span className="block font-display text-[16px] font-extrabold leading-snug">
+              {shortcutScenario
+                ? scenarioById(shortcutScenario).label
+                : "Encontre a orientação para a sua situação"}
+            </span>
+            <span className="mt-0.5 block text-[13px] leading-snug text-muted-foreground">
+              Bloqueio, frieza, falta de resposta, outra pessoa, conversa retomada ou encontro.
+            </span>
+          </span>
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+        </button>
+        {shortcutScenario && (
+          <button
+            type="button"
+            onClick={openScenarios}
+            className="mx-5 mt-3 flex min-h-11 w-[calc(100%-2.5rem)] cursor-pointer items-center justify-center gap-1 py-2 text-[13px] font-bold text-primary"
+          >
+            Ver todas as situações <ChevronRight className="size-4" />
+          </button>
+        )}
+        <p className="mx-5 mt-3 text-center text-[12px] leading-snug text-muted-foreground">
+          Término antigo, traição e conflitos anteriores também são considerados no seu protocolo.
+        </p>
+      </div>
+
+      {/* Jornada de 21 dias (oculta em lib/features.ts) */}
+      {features.plan21 && (
+        <div className="mt-8">
+          <SectionHeader title="Sua jornada de 21 dias" />
+          {nextFirst48 && <div className="mb-4">{todayCard("Plano de hoje")}</div>}
+          <section className="mx-5 overflow-hidden rounded-card bg-goal-card p-5 text-primary-foreground shadow-glow">
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="eyebrow eyebrow-light">Meta da fase {phase.phase}</p>
+                <h2 className="mt-1 font-display text-[18px] font-extrabold leading-snug">
+                  {progress.finished ? "Todas as fases concluídas!" : phase.goal}
+                </h2>
+                <p className="mt-1.5 text-[13px] leading-snug text-primary-foreground/85">
+                  {phase.objective}
+                </p>
+              </div>
+              <Emoji
+                name="estrela"
+                className="pointer-events-none size-20 shrink-0 drop-shadow-[0_10px_14px_rgba(90,20,38,0.28)]"
+              />
+            </div>
+            <div className="mt-5">
+              <div className="flex items-center gap-3">
+                <GoalProgress
+                  value={progress.phaseDone}
+                  max={progress.phaseTotal}
+                  label={`Dias concluídos na fase ${phase.phase}`}
+                />
+                <span className="shrink-0 text-xs font-bold">
+                  {progress.phaseDone} de {progress.phaseTotal} dias da fase
+                </span>
+              </div>
+              <p className="mt-2.5 text-[12px] leading-snug text-primary-foreground/70">
+                {progress.phaseDone >= progress.phaseTotal
+                  ? "Todos os dias da fase concluídos!"
+                  : "Pequenos passos também contam."}
+              </p>
+            </div>
+          </section>
+
+          <button
+            type="button"
+            onClick={openPlan}
+            className="mx-5 mt-4 flex w-[calc(100%-2.5rem)] cursor-pointer items-center justify-center gap-1 py-1 text-[13px] font-bold text-primary"
+          >
+            Ver caminho completo do plano <ChevronRight className="size-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Diário e ferramentas, com o progresso (ocultos em lib/features.ts) */}
+      {(features.diary || features.progress) && (
+        <div className="mt-8">
+          <SectionHeader title="Diário e ferramentas" />
+          <section
+            className="mx-5 rounded-card bg-card px-4 pb-5 pt-5 shadow-soft max-[359px]:px-3"
+            aria-label="Diário e ferramentas"
+          >
+            <div className="grid grid-cols-4 gap-1">
+              <CategoryTile label="Meu diário" emoji="diario" onClick={openDiary} />
+              <CategoryTile label="Regras de ouro" emoji="regras" onClick={() => openRules()} />
+              <CategoryTile label="Sinais" emoji="sinais" onClick={() => openRules("signals")} />
+              <CategoryTile label="Nunca enviar" emoji="nunca" onClick={() => openRules("never")} />
+            </div>
+          </section>
+          <button
+            type="button"
+            onClick={openProgress}
+            className="mx-5 mt-4 flex w-[calc(100%-2.5rem)] cursor-pointer items-center gap-3 rounded-card bg-card p-5 text-left shadow-soft transition-transform active:scale-[0.99]"
+          >
+            <Emoji name="medalha" className="size-24 shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block font-display text-[15px] font-extrabold text-foreground">
+                Pequenos avanços
+              </span>
+              <span className="mt-1.5 block text-[13px] leading-snug text-muted-foreground">
+                {impulseMessage(impulse)}
+              </span>
+              <span className="mt-3 inline-flex items-center gap-1 text-[12px] font-extrabold text-primary">
+                <TrendingUp className="size-3.5" strokeWidth={3} /> Ver meu progresso
+              </span>
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* 5. Conteúdos complementares: um card por upsell atual. O selo "Liberado" vem só do
           servidor (cr_my_entitlements); sem ele, o card mostra a oferta. */}
       <div className="mt-8">
         <SectionHeader title="Conteúdos complementares" />
@@ -416,19 +521,6 @@ export function HomeScreen({
           })}
         </div>
       </div>
-
-      <Dialog open={care} onOpenChange={setCare}>
-        <DialogContent className="w-[calc(100%-2rem)] rounded-2xl border-border sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Apoio emocional</DialogTitle>
-            <DialogDescription className="leading-6">
-              Você não precisa atravessar isso sozinha. Se a dor estiver pesada demais, ligue agora.
-              Se você vive ou viveu uma relação com violência, procure ajuda especializada.
-            </DialogDescription>
-          </DialogHeader>
-          <CareLines highlight />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

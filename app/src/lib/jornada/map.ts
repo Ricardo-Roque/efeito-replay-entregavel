@@ -189,8 +189,8 @@ function doNowOf(a: DiagnosisAnswers, mode: ContactMode, attention: AttentionId)
   const byLimit =
     mode === "sem_contato"
       ? [
-          "Seguir o plano de 21 dias por você, sem esperar resposta dele",
-          "Escrever no Diário o que você queria dizer a ele, sem enviar",
+          "Cuidar da sua rotina por você, sem esperar resposta dele",
+          "Escrever só para você o que queria dizer a ele, sem enviar",
           a.contact === "bloqueou" && "Arquivar as conversas e fotos que mais doem, se isso ajudar",
           a.otherPerson === "sim" && "Silenciar os perfis que fazem você se comparar",
         ]
@@ -203,7 +203,7 @@ function doNowOf(a: DiagnosisAnswers, mode: ContactMode, attention: AttentionId)
 
   const byAttention: (string | false)[] =
     attention === "insistencia"
-      ? ["Parar as tentativas por enquanto e registrar no Diário cada vez que segurar a vontade"]
+      ? ["Parar as tentativas por enquanto e usar a Pausa sempre que bater a vontade"]
       : mode === "aberto"
         ? [
             a.contact === "normal" && "Responder com leveza e encerrar antes de a conversa cansar",
@@ -223,12 +223,12 @@ function doNowOf(a: DiagnosisAnswers, mode: ContactMode, attention: AttentionId)
 
   const byReason: Record<BreakupReason, string> = {
     discussoes:
-      "Anotar no Diário o que costumava disparar as discussões, para não repetir o padrão",
+      "Anotar, só para você, o que costumava disparar as discussões, para não repetir o padrão",
     distanciamento: "Reconstruir a sua rotina e os seus interesses, independentemente dele",
     quebra_confianca: "Separar o que é dor do que é decisão antes de falar sobre o que aconteceu",
     traicao: "Separar o que é dor do que é decisão antes de falar sobre o que aconteceu",
     incompatibilidade: "Pensar com calma no que, de fato, precisaria ser diferente",
-    outro: "Escrever no Diário o que você entende hoje sobre o término",
+    outro: "Escrever só para você o que entende hoje sobre o término",
   };
 
   // Escrever para ele só entra nas sugestões com contato aberto, sem padrão de insistência e com
@@ -243,11 +243,11 @@ function doNowOf(a: DiagnosisAnswers, mode: ContactMode, attention: AttentionId)
         : "Lembrar que, neste momento, a resposta para entrar em contato é não",
     o_que_dizer: canWrite
       ? "Usar os modelos do seu cenário como ponto de partida, sempre com as suas palavras"
-      : "Escrever no Diário, e não para ele, o que você gostaria de dizer",
-    interpretar: "Registrar as respostas dele no Diário, sem tirar conclusão de uma mensagem só",
+      : "Escrever só para você, e não para ele, o que gostaria de dizer",
+    interpretar: "Observar as respostas dele com calma, sem tirar conclusão de uma mensagem só",
     frieza: "Manter o seu ritmo, sem cobrar atenção",
     confianca: "Mostrar coerência com o tempo, sem promessas grandes",
-    afastamento: "Escrever no Diário, e não para ele, nos dias em que o afastamento pesa mais",
+    afastamento: "Escrever só para você, e não para ele, nos dias em que o afastamento pesa mais",
   };
 
   const byTried = [
@@ -317,9 +317,9 @@ function firstStepOf(a: DiagnosisAnswers, mode: ContactMode, attention: Attentio
   if (mode === "sem_contato")
     return {
       title: "Escreva a mensagem que você não vai enviar",
-      text: "No Diário, coloque para fora tudo o que gostaria de dizer a ele. Fica só com você e ajuda a atravessar a vontade de escrever.",
-      target: "diary",
-      action: "Abrir o Diário",
+      text: "Na Pausa, coloque para fora tudo o que gostaria de dizer a ele. Nada é enviado: fica só com você e ajuda a atravessar a vontade de escrever.",
+      target: "pause",
+      action: "Abrir a Pausa",
     };
   if (mode === "pausa")
     return {
@@ -365,16 +365,16 @@ function firstStepOf(a: DiagnosisAnswers, mode: ContactMode, attention: Attentio
     };
   if (a.difficulty === "afastamento")
     return {
-      title: "Escreva no Diário o que você sente",
-      text: "Nos dias em que o afastamento pesa mais, escreva no Diário o que você gostaria de dizer. Fica só com você.",
-      target: "diary",
-      action: "Abrir o Diário",
+      title: "Escreva o que você sente, sem enviar",
+      text: "Nos dias em que o afastamento pesa mais, escreva na Pausa o que gostaria de dizer. Nada é enviado: fica só com você.",
+      target: "pause",
+      action: "Abrir a Pausa",
     };
   return {
-    title: "Comece pelo dia de hoje do plano",
-    text: "O plano de 21 dias organiza o caminho em passos pequenos. O dia de hoje leva poucos minutos.",
-    target: "plan",
-    action: "Abrir o plano",
+    title: "Veja as orientações do seu cenário",
+    text: "O que fazer, o que evitar e quando parar, para a situação que você vive hoje.",
+    target: "scenario",
+    action: "Abrir o cenário",
   };
 }
 

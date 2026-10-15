@@ -11,6 +11,7 @@ import {
 import { useCommContext } from "@/components/comunicacao/hooks";
 import { BulletList, MessageCard } from "@/components/comunicacao/shared";
 import { ToolLinks } from "@/components/tool-links";
+import { features } from "@/lib/features";
 import { Button } from "@/components/ui/button";
 import type { AppLink } from "@/lib/app-link";
 import { messageById } from "@/lib/comunicacao/rules";
@@ -208,60 +209,69 @@ export function ScenarioPanel({
       <SectionTitle>Conteúdos relacionados</SectionTitle>
       <ToolLinks links={scenario.links} onOpen={openLink} />
 
-      <SectionTitle>Dias do plano para este cenário</SectionTitle>
-      <div className="space-y-3">
-        {scenario.days.map((day) => {
-          const content = dayContent(day);
-          const state = dayState(data, day, { allDays: entitlements.allDays });
-          const available = state === "done" || state === "open";
-          const status =
-            state === "done" ? "done" : state === "open" && day === today ? "current" : "locked";
-          const inner = (
-            <>
-              <span
-                className={cn(
-                  "grid size-11 shrink-0 place-items-center rounded-full",
-                  status === "done" && "bg-node-success text-success",
-                  status === "current" && "bg-play-button text-primary-foreground",
-                  status === "locked" && "bg-muted text-muted-foreground",
-                )}
-              >
-                {status === "done" ? (
-                  <Check className="size-5" strokeWidth={3} />
-                ) : status === "current" ? (
-                  <Play className="size-4 fill-current" />
-                ) : (
-                  <Lock className="size-4" />
-                )}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[11px] font-bold text-muted-foreground">
-                  Fase {content.phase} · Dia {day}
-                  {!available && " · ainda não liberado"}
-                </span>
-                <span className="block truncate font-display text-[15px] font-extrabold text-foreground">
-                  {content.title}
-                </span>
-              </span>
-            </>
-          );
-          return available ? (
-            <button
-              key={day}
-              type="button"
-              onClick={() => openDay(day)}
-              className="flex w-full cursor-pointer items-center gap-3 rounded-card bg-card p-4 text-left shadow-soft transition-transform active:scale-[0.99]"
-            >
-              {inner}
-              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-            </button>
-          ) : (
-            <div key={day} className="flex items-center gap-3 rounded-card bg-card/70 p-4">
-              {inner}
-            </div>
-          );
-        })}
-      </div>
+      {/* Dias do plano: ocultos com o plano de 21 dias (lib/features.ts) */}
+      {features.plan21 && (
+        <>
+          <SectionTitle>Dias do plano para este cenário</SectionTitle>
+          <div className="space-y-3">
+            {scenario.days.map((day) => {
+              const content = dayContent(day);
+              const state = dayState(data, day, { allDays: entitlements.allDays });
+              const available = state === "done" || state === "open";
+              const status =
+                state === "done"
+                  ? "done"
+                  : state === "open" && day === today
+                    ? "current"
+                    : "locked";
+              const inner = (
+                <>
+                  <span
+                    className={cn(
+                      "grid size-11 shrink-0 place-items-center rounded-full",
+                      status === "done" && "bg-node-success text-success",
+                      status === "current" && "bg-play-button text-primary-foreground",
+                      status === "locked" && "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {status === "done" ? (
+                      <Check className="size-5" strokeWidth={3} />
+                    ) : status === "current" ? (
+                      <Play className="size-4 fill-current" />
+                    ) : (
+                      <Lock className="size-4" />
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[11px] font-bold text-muted-foreground">
+                      Fase {content.phase} · Dia {day}
+                      {!available && " · ainda não liberado"}
+                    </span>
+                    <span className="block truncate font-display text-[15px] font-extrabold text-foreground">
+                      {content.title}
+                    </span>
+                  </span>
+                </>
+              );
+              return available ? (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => openDay(day)}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-card bg-card p-4 text-left shadow-soft transition-transform active:scale-[0.99]"
+                >
+                  {inner}
+                  <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                </button>
+              ) : (
+                <div key={day} className="flex items-center gap-3 rounded-card bg-card/70 p-4">
+                  {inner}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </Overlay>
   );
 }

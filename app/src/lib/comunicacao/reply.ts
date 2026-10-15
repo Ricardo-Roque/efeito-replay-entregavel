@@ -42,7 +42,8 @@ const pauseExample = (
 
 const pause = (label: string, text: string): ReplyAction => ({ target: "pause", label, text });
 
-const diary = (label: string, text: string): ReplyAction => ({ target: "diary", label, text });
+// Escrever sem enviar: abre a Pausa em branco (o Diário está oculto, ver lib/features.ts).
+const diary = (label: string, text: string): ReplyAction => ({ target: "pause", label, text });
 
 const central = (category: CommCategoryId, label: string, text: string): ReplyAction => ({
   target: "central",
@@ -180,7 +181,7 @@ export const replySituations: ReplySituation[] = [
             "Espaço de verdade é o que permite ver se existe interesse do outro lado.",
           ),
           point(
-            "Anotar no Diário o que você sentiu com a resposta.",
+            "Anotar, só para você, o que sentiu com a resposta.",
             "Escrever tira a urgência de responder para aliviar a ansiedade.",
           ),
         ],
@@ -200,7 +201,7 @@ export const replySituations: ReplySituation[] = [
           note: "Se quiser responder, uma linha que encerra com leveza basta. Não enviar também é uma escolha válida.",
         },
         next: diary(
-          "Registrar no Diário e soltar o celular",
+          "Escrever o que sentiu, sem enviar, e soltar o celular",
           "O próximo passo é seu, não dele: cuidar do que essa resposta mexeu em você.",
         ),
         more: [
@@ -319,7 +320,10 @@ export const replySituations: ReplySituation[] = [
         next: pauseExample("Escreva agora, se quiser, e releia de manhã antes de enviar."),
         more: [
           day(5, "Um plano para as horas em que a emoção aperta."),
-          diary("Registrar no Diário", "Anote o que a mensagem mexeu em você antes de decidir."),
+          diary(
+            "Escrever o que sentiu, sem enviar",
+            "Anote o que a mensagem mexeu em você antes de decidir.",
+          ),
         ],
         related: ["saudade-acolher", "saudade-misturada"],
       },
@@ -363,7 +367,7 @@ export const replySituations: ReplySituation[] = [
           signals,
           day(16, "Como ler sinais de abertura e de alerta."),
           diary(
-            "Registrar no Diário",
+            "Escrever o que sentiu, sem enviar",
             "Anotar cada vez que ele aparece ajuda a enxergar o padrão com calma.",
           ),
         ],
@@ -502,7 +506,7 @@ export const replySituations: ReplySituation[] = [
         next: pauseExample(),
         more: [
           diary(
-            "Preparar no Diário o que você quer dizer",
+            "Preparar o que você quer dizer, sem enviar",
             "Saber o que você sente antes de falar deixa a conversa mais calma.",
           ),
           day(19, "Quando um convite para conversar faz sentido."),
@@ -548,7 +552,7 @@ export const replySituations: ReplySituation[] = [
             "Como agir com coerência quando a confiança foi abalada.",
           ),
           diary(
-            "Preparar no Diário a sua resposta",
+            "Preparar a sua resposta na Pausa",
             "Escrever antes ajuda a responder sem se defender.",
           ),
         ],
@@ -576,7 +580,12 @@ export const replySituations: ReplySituation[] = [
           note: "Resolve o assunto com cordialidade, sem puxar outro tema.",
         },
         next: pauseExample(),
-        more: [diary("Registrar no Diário", "Anote como você se sentiu, se mexeu com você.")],
+        more: [
+          diary(
+            "Escrever o que sentiu, sem enviar",
+            "Anote como você se sentiu, se mexeu com você.",
+          ),
+        ],
         related: [],
       },
     },
@@ -650,7 +659,7 @@ export const replySituations: ReplySituation[] = [
             "Outras respostas para quando a mágoa aparece.",
           ),
           diary(
-            "Registrar no Diário o que isso mexeu em você",
+            "Escrever o que isso mexeu em você, sem enviar",
             "Ouvir uma mágoa também dói. Cuide disso fora da conversa.",
           ),
         ],
@@ -692,7 +701,7 @@ export const replySituations: ReplySituation[] = [
             "Como ser coerente quando a confiança foi abalada.",
           ),
           diary(
-            "Preparar no Diário o que você quer explicar",
+            "Preparar o que você quer explicar, sem enviar",
             "Organizar antes evita se defender no calor da conversa.",
           ),
         ],
@@ -769,7 +778,10 @@ export const replySituations: ReplySituation[] = [
             "Central: Mágoa e ressentimento",
             "Respostas que não alimentam a briga.",
           ),
-          diary("Registrar no Diário", "Anote o que você sentiu, para não responder com isso."),
+          diary(
+            "Escrever o que sentiu, sem enviar",
+            "Anote o que você sentiu, para não responder com isso.",
+          ),
           day(2, "Como sair do modo reação."),
         ],
         related: ["ress-limite", "ress-reconhecer"],
@@ -805,7 +817,7 @@ export const replySituations: ReplySituation[] = [
         alerts: [VIOLENCE],
         care: true,
         next: diary(
-          "Registrar no Diário o que aconteceu",
+          "Escrever o que aconteceu, sem enviar",
           "Anotar data e o que foi dito ajuda a enxergar com clareza e a pedir ajuda, se precisar.",
         ),
         more: [
@@ -878,7 +890,7 @@ export const replySituations: ReplySituation[] = [
         next: pauseExample(),
         more: [
           diary(
-            "Preparar a conversa no Diário",
+            "Preparar a conversa, sem enviar",
             "O que eu quero dizer, o que não vou trazer e como vou ficar se a resposta for não.",
           ),
           day(19, "Quando uma conversa ou convite faz sentido."),
@@ -914,7 +926,7 @@ export const replySituations: ReplySituation[] = [
         next: pauseExample(),
         more: [
           diary(
-            "Escrever no Diário o que você precisa antes",
+            "Escrever o que você precisa antes, sem enviar",
             "Ajuda a perceber quando você estiver pronta.",
           ),
           central("reencontro", "Central: Reencontro", "Para quando a conversa acontecer."),
@@ -983,7 +995,7 @@ export const replySituations: ReplySituation[] = [
         next: pauseExample(),
         more: [
           diary(
-            "Preparar o encontro no Diário",
+            "Preparar o encontro, sem enviar",
             "O que eu quero viver, o assunto que não vou trazer e como vou ficar com qualquer resultado.",
           ),
           scenario(
@@ -1000,7 +1012,7 @@ export const replySituations: ReplySituation[] = [
         respond: "sim",
         doNow: [
           point(
-            "Escrever no Diário o que você espera e o que você teme desse encontro.",
+            "Escrever só para você o que espera e o que teme desse encontro.",
             "Colocar a insegurança no papel ajuda a ver se é nervosismo ou um sinal de que ainda não é a hora.",
           ),
           point(
@@ -1028,7 +1040,7 @@ export const replySituations: ReplySituation[] = [
           note: "Se decidir ir, uma resposta simples basta. Proponha o formato em que você se sente segura.",
         },
         next: diary(
-          "Preparar no Diário antes de responder",
+          "Preparar a resposta, sem enviar, antes de responder",
           "O que eu espero, o que eu temo e o que me deixaria tranquila nesse encontro.",
         ),
         more: [
@@ -1066,7 +1078,7 @@ export const replySituations: ReplySituation[] = [
         next: pauseExample(),
         more: [
           diary(
-            "Registrar no Diário o que você decidiu",
+            "Escrever o que você decidiu, sem enviar",
             "Ajuda a sustentar a sua escolha sem culpa.",
           ),
         ],
@@ -1132,7 +1144,10 @@ export const replySituations: ReplySituation[] = [
         more: [
           day(5, "Um plano para as horas em que a vontade aperta."),
           day(12, "O que fazer com a espera depois de uma mensagem."),
-          diary("Registrar no Diário que segurei o impulso", "Cada impulso que você segura conta."),
+          diary(
+            "Escrever o que eu queria mandar, sem enviar",
+            "Cada impulso que você segura conta.",
+          ),
         ],
         related: ["semresp-nao-enviar", "evit-cobranca", "evit-terceiros"],
       },
@@ -1149,7 +1164,7 @@ export const replySituations: ReplySituation[] = [
             "Voltar à rotina mostra a você mesma que a sua vida não depende da resposta.",
           ),
           point(
-            "Anotar no Diário o que você sentiu.",
+            "Anotar, só para você, o que sentiu.",
             "Nomear a frustração ajuda a ela passar mais rápido.",
           ),
         ],
@@ -1164,7 +1179,7 @@ export const replySituations: ReplySituation[] = [
           ),
         ],
         next: diary(
-          "Registrar no Diário e seguir o dia",
+          "Escrever o que sentiu, sem enviar, e seguir o dia",
           "Hoje o próximo passo é seu: cuidar de você, não esperar a resposta.",
         ),
         more: [
@@ -1211,7 +1226,7 @@ export const replySituations: ReplySituation[] = [
             registers: true,
           },
           point(
-            "Escrever no Diário o que você queria dizer.",
+            "Escrever só para você o que queria dizer.",
             "O que você sente continua importante. Só não vai para ele.",
           ),
         ],
@@ -1243,7 +1258,7 @@ export const replySituations: ReplySituation[] = [
           text: "O app inteiro passa a respeitar esse limite.",
         },
         more: [
-          diary("Escrever no Diário o que eu queria dizer", "Tirar do peito, sem enviar."),
+          diary("Escrever o que eu queria dizer, sem enviar", "Tirar do peito, sem enviar."),
           day(3, "Como sustentar a distância sem se abandonar."),
           scenario(
             "bloqueou",
@@ -1318,7 +1333,7 @@ export const replySituations: ReplySituation[] = [
         more: [
           scenario("outra", "Cenário: ele está com outra pessoa", "Sem disputa, sem comparação."),
           diary(
-            "Escrever no Diário o que você sentiu",
+            "Escrever o que você sentiu, sem enviar",
             "Para a notícia não virar mensagem por impulso.",
           ),
         ],
@@ -1336,7 +1351,7 @@ export const replySituations: ReplySituation[] = [
             "Você não precisa reagir à menção.",
           ),
           point(
-            "Se a dúvida apertar, escrever no Diário em vez de perguntar.",
+            "Se a dúvida apertar, escrever só para você em vez de perguntar.",
             "Perguntar por ansiedade costuma soar como cobrança.",
           ),
           point(
@@ -1355,7 +1370,7 @@ export const replySituations: ReplySituation[] = [
           ),
         ],
         next: diary(
-          "Registrar no Diário o que a menção mexeu em você",
+          "Escrever o que a menção mexeu em você, sem enviar",
           "Escrever ajuda a não transformar a dúvida em pergunta.",
         ),
         more: [
@@ -1397,7 +1412,7 @@ const LIMIT_DO: ReplyPoint[] = [
     "Com um limite registrado, o app não sugere respostas. Isso protege você de reabrir algo que ainda dói.",
   ),
   point(
-    "Escrever no Diário o que você sentiu e o que gostaria de responder.",
+    "Escrever só para você o que sentiu e o que gostaria de responder.",
     "O que você sente continua importante, mesmo sem ir para ele.",
   ),
   point(
@@ -1496,7 +1511,7 @@ export function resolveReply(
       outcome.respond === "nao" && keep(outcome.next)
         ? outcome.next
         : diary(
-            "Escrever no Diário, só para mim",
+            "Escrever o que sinto, sem enviar",
             "Com um limite registrado, o próximo passo é cuidar de você, não responder.",
           );
     more = [...more.filter(keep), UPDATE_DIAGNOSIS];

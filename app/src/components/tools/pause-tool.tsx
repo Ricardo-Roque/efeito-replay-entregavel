@@ -5,6 +5,7 @@ import { Emoji, Highlight, Overlay, ScenarioArt, SectionTitle } from "@/componen
 import { useCommContext } from "@/components/comunicacao/hooks";
 import { Button } from "@/components/ui/button";
 import { copyText } from "@/lib/clipboard";
+import { features } from "@/lib/features";
 import { pauseQuestionsFor, type PauseQuestion } from "@/lib/guide";
 import { useJornada } from "@/lib/jornada/store";
 import { formatTime } from "@/lib/progress";
@@ -69,6 +70,16 @@ export function PauseTool({
   const stepLabel = { write: "Passo 1 de 3", check: "Passo 2 de 3", result: "Resultado" }[step];
 
   const saveDraft = (wait: boolean) => {
+    // Diário oculto (lib/features.ts): nada é gravado nem enviado; a Pausa só fecha.
+    if (!features.diary) {
+      showToast(
+        wait
+          ? "Nada foi enviado. Se amanhã ainda fizer sentido, passe pela Pausa de novo."
+          : "Nada foi enviado. Escrever já tira um pouco do peso.",
+      );
+      onClose();
+      return;
+    }
     const ok = wait
       ? addEntry({ type: "draft", source: "nao_enviar", text, readyAt: readyAt.toISOString() })
       : addEntry({
@@ -141,7 +152,7 @@ export function PauseTool({
             disabled={!text}
             onClick={() => saveDraft(true)}
           >
-            Só quero guardar no Diário
+            {features.diary ? "Só quero guardar no Diário" : "Só quero escrever, sem enviar"}
           </Button>
           <div className="mt-5">
             <Highlight emoji="brilho" tint="rose">
@@ -221,18 +232,20 @@ export function PauseTool({
             <Emoji name="pausa" className="mx-auto size-20" />
             <h2 className="mt-3 font-display text-2xl font-black">Guarde por 24 horas</h2>
             <p className="mt-2 text-[13px] leading-snug text-primary-foreground/85">
-              Algumas respostas pedem mais tempo. Amanhã, se ainda fizer sentido, você relê com
-              calma.
+              {features.diary
+                ? "Algumas respostas pedem mais tempo. Amanhã, se ainda fizer sentido, você relê com calma."
+                : "Algumas respostas pedem mais tempo. Se amanhã ainda fizer sentido, passe pela Pausa de novo."}
             </p>
             <p className="mt-4 font-display text-5xl font-black">24h</p>
             <p className="mt-1 text-xs font-bold text-primary-foreground/75">
-              pode reler amanhã às {formatTime(readyAt)}
+              {features.diary ? "pode reler amanhã às" : "volte amanhã, depois das"}{" "}
+              {formatTime(readyAt)}
             </p>
             <Button
               className="mt-5 h-12 w-full rounded-xl bg-card text-sm font-bold text-primary hover:bg-card/90"
               onClick={() => saveDraft(true)}
             >
-              <Archive /> Guardar no Diário
+              <Archive /> {features.diary ? "Guardar no Diário" : "Esperar 24 horas"}
             </Button>
           </section>
           <SectionTitle>O que pesou</SectionTitle>
@@ -282,7 +295,7 @@ export function PauseTool({
             className="mt-1 h-11 w-full font-bold text-primary"
             onClick={() => saveDraft(true)}
           >
-            Prefiro guardar por 24 horas
+            {features.diary ? "Prefiro guardar por 24 horas" : "Prefiro esperar 24 horas"}
           </Button>
           <div className="mt-4">
             <Highlight emoji="celular">
@@ -311,7 +324,7 @@ export function PauseTool({
             className="mt-5 h-12 w-full rounded-xl text-sm font-bold"
             onClick={() => saveDraft(false)}
           >
-            <NotebookPen /> Guardar no Diário, só para mim
+            <NotebookPen /> {features.diary ? "Guardar no Diário, só para mim" : "Não enviar"}
           </Button>
           <Button
             variant="ghost"

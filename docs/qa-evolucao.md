@@ -1,5 +1,7 @@
 # Código da Reconquista: auditoria de QA da evolução do entregável
 
+> Registro histórico da auditoria anterior. O estado corrente está em `docs/CONTINUIDADE-DESENVOLVIMENTO.md`; depois desta auditoria, as sete técnicas receberam versões editoriais próprias no aplicativo.
+
 Data: 14/10/2026. Branch: `feat/jornada-48h-mensagens-20261013`, separada da `main`. Nada foi publicado e nada foi mesclado na `main`.
 
 Este documento registra o que foi testado antes da publicação, o que foi encontrado, o que foi corrigido e o que ainda falta. As pendências de conteúdo detalhadas continuam em `docs/pendencias-editoriais.md`, `docs/pendencias-central-comunicacao.md`, `docs/matriz-vsl-entregavel.md` e `docs/estrutura-comercial-upsells.md`.

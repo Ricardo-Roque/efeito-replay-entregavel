@@ -1,8 +1,10 @@
-# Código da Reconquista: app (Fase 1A)
+# Código da Reconquista
 
-Webapp mobile-first do protocolo de 21 dias. A base técnica é a mesma do CalmBaby: React 19, TanStack Start, Tailwind 4 e TypeScript.
+Webapp mobile-first do protocolo personalizado de reconquista. A experiência principal está organizada em quatro áreas: **Meu Protocolo Personalizado**, **Mensagens e Técnicas**, **O Que Fazer Depois** e **Situações Especiais**.
 
-Nesta fase o app funciona **sem backend**. Não há login, Supabase, Payt nem deploy. Tudo fica salvo no `localStorage` do navegador.
+A base técnica é React 19, TanStack Start, Tailwind 4 e TypeScript. A entrada usa o e-mail da compra e o Supabase confere o acesso. Diagnóstico, favoritos e outros dados de uso continuam salvos no `localStorage`, separados por e-mail e sem sincronização entre aparelhos.
+
+O plano de 21 dias, o Diário, o Meu Plano de 48 Horas e o progresso continuam preservados no código e nos dados antigos, mas estão ocultos por `src/lib/features.ts`. Essa decisão mantém a entrega concentrada no que foi prometido na VSL.
 
 ## Rodar localmente
 
@@ -21,36 +23,37 @@ Outros comandos:
 - `npm run build`: gera a versão de produção (`.output/`)
 - `npm run typecheck`: confere os tipos
 - `npm run lint`: roda o lint
+- `npm test`: executa os testes das regras e matrizes de segurança
 - `npm run format`: formata o código
 
-### Testar a jornada sem esperar
+### Testar localmente
 
-Um dia do plano libera no dia seguinte ao que o anterior foi concluído (mesma regra do CalmBaby). Para testar, use **Mais > Teste local > Simular a passagem de 1 dia**. Esse botão só aparece com `npm run dev`; ele recua todas as datas salvas em um dia.
+Em desenvolvimento, digite um e-mail válido e use **Teste local: entrar sem conferir a compra**. Os controles de simulação ficam no Perfil e só aparecem com `npm run dev`.
 
-Para começar do zero, use **Mais > Recomeçar do zero**.
+Para limpar o estado local, use **Perfil > Apagar os dados deste aparelho**.
 
 ## Onde fica cada coisa
 
 | Caminho | O que é |
 |---|---|
 | `src/components/reconquista-app.tsx` | Shell do app: abas, pilha de camadas, celebração e aviso (toast) |
-| `src/components/home/` | Início, navegação inferior e cards |
-| `src/components/plan/` | Plano 21 dias (trilha, cabeçalho da fase, card flutuante, gaveta), detalhe do dia e celebração |
-| `src/components/scenarios/` | Grade de cenários e detalhe do cenário |
-| `src/components/diary-screen.tsx` | Diário |
-| `src/components/more-screen.tsx` | Mais (perfil, menu, diálogos) |
-| `src/components/tools/` | Pausa antes de enviar, Regras de ouro e Meu compromisso |
-| `src/components/onboarding.tsx` | Primeiro acesso: nome, quando terminaram, cenário e compromisso |
-| `src/lib/plan.ts` | Fases, os 21 dias e os marcos (7, 14 e 21), guardados como dado |
-| `src/lib/scenarios.ts` | Os 6 cenários e o banco de respostas de cada um |
-| `src/lib/guide.ts` | Regras de ouro, sinais, checklist da Pausa, compromisso e apoio |
-| `src/lib/store.tsx` | Estado e gravação no localStorage (mesma API que a versão com Supabase vai usar) |
-| `src/lib/progress.ts` | Liberação dos dias, progresso e contador de dias sem impulso |
+| `src/components/home/` | Home enxuta, navegação inferior e cards existentes |
+| `src/components/jornada/` | Diagnóstico, Mapa e Plano de 48 Horas preservado (oculto) |
+| `src/components/comunicacao/` | Central de Comunicação, mensagens e assistente de respostas |
+| `src/components/scenarios/` | Situações especiais e orientação detalhada por cenário |
+| `src/components/tools/` | Pausa antes de enviar e Regras de ouro |
+| `src/components/plan/`, `src/components/diary-screen.tsx`, `src/components/progress-screen.tsx` | Experiências antigas preservadas e ocultas |
+| `src/components/reset/` | Reset Emocional do Ex, legado e visível somente para quem já comprou |
+| `src/lib/features.ts` | Flags que ocultam as experiências fora do escopo atual |
+| `src/lib/jornada/` | Diagnóstico, Mapa, técnicas da VSL e persistência local |
+| `src/lib/comunicacao/` | Conteúdos e regras da Central e do assistente |
+| `src/lib/scenarios.ts` | Os seis cenários e suas orientações |
+| `src/lib/store.tsx` | Login, permissões e dados locais separados por e-mail |
 | `src/lib/config.ts` | Links que vêm do `.env` (`VITE_SUPPORT_WHATSAPP`) |
 | `src/styles.css` | Tokens do design system, no mesmo formato do Calm Kids (Nunito, cards arredondados, tints) |
 | `src/lib/illustrations.ts` + `src/assets/emoji/` | Emojis 3D (Fluent Emoji, MIT, os mesmos do GoodKids) usados nos tiles, cards e celebrações |
 
-O conteúdo de `plan.ts`, `scenarios.ts` e `guide.ts` ainda é **rascunho** e precisa de revisão antes de ir para clientes.
+As sete técnicas anunciadas estão disponíveis como versões editoriais próprias do aplicativo. Elas não reproduzem um material original externo: foram criadas para esta entrega, estão marcadas como `rascunho` e seguem as mesmas regras de limite e Pausa da Central. Consulte `docs/CONTINUIDADE-DESENVOLVIMENTO.md` e `docs/pendencias-central-comunicacao.md`.
 
 ## Publicação (Cloudflare)
 
@@ -88,13 +91,13 @@ https://bionetfauvpcwlhqvvum.supabase.co/functions/v1/cr-payt-webhook
 - Os eventos de teste da Payt são ignorados. Para aceitá-los, crie o segredo `CR_PAYT_ACCEPT_TEST=true`.
 - Tudo que chega fica registrado em `cr_webhook_events`.
 
-O app ainda não tem login: as compras ficam registradas e com acesso liberado no banco, mas a entrada por e-mail (`cr-login`) é a próxima etapa.
+O login por e-mail da compra já está implementado em `cr-login`. Esta etapa de simplificação não alterou autenticação, banco, RLS, webhook ou regras de compra.
 
 ## Upsell #01: Reset Emocional do Ex
 
-Módulo premium dentro do app. A entrada fica no card lilás do Início e no Perfil. O código está em `src/components/reset/` e `src/lib/reset/`.
+Módulo premium legado dentro do app. A entrada aparece no Perfil somente para quem já comprou. O código está em `src/components/reset/` e `src/lib/reset/`.
 
-- **Permissão:** só quem tem compra paga de um produto com `grants_reset` vê o conteúdo. Quem comprou só o Código da Reconquista vê apenas a apresentação do produto.
+- **Permissão:** só quem tem compra paga de um produto com `grants_reset` vê a entrada e o conteúdo. Quem comprou apenas o Código da Reconquista não vê o módulo.
   - O app lê a permissão por `cr_my_entitlements()`.
   - Migration: `supabase/migrations/20261008180000_cr_reset_entitlement.sql`.
   - Enquanto essa migration não estiver aplicada no banco, o Reset fica bloqueado para todas.
@@ -107,9 +110,9 @@ Módulo premium dentro do app. A entrada fica no card lilás do Início e no Per
 - **Progresso:** no aparelho, separado por e-mail (mesma limitação do Diário: não sincroniza entre aparelhos). O histórico de diagnósticos é guardado.
 - **Teste local:** em `npm run dev`, Perfil > Teste local > "Simular compra do Reset".
 
-## Liberar os 21 dias para uma cliente
+## Plano de 21 dias preservado
 
-Por padrão cada dia abre depois que o anterior foi concluído num dia anterior do calendário. Para abrir todos de uma vez para uma cliente específica (não libera o Reset nem dá acesso ao app):
+O plano está oculto na interface atual, mas o código, os dados existentes e a liberação manual continuam preservados. Para abrir todos os dias para uma cliente caso a funcionalidade volte a ser exibida:
 
 ```sql
 update public.cr_clients set unlock_all = true where email = '<e-mail>';

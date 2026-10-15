@@ -85,12 +85,8 @@ export const scenarios: Scenario[] = [
         why: "Respeitar é o que preserva a sua dignidade e deixa com ele a decisão de, um dia, procurar você.",
       },
       {
-        text: "Escrever no Diário o que você queria dizer",
+        text: "Escrever só para você o que queria dizer",
         why: "A carta sem envio organiza o sentimento sem ultrapassar o limite dele.",
-      },
-      {
-        text: "Seguir o plano de 21 dias pensando em você",
-        why: "Todos os dias têm uma versão para quem está sem contato.",
       },
       {
         text: "Pedir apoio a pessoas de confiança",
@@ -124,7 +120,7 @@ export const scenarios: Scenario[] = [
       {
         situation: "É o aniversário dele e você sente que precisa dizer alguma coisa.",
         better:
-          "Escreva no Diário tudo o que quiser dizer e não envie por nenhum meio. O gesto fica com você.",
+          "Escreva só para você tudo o que quiser dizer e não envie por nenhum meio. O gesto fica com você.",
       },
     ],
     openSignals: [
@@ -217,7 +213,7 @@ export const scenarios: Scenario[] = [
       {
         situation: 'Você sente vontade de perguntar "por que você está assim comigo?".',
         better:
-          "Escreva a pergunta no Diário. Se a vontade de falar sobre isso continuar, é assunto para uma conversa ao vivo, quando houver abertura, e não para mensagem.",
+          "Escreva a pergunta só para você. Se a vontade de falar sobre isso continuar, é assunto para uma conversa ao vivo, quando houver abertura, e não para mensagem.",
       },
     ],
     openSignals: [
@@ -237,7 +233,7 @@ export const scenarios: Scenario[] = [
     next: [
       "Faça os dias 8 a 10 para ajustar o tom.",
       'Quando ele responder friamente, use o "Ele respondeu. E agora?".',
-      "Registre os sinais no Diário por uma ou duas semanas antes de qualquer passo maior.",
+      "Observe os sinais por uma ou duas semanas antes de qualquer passo maior.",
     ],
     links: [
       { link: { kind: "central", category: "frio" }, label: "Central: quando ele está frio" },
@@ -275,10 +271,6 @@ export const scenarios: Scenario[] = [
       {
         text: "Cuidar da sua vida e de quem está perto",
         why: "Recoloca o centro em você.",
-      },
-      {
-        text: "Seguir o plano de 21 dias na versão sem contato",
-        why: "Todos os dias têm orientações para este cenário.",
       },
       {
         text: "Falar com alguém de confiança sobre o que sente",
@@ -372,7 +364,7 @@ export const scenarios: Scenario[] = [
         why: "Uma boa resposta vale mais do que dez iniciativas.",
       },
       {
-        text: "Registrar os sinais no Diário",
+        text: "Observar os sinais com calma",
         why: "Ajuda a ver o padrão, e não uma mensagem isolada.",
       },
     ],
@@ -398,7 +390,7 @@ export const scenarios: Scenario[] = [
       {
         situation: "Você mandou uma mensagem há cinco dias e ele não respondeu.",
         better:
-          "Não mande outra. Se precisar dizer algo, escreva no Diário. A sua última mensagem já foi a sua vez.",
+          "Não mande outra. Se precisar dizer algo, escreva só para você. A sua última mensagem já foi a sua vez.",
       },
       {
         situation: 'Ele escreve depois de semanas: "Oi, tudo bem?".',
@@ -465,7 +457,7 @@ export const scenarios: Scenario[] = [
         why: "A conversa termina boa e o próximo contato começa melhor.",
       },
       {
-        text: "Observar os sinais no Diário",
+        text: "Observar os sinais com calma",
         why: "O padrão de semanas diz mais do que uma conversa.",
       },
     ],

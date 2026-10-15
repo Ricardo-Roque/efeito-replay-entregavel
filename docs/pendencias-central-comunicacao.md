@@ -4,46 +4,40 @@ Este documento lista o que precisa ser obtido, escrito ou aprovado para fechar o
 
 ## 1. Técnicas citadas na VSL
 
-### O que foi procurado
+### Origem e decisão editorial
 
-Foram verificados o repositório do app, as páginas de venda (`codigo-da-reconquista`, `codigo-da-reconquista-b`), o quiz de referência (`docs/quiz-referencia.md`), a TSL do upsell e os documentos de produto.
+Foram verificados o repositório do app, as páginas de venda (`codigo-da-reconquista`, `codigo-da-reconquista-b`), o quiz de referência (`docs/quiz-referencia.md`), a TSL do upsell e os documentos de produto. Essas fontes apenas mencionam os nomes; não trazem a formulação original.
 
-O material só **menciona** as técnicas. O quiz cita "uma mensagem de 3 palavras" e "mensagem psicológica" como promessa. Em nenhum lugar existe o texto das mensagens, o contexto de uso ou a definição das técnicas.
+Em 14/10/2026, por decisão do responsável pelo produto, foram criadas sete versões editoriais próprias do Código da Reconquista. Elas não são apresentadas como reprodução de um método anterior. Cada módulo informa sua origem editorial, permanece com `status: "rascunho"` e precisa de revisão final de produto.
 
-### O que foi feito
-
-- Nenhum texto foi inventado para as técnicas, e nenhum exemplo da Central foi apresentado como sendo uma delas.
-- As seis técnicas estão em `vslTechniques` (`lib/jornada/messages.ts`) com `status: "aguardando_material"`. Esse status nunca aparece para a cliente.
-- Os 38 conteúdos da Central levam `origin: "exemplo_novo"`. A tela de detalhe informa que se trata de um "exemplo novo, escrito para o Código da Reconquista".
-- Um teste automático (`lib/comunicacao/rules.test.ts`) falha se algum texto da biblioteca usar os nomes das técnicas ou atribuir efeito científico ou comprovado a uma mensagem.
-
-### O que precisa ser obtido
-
-| Técnica | O que pedir ao autor do método | Observação |
+| Técnica | Versão editorial criada | Regra principal |
 |---|---|---|
-| Mensagem de três palavras | O texto exato, quando usar, quando não usar e o que fazer depois | O quiz diz que ela "reativa o lado emocional" do cérebro dele. Essa alegação não pode ir para o app sem fonte |
-| Mensagem com H | O texto e o significado do "H" | |
-| Mensagem "pensando aqui" | O texto completo e o contexto | O exemplo novo "Uma lembrança concreta e leve" tem tom parecido, mas não é essa técnica |
-| Frase número 3 | O texto e a lista de que ela faz parte | Se a lista existir, enviar a lista inteira |
-| Frase do Replay | O texto e o contexto | O nome vem da marca anterior (Efeito Replay) |
-| Técnica do buraco negro emocional | A definição completa e os passos | Se envolver sumir para provocar ansiedade, ciúme ou culpa, **não entra** no app |
+| Mensagem de três palavras | “Lembrei de você.” | Só com contato aberto, lembrança verdadeira e nenhuma mensagem anterior aguardando resposta |
+| Mensagem com H | “Hoje passei por [lugar] e lembrei de [lembrança concreta]. Espero que você esteja bem.” | Preencher apenas com fatos reais e leves |
+| Mensagem "pensando aqui" | Reconhece uma conversa recente sobre um assunto concreto | Não inclui pergunta, pedido ou cobrança |
+| Frase número 3 | “Entendi. Vamos com calma.” | É uma resposta; nunca inicia contato |
+| Frase do Replay | Reconhece o que tornou uma conversa recente leve | Só depois de uma troca iniciada e sustentada por ele |
+| Técnica do buraco negro emocional | Pausa de 30 minutos, separação entre fato e interpretação e decisão sem impulso | Absorve o impulso dela; não usa sumiço para provocar reação |
+| Técnica noturna mencionada na oferta | Encerramento em cinco passos e revisão pela manhã | Não é tratamento de saúde nem a Técnica de Reversão Noturna do Reset |
 
-### Critérios para aprovar o material
+### Estrutura entregue
 
-O material só entra no app se cumprir todos os critérios abaixo:
+- Objetivo, quando usar, quando evitar, limites e origem editorial.
+- Mensagem exata e orientação de adaptação nos cinco módulos de comunicação.
+- O que fazer com e sem resposta.
+- Passo a passo nas duas práticas de autorregulação.
+- Integração com a Pausa, sem cópia ou envio direto.
+- Bloqueio contextual: com limite, o texto da mensagem fica oculto; sem reciprocidade, mensagens de iniciativa também ficam ocultas; respostas só são liberadas quando ele escreveu primeiro.
 
-1. Não contorna bloqueio nem pedido de distância, e não usa outras pessoas ou outros perfis.
-2. Não manipula: nada de provocar ciúme, culpa, medo de perder ou ansiedade.
-3. Não promete efeito sobre ele ("ele vai voltar", "ativa o cérebro dele") nem cita ciência sem fonte.
-4. Funciona com as regras de segurança do app: com limite (bloqueio, pedido de não contato, outra relação) não aparece como ação, e passa pela Pausa antes de enviar.
-5. Tem todos os campos da biblioteca: objetivo, contexto, tom, quando usar, quando evitar, o que fazer com e sem resposta, e limites.
+Os 38 conteúdos da Central continuam com `origin: "exemplo_novo"` e não foram renomeados como técnicas da VSL. Os testes mantêm essa separação.
 
-### Como incluir quando chegar
+### Revisão necessária antes de considerar aprovado
 
-1. Acrescentar o item em `commMessages` (`lib/comunicacao/library.ts`), com id novo e a categoria adequada.
-2. Ligar o item à técnica: hoje o tipo `CommMessage` tem `origin: "exemplo_novo"`. Para a técnica, acrescentar `origin: "metodo"` e `technique: VslTechniqueId` em `lib/comunicacao/types.ts`, e mostrar o selo correspondente no detalhe.
-3. Trocar o `status` da técnica em `vslTechniques` para `aprovado`.
-4. Ajustar o teste de nomes proibidos em `rules.test.ts`, que hoje barra os nomes das técnicas, para aceitar os itens com `origin: "metodo"`.
+1. Validar tom, naturalidade e adequação ao público.
+2. Confirmar que a venda descreve o conteúdo real, sem alegações de controle emocional ou mecanismo científico.
+3. Confirmar a distinção entre a técnica noturna principal e o módulo noturno do Reset.
+4. Se aprovado, trocar o `status` de cada item em `vslTechniques` de `rascunho` para `aprovado`; isso não exige mudar a interface.
+5. Se o material original da VSL aparecer, comparar item por item. Não substituir automaticamente as versões atuais sem nova revisão de segurança.
 
 ## 2. Revisão editorial dos 38 conteúdos
 
@@ -67,8 +61,8 @@ Depois de aprovado, trocar o `status` para `aprovado`. A tela não muda.
 
 | Decisão tomada | Alternativa |
 |---|---|
-| Com limite, a Central abre só para leitura e o atalho "Mensagens" some do Início, mas continua no Perfil, nos cenários e no plano | Esconder a Central inteira nesse caso |
+| Com limite, a Central continua acessível na área "Mensagens e técnicas", apenas para orientações e leitura; nenhum envio é sugerido | Esconder a Central inteira nesse caso |
 | Com pausa (ele pediu tempo) ou espaço (sem reciprocidade), só ficam disponíveis as respostas, e apenas se ele escrever primeiro | Bloquear também as respostas |
 | Sem diagnóstico, tudo fica disponível, com aviso e com a Pausa | Exigir o diagnóstico antes de liberar a cópia |
 | Na Pausa, com pedido de tempo ou sem reciprocidade, o checklist pergunta "Ele escreveu primeiro?". "Não" leva a guardar por 24 horas. Com limite registrado, a pergunta do limite fica travada (auditoria de QA, `docs/qa-evolucao.md`) | Deixar a Pausa igual para todos os momentos |
-| O atalho "Ele respondeu?" do Início abre o guia "Ele respondeu. E agora?" em vez do cenário "Ele respondeu" | Manter o cenário |
+| A área "O que fazer depois" abre o mesmo guia "Ele respondeu. E agora?" já existente, com atalhos para as situações mais procuradas | Manter somente a entrada genérica do guia |

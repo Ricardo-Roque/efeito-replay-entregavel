@@ -23,7 +23,7 @@ export function AvailabilityBadge({
     message.kind === "evitar"
       ? "Evite"
       : message.kind === "reflexao"
-        ? "Para o Diário"
+        ? "Para você"
         : availabilityLabel[availability];
   return (
     <span

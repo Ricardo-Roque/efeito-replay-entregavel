@@ -6,6 +6,7 @@ import { useCommContext } from "@/components/comunicacao/hooks";
 import { Button } from "@/components/ui/button";
 import { stanceNotice } from "@/lib/comunicacao/rules";
 import { diagnosisQuestions, optionLabel } from "@/lib/jornada/diagnosis";
+import { features } from "@/lib/features";
 import { first48Progress } from "@/lib/jornada/first48";
 import { useJornada } from "@/lib/jornada/store";
 import type { StepTarget } from "@/lib/jornada/types";
@@ -166,37 +167,40 @@ export function MapScreen({
         </div>
       </Section>
 
-      <Section n={6} title="Meu Plano de 48 Horas">
-        <div className="rounded-card bg-card p-4 shadow-soft">
-          <p className="text-sm leading-6 text-muted-foreground">
-            Cinco atividades curtas para os próximos dois dias, montadas a partir deste mapa. Tudo
-            fica disponível agora: as etapas só sugerem um ritmo.
-          </p>
-          {first48.done > 0 && (
-            <div className="mt-3 flex items-center gap-3 rounded-xl bg-primary-soft px-3 py-2.5">
-              <GoalProgress
-                tone="primary"
-                value={first48.done}
-                max={first48.total}
-                label="Atividades concluídas do plano de 48 horas"
-              />
-              <span className="shrink-0 text-xs font-bold">
-                {first48.done} de {first48.total}
-              </span>
-            </div>
-          )}
-          <Button className="mt-3 h-11 w-full rounded-xl font-bold" onClick={openFirst48}>
-            {first48.complete
-              ? "Rever meu plano de 48 horas"
-              : first48.done > 0
-                ? "Continuar meu plano de 48 horas"
-                : "Começar meu plano de 48 horas"}{" "}
-            <ArrowRight />
-          </Button>
-        </div>
-      </Section>
+      {/* Meu Plano de 48 Horas: oculto em lib/features.ts */}
+      {features.first48 && (
+        <Section n={6} title="Meu Plano de 48 Horas">
+          <div className="rounded-card bg-card p-4 shadow-soft">
+            <p className="text-sm leading-6 text-muted-foreground">
+              Cinco atividades curtas para os próximos dois dias, montadas a partir deste mapa. Tudo
+              fica disponível agora: as etapas só sugerem um ritmo.
+            </p>
+            {first48.done > 0 && (
+              <div className="mt-3 flex items-center gap-3 rounded-xl bg-primary-soft px-3 py-2.5">
+                <GoalProgress
+                  tone="primary"
+                  value={first48.done}
+                  max={first48.total}
+                  label="Atividades concluídas do plano de 48 horas"
+                />
+                <span className="shrink-0 text-xs font-bold">
+                  {first48.done} de {first48.total}
+                </span>
+              </div>
+            )}
+            <Button className="mt-3 h-11 w-full rounded-xl font-bold" onClick={openFirst48}>
+              {first48.complete
+                ? "Rever meu plano de 48 horas"
+                : first48.done > 0
+                  ? "Continuar meu plano de 48 horas"
+                  : "Começar meu plano de 48 horas"}{" "}
+              <ArrowRight />
+            </Button>
+          </div>
+        </Section>
+      )}
 
-      <Section n={7} title="Seu cenário">
+      <Section n={features.first48 ? 7 : 6} title="Seu cenário">
         <div className="rounded-card bg-card p-4 shadow-soft">
           <button
             type="button"
@@ -243,7 +247,7 @@ export function MapScreen({
         </div>
       </Section>
 
-      <Section n={8} title="Central de Comunicação">
+      <Section n={features.first48 ? 8 : 7} title="Central de Comunicação">
         <div className="rounded-card bg-card p-4 shadow-soft">
           <p className="font-display text-[15px] font-extrabold leading-snug">{commNotice.title}</p>
           <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{commNotice.text}</p>
@@ -291,7 +295,7 @@ export function MapScreen({
         <RotateCcw /> Refazer o diagnóstico
       </Button>
       <p className="mt-2 text-center text-xs leading-5 text-muted-foreground">
-        Refazer não apaga o seu Diário nem o progresso do plano.
+        Você pode refazer sempre que a situação mudar.
         {previous > 0 &&
           ` ${previous === 1 ? "1 diagnóstico anterior guardado" : `${previous} diagnósticos anteriores guardados`}.`}
       </p>

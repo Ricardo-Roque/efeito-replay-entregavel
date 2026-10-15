@@ -3,6 +3,7 @@ import { ArrowRight, ChevronRight, Map as MapIcon, RotateCcw } from "lucide-reac
 import { EmojiBadge } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { diagnosisQuestions } from "@/lib/jornada/diagnosis";
+import { features } from "@/lib/features";
 import { first48Progress } from "@/lib/jornada/first48";
 import { useJornada } from "@/lib/jornada/store";
 import type { StepTarget } from "@/lib/jornada/types";
@@ -10,10 +11,10 @@ import type { ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
 
 /**
- * "Meu Plano Pessoal" no topo do Início: mostra o status do diagnóstico (pendente, em andamento
+ * "Meu Protocolo Personalizado" no topo do Início: mostra o status do diagnóstico (pendente, em andamento
  * ou feito) e, depois de feito, a situação e o ponto de atenção. O andamento e a ação das 48 horas
  * ficam no card "Próxima atividade", logo abaixo, para não repetir.
- * Com as 48 horas concluídas, o card mostra o primeiro passo do Mapa.
+ * Com as 48 horas concluídas (ou ocultas, ver lib/features.ts), o card mostra o primeiro passo do Mapa.
  */
 export function PersonalPlanCard({
   openDiagnosis,
@@ -33,7 +34,7 @@ export function PersonalPlanCard({
     return (
       <section className="mx-5 rounded-card bg-card p-5 shadow-soft">
         <div className="flex items-center justify-between gap-3">
-          <p className="eyebrow">Meu Plano Pessoal</p>
+          <p className="eyebrow">Meu Protocolo Personalizado</p>
           <span className="shrink-0 whitespace-nowrap rounded-full bg-tint-honey px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide">
             {draft ? "Em andamento" : "Pendente"}
           </span>
@@ -64,7 +65,7 @@ export function PersonalPlanCard({
   return (
     <section className="mx-5 rounded-card bg-card p-5 shadow-soft">
       <div className="flex items-center justify-between gap-3">
-        <p className="eyebrow">Meu Plano Pessoal</p>
+        <p className="eyebrow">Meu Protocolo Personalizado</p>
         <span className="shrink-0 whitespace-nowrap rounded-full bg-tint-sage px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide">
           Feito em{" "}
           {new Date(current.at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
@@ -90,7 +91,7 @@ export function PersonalPlanCard({
         </span>
         <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
       </button>
-      {first48.complete ? (
+      {first48.complete || !features.first48 ? (
         <button
           type="button"
           onClick={() => openStep(result.firstStep.target, scenario)}
@@ -119,7 +120,7 @@ export function PersonalPlanCard({
       <button
         type="button"
         onClick={openDiagnosis}
-        className="mt-3 flex w-full cursor-pointer items-center justify-center gap-1.5 text-[12px] font-bold text-muted-foreground hover:text-foreground"
+        className="mt-3 flex min-h-11 w-full cursor-pointer items-center justify-center gap-1.5 text-[12px] font-bold text-muted-foreground hover:text-foreground"
       >
         <RotateCcw className="size-3.5" /> Refazer o diagnóstico
       </button>

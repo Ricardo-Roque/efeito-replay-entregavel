@@ -42,6 +42,7 @@ import type { EmojiName } from "@/lib/illustrations";
 import { useJornada } from "@/lib/jornada/store";
 import type { ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
+import { features } from "@/lib/features";
 import { cn } from "@/lib/utils";
 
 const situationArt: Record<ReplySituationId, { emoji: EmojiName; tint: keyof typeof tintClass }> = {
@@ -166,6 +167,7 @@ export function ReplyGuideScreen({
   const [situationId, setSituationId] = useState<ReplySituationId | null>(initial ?? null);
   const [option, setOption] = useState<string | null>(null);
   const [confirmLimit, setConfirmLimit] = useState(false);
+  const [openedFromShortcut, setOpenedFromShortcut] = useState(initial !== undefined);
 
   const situation = situationId ? replySituationById(situationId) : null;
   const result = situation ? resolveReply(situation, option, ctx) : null;
@@ -175,14 +177,17 @@ export function ReplyGuideScreen({
     setSituationId(id);
     setOption(null);
     setConfirmLimit(false);
+    setOpenedFromShortcut(false);
   };
   const startOver = () => {
     setSituationId(null);
     setOption(null);
     setConfirmLimit(false);
+    setOpenedFromShortcut(false);
   };
   const back = () => {
     if (result && situation?.question) setOption(null);
+    else if (situation && openedFromShortcut) onClose();
     else if (situation) startOver();
     else onClose();
   };
@@ -270,12 +275,11 @@ export function ReplyGuideScreen({
         )}
 
         <SectionTitle>O que aconteceu depois da última mensagem?</SectionTitle>
-        <div className="space-y-2.5" role="list">
+        <div className="space-y-2.5">
           {visibleReplySituations().map((item) => (
             <button
               key={item.id}
               type="button"
-              role="listitem"
               onClick={() => choose(item.id)}
               className="flex w-full cursor-pointer items-center gap-3 rounded-card bg-card p-3.5 text-left shadow-soft transition-transform active:scale-[0.99]"
             >
@@ -325,12 +329,11 @@ export function ReplyGuideScreen({
             {situation.question.hint}
           </p>
         )}
-        <div className="space-y-2.5" role="list">
+        <div className="space-y-2.5">
           {situation.question.options.map((item) => (
             <button
               key={item.id}
               type="button"
-              role="listitem"
               onClick={() => setOption(item.id)}
               className="flex w-full cursor-pointer items-center gap-3 rounded-card bg-card p-4 text-left shadow-soft transition-transform active:scale-[0.99]"
             >
@@ -356,6 +359,8 @@ export function ReplyGuideScreen({
   // ---------- 3. Resultado ----------
   const { example } = result;
   const NextIcon = actionIcon[result.next.target];
+  // Atalhos para dias do plano somem com o plano de 21 dias oculto (lib/features.ts).
+  const more = result.more.filter((action) => action.target !== "day" || features.plan21);
   return (
     // A chave remonta a camada a cada passo, então cada tela nova começa do topo.
     <Overlay
@@ -502,8 +507,8 @@ export function ReplyGuideScreen({
               : "Você ainda não fez o diagnóstico. Faça agora e marque esse limite nas respostas."}
           </p>
           <p className="mt-1 text-[13px] leading-snug">
-            A Central, a Pausa e o seu plano deixam de sugerir mensagens. Se a situação mudar, é só
-            refazer o diagnóstico. O Diário e os dias concluídos não mudam.
+            A Central, a Pausa e as orientações deixam de sugerir mensagens. Se a situação mudar, é
+            só refazer o diagnóstico.
           </p>
           <div className="mt-3 flex gap-2">
             <Button
@@ -523,11 +528,11 @@ export function ReplyGuideScreen({
         </section>
       )}
 
-      {result.more.length > 0 && (
+      {more.length > 0 && (
         <>
           <p className="eyebrow mb-2 mt-5">Também pode ajudar</p>
           <div className="space-y-2">
-            {result.more.map((action) => {
+            {more.map((action) => {
               const Icon = actionIcon[action.target];
               return (
                 <button

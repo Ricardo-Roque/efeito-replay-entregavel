@@ -310,7 +310,8 @@ describe("situações com regra própria", () => {
     expect(yes.next.target).toBe("pause_example");
     const no = resolveReply(replySituationById("frio"), "unilateral", conversa)!;
     expect(no.respond).toBe("opcional");
-    expect(no.next.target).toBe("diary");
+    // Escrever sem enviar acontece na Pausa (o Diário está oculto, ver lib/features.ts).
+    expect(no.next.target).toBe("pause");
   });
 
   it("saudade: lembra que saudade não é decisão de voltar", () => {
@@ -358,7 +359,7 @@ describe("situações com regra própria", () => {
     const text = result.doNow.map((p) => p.text).join(" ");
     expect(text).toMatch(/lugar público/);
     expect(text).toMatch(/[Pp]reparar/);
-    expect(result.more.some((a) => a.target === "diary")).toBe(true);
+    expect(result.more.some((a) => a.target === "pause" && /sem enviar/.test(a.label))).toBe(true);
   });
 
   it("outra pessoa em relacionamento: oferece registrar o limite, sem exemplo", () => {

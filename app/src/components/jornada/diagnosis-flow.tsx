@@ -90,7 +90,7 @@ export function DiagnosisFlow({ onClose, onDone }: { onClose: () => void; onDone
 
   return (
     <Overlay
-      eyebrow={current ? "Refazer diagnóstico" : "Meu Plano Pessoal"}
+      eyebrow={current ? "Refazer diagnóstico" : "Meu Protocolo Personalizado"}
       title={`Pergunta ${step + 1} de ${TOTAL}`}
       onClose={step === 0 ? onClose : () => go(step - 1)}
       closeIcon={step === 0 ? "close" : "back"}
@@ -191,7 +191,7 @@ export function DiagnosisFlow({ onClose, onDone }: { onClose: () => void; onDone
       </div>
       <p className="mt-5 text-center text-xs leading-5 text-muted-foreground">
         Suas respostas ficam só neste aparelho e servem para adaptar as orientações a você.
-        {current && " Refazer não apaga o seu Diário nem o progresso do plano."}
+        {current && " Você pode refazer sempre que a situação mudar."}
       </p>
     </Overlay>
   );

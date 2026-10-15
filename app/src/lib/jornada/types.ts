@@ -279,16 +279,41 @@ export interface First48State {
 /** Categorias da Central de Comunicação (lib/comunicacao/library.ts). */
 export type MessageCategory = CommCategoryId;
 
-/** Técnicas citadas na VSL. Só têm texto quando o material de origem for entregue. */
+/** Técnicas citadas na VSL e desenvolvidas editorialmente para o aplicativo. */
 export type VslTechniqueId =
-  "tres_palavras" | "comeca_com_h" | "pensando_aqui" | "frase_3" | "frase_replay" | "buraco_negro";
+  | "tres_palavras"
+  | "comeca_com_h"
+  | "pensando_aqui"
+  | "frase_3"
+  | "frase_replay"
+  | "buraco_negro"
+  | "tecnica_noturna";
+
+export type VslTechniqueKind = "message" | "practice";
 
 export interface VslTechnique {
   id: VslTechniqueId;
   /** Nome como aparece na VSL. */
   vslName: string;
   status: ContentStatus;
-  /** O que falta para virar conteúdo, ou ressalva de compliance. */
+  /** Nome curto para o atalho no Início. */
+  shortName: string;
+  kind: VslTechniqueKind;
+  /** Quem inicia o contato. Ausente nas práticas sem mensagem. */
+  initiative?: "dela" | "resposta";
+  purpose: string;
+  whenToUse: string[];
+  whenToAvoid: string[];
+  /** Texto exato das técnicas de mensagem. */
+  message?: string;
+  /** Como preencher ou usar a mensagem sem mudar sua intenção. */
+  customization?: string[];
+  /** Passos das técnicas práticas. */
+  steps?: string[];
+  ifReply?: string[];
+  ifNoReply?: string[];
+  limits: string;
+  /** Transparência editorial: estes textos foram criados para o app. */
   note: string;
 }
 

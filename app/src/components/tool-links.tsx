@@ -15,6 +15,7 @@ import {
 
 import { useResolveLink } from "@/components/use-resolve-link";
 import { linkLabel, type AppLink, type LabeledLink } from "@/lib/app-link";
+import { features } from "@/lib/features";
 import { cn } from "@/lib/utils";
 
 const icon: Record<AppLink["kind"], ReactNode> = {
@@ -44,6 +45,11 @@ export function ToolLinks({
   // Depois de resolver, dois atalhos podem levar ao mesmo lugar (ex.: Mapa sem diagnóstico).
   const seen = new Set<string>();
   const items = links
+    // Plano de 21 dias e Diário ocultos: os atalhos para eles não aparecem (lib/features.ts).
+    .filter(
+      ({ link }) =>
+        (link.kind !== "day" || features.plan21) && (link.kind !== "diary" || features.diary),
+    )
     .map((item) => {
       const link = resolve(item.link);
       return { link, label: item.label, key: JSON.stringify(link) };

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowLeft, Check, Phone, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -234,26 +235,36 @@ export function Overlay({
   children: ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background text-foreground">
-      <div className="mx-auto min-h-full max-w-[430px] pb-10">
-        <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
-          <Button
-            variant="outline"
-            size="icon"
-            className="shrink-0 rounded-xl"
-            aria-label={closeIcon === "close" ? "Fechar" : "Voltar"}
-            onClick={onClose}
-          >
-            {closeIcon === "close" ? <X /> : <ArrowLeft />}
-          </Button>
-          <div className="min-w-0">
-            {eyebrow && <p className="eyebrow truncate tracking-widest">{eyebrow}</p>}
-            <h1 className="truncate font-display text-lg font-extrabold">{title}</h1>
+    <DialogPrimitive.Root open onOpenChange={(open) => !open && onClose()}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-background" />
+        <DialogPrimitive.Content
+          aria-describedby={undefined}
+          className="fixed inset-0 z-50 overflow-y-auto bg-background text-foreground outline-none"
+        >
+          <div className="mx-auto min-h-full max-w-[430px] pb-10">
+            <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-border bg-background px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
+              <Button
+                variant="outline"
+                size="icon"
+                className="size-11 shrink-0 rounded-xl"
+                aria-label={closeIcon === "close" ? "Fechar" : "Voltar"}
+                onClick={onClose}
+              >
+                {closeIcon === "close" ? <X /> : <ArrowLeft />}
+              </Button>
+              <div className="min-w-0">
+                {eyebrow && <p className="eyebrow truncate tracking-widest">{eyebrow}</p>}
+                <DialogPrimitive.Title asChild>
+                  <h1 className="truncate font-display text-lg font-extrabold">{title}</h1>
+                </DialogPrimitive.Title>
+              </div>
+            </header>
+            <main className="px-4 py-6">{children}</main>
           </div>
-        </header>
-        <main className="px-4 py-6">{children}</main>
-      </div>
-    </div>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 

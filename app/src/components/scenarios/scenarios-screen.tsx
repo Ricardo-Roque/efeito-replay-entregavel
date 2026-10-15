@@ -6,7 +6,7 @@ import { scenarios, type ScenarioId } from "@/lib/scenarios";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-/** Aba Cenários: os atalhos "O que vocês precisam agora?" do Calm Kids, em cards grandes. */
+/** Aba Situações: orientações por cenário, nos cards grandes já usados no app. */
 export function ScenariosScreen({
   openScenario,
   openRules,
@@ -19,9 +19,9 @@ export function ScenariosScreen({
 
   return (
     <div className="px-5 pb-36 pt-[max(2rem,env(safe-area-inset-top))]">
-      <h1 className="font-display text-3xl font-black">Cenários</h1>
+      <h1 className="font-display text-3xl font-black">Situações especiais</h1>
       <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-        Escolha o que está acontecendo agora. O plano se adapta ao seu cenário.
+        Escolha o que está acontecendo agora. As orientações se adaptam à sua situação.
       </p>
 
       <div className="mt-6 grid grid-cols-2 gap-4">

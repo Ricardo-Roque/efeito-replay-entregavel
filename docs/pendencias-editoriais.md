@@ -33,7 +33,7 @@ Formato aceito: `.mp3` ou `.m4a`, com o mesmo nome. Recomendação: mono, 64 a 9
 
 ## 2. Técnicas citadas na VSL
 
-Continuam sem material: mensagem de três palavras, mensagem com H, "pensando aqui", frase número 3, frase do Replay e buraco negro emocional. O que pedir ao autor, os critérios de aprovação e como incluir estão em `docs/pendencias-central-comunicacao.md`, seção 1. O roteiro da VSL também não está no repositório e é necessário para fechar a matriz.
+As sete técnicas agora têm versões editoriais próprias do aplicativo e estão disponíveis como `rascunho`. Ainda precisam de revisão final de tom e aprovação do responsável pelo produto. O material original da VSL não foi fornecido; portanto, os módulos não devem ser apresentados como transcrição ou reprodução de um método externo. Os textos e critérios estão em `docs/pendencias-central-comunicacao.md`, seção 1.
 
 ## 3. Revisão de conteúdo
 
@@ -53,17 +53,17 @@ Tudo abaixo é rascunho e precisa de revisão editorial antes de ser tratado com
 
 | Decisão | Alternativa |
 |---|---|
-| A Home segue a ordem: Meu Plano Pessoal, próxima atividade, ajuda imediata, Central, jornada de 21 dias, Diário e ferramentas, conteúdos complementares. Os componentes visuais são os mesmos | Manter a ordem anterior |
-| O card "Regras de ouro" saiu dos conteúdos complementares, porque repetia o atalho de Diário e ferramentas. O card "Seu cenário" saiu, porque repetia o atalho "Meu cenário" | Manter os dois cards |
-| A ajuda imediata ganhou "Apoio emocional" (CVV 188 e Central da Mulher 180) já no Início | Deixar só no Perfil |
-| O app grava sozinho no Diário: cada diagnóstico concluído, cada atividade das 48 horas, a escolha do próximo passo, a conclusão das 48 horas, a troca de cenário e os marcos dos dias 7, 14 e 21. Tudo pode ser apagado pela cliente | Gravar só quando ela tocar em um botão |
-| Ao registrar no Diário pelo "Ele respondeu. E agora?", o registro passa a ser do tipo "Ele fez contato" (antes era anotação) | Manter como anotação |
+| A Home foi simplificada em quatro áreas: Meu Protocolo Personalizado, Mensagens e Técnicas, O Que Fazer Depois e Situações Especiais. Plano de 21 dias, Diário, Plano de 48 Horas e progresso ficaram ocultos por flags, sem apagar código ou dados | Reativar alguma área antiga em `lib/features.ts` somente com decisão de produto |
+| "Regras de ouro" permanece no Perfil e nos fluxos relacionados; "Situações especiais" ganhou destaque próprio na Home | Voltar a exibir os atalhos antigos na Home |
+| O apoio emocional permanece no Perfil, onde CVV 188 e Central da Mulher 180 já estavam disponíveis | Recolocar o atalho na Home |
+| Os registros antigos do Diário continuam preservados, embora o Diário esteja oculto. Os fluxos visíveis deixaram de oferecer novos registros | Reativar o Diário e os registros somente com decisão de produto |
+| No assistente, ações que antes mandavam ao Diário agora abrem a Pausa ou orientam a escrever sem enviar | Restaurar ações de Diário se a funcionalidade voltar |
 | No Reset, o limite do diagnóstico principal (bloqueio, pedido de não contato ou outra relação) vale mesmo que o diagnóstico do Reset diga outra coisa | Pedir para refazer o diagnóstico do Reset |
 | A Pausa marca o limite também para outra relação, com o texto e o cenário "Ele está com outra pessoa". A pergunta do checklist passou a citar a outra relação | Manter só bloqueio e pedido de distância |
 
 ## 5. Pontos conhecidos, não alterados
 
-- **Mapa × cenário do perfil.** Se o diagnóstico diz "conversa normal" e o cenário escolhido no perfil é "outra pessoa", o card "Meu Plano Pessoal" mostra "Conversa em andamento", enquanto a Pausa e a Central já respeitam o limite. O cenário do perfil só deixa o app mais restrito, mas o Mapa é calculado só pelo diagnóstico. Sugestão: mostrar um aviso no Mapa quando o cenário do perfil for de limite.
+- **Mapa × cenário do perfil.** Se o diagnóstico diz "conversa normal" e o cenário escolhido no perfil é "outra pessoa", o card "Meu Protocolo Personalizado" mostra "Conversa em andamento", enquanto a Pausa e a Central já respeitam o limite. O cenário do perfil só deixa o app mais restrito, mas o Mapa é calculado só pelo diagnóstico. Sugestão: mostrar um aviso no Mapa quando o cenário do perfil for de limite.
 - **Apagar registro do Diário.** O botão de lixeira apaga na hora, sem confirmação. Nenhuma entrada antiga é apagada pelo app, mas vale considerar um "desfazer".
 - **Nomes de marca no Reset.** "Reativação Emocional", "Reconexão Subconsciente" e "Reversão Noturna" são nomes da venda. As telas descrevem o que cada módulo é de fato. Ver as linhas 27 a 29 da matriz.
 - **Dois diagnósticos.** O do app ("Meu Mapa de Reconquista") e o do Reset ("Diagnóstico emocional") continuam separados, sem preenchimento cruzado. O limite agora é compartilhado.

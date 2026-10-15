@@ -60,13 +60,13 @@ Regras:
 
 | CalmBaby / Calm Kids | Código da Reconquista |
 |---|---|
-| `BottomNav` com 4 abas | 5 abas: Início, Plano, Cenários, Diário e Mais. Traço de 1.5 e ponto dourado no item ativo |
+| `BottomNav` com 4 abas | 3 abas visíveis: Início, Situações e Mais. Plano e Diário continuam implementados, mas ocultos por `src/lib/features.ts` |
 | `CalmBabyBrand` | `brand/logo-inline.svg` no cabeçalho e `logo-wordmark.svg` no login |
 | `ProfileAvatar` | Inicial em Playfair, com anel dourado |
 | Calminho (ilustrações) | Emblema da fase (`brand/emblems/fase-N.svg`). Não há personagem |
-| Card "Plano de hoje" | Igual, com "Dia X de 21" e a barra dividida pelas 4 fases |
+| Card "Meu Protocolo Personalizado" | Diagnóstico de 6 perguntas, resumo da situação e acesso ao Mapa personalizado |
 | `SleepButtons` | Card vinho "Vontade de mandar mensagem?", que abre a Pausa |
-| `CategoryTile` (4 atalhos) | Regras de ouro, Sinais, O que nunca enviar e Diário |
+| `CategoryTile` | Técnicas da VSL em espera e atalhos contextuais para o assistente "Ele respondeu. E agora?" |
 | Card "Meta da semana" | "Meta da fase", com a meta do PDF |
 | Card "Horários de hoje" | "Seu cenário" |
 | "Pequenos avanços" | Igual, com a medalha e os dias sem impulso |
@@ -76,7 +76,7 @@ Regras:
 | `FloatingMissionCard`, `MissionSheet`, `MilestoneCelebration` | Iguais, com emblema e medalhas no lugar do Calminho |
 | `DayPanel` | Igual: lição, ação de hoje, checklist e "Marcar como concluído" |
 | `situation-screen` (Calm Kids) | Detalhe do cenário: faça / evite, modelos, quando parar e os dias ligados |
-| `diary-screen` | Contador de dias sem impulso, registro rápido, sinais e últimos registros |
+| `diary-screen` | Preservado no código e oculto por `src/lib/features.ts` |
 | `profile-screen` | Mesmo menu em lista |
 | `Overlay` + pilha de camadas | Pausa antes de enviar, Regras de ouro, dia do plano e detalhe do cenário |
 

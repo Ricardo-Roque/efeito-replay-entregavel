@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Protocolo de 21 dias: controle emocional, comunicação leve e reconstrução gradual.",
+          "Diagnóstico personalizado, mensagens, técnicas e orientações para agir com calma após o término.",
       },
     ],
   }),

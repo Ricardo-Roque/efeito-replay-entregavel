@@ -100,7 +100,7 @@ export const commMessages: CommMessage[] = [
     ifReply: [
       "Responda no mesmo tamanho e no mesmo tom. Não aproveite para falar do término.",
       "Se ele perguntar algo, responda e deixe a conversa acabar naturalmente.",
-      "Registre no Diário como você se sentiu, não só o que ele disse.",
+      "Repare em como você se sentiu, não só no que ele disse.",
     ],
     ifNoReply: [
       "Não mande uma segunda mensagem para conferir se ele viu.",
@@ -202,11 +202,11 @@ export const commMessages: CommMessage[] = [
     ],
     ifReply: [
       "Converse sobre o presente. O passado pode esperar uma conversa ao vivo, se um dia fizer sentido.",
-      "Observe se ele faz perguntas e prolonga a conversa. Anote os sinais no Diário.",
+      "Observe se ele faz perguntas e prolonga a conversa. Anote os sinais para você.",
     ],
     ifNoReply: [
       "Não mande outra para explicar a primeira.",
-      "Escreva no Diário o que você esperava ouvir. Ajuda a separar a expectativa da realidade.",
+      "Escreva só para você o que esperava ouvir. Ajuda a separar a expectativa da realidade.",
     ],
     limits: "Se ele responder pedindo distância, agradeça e pare.",
     copyable: true,
@@ -322,7 +322,7 @@ export const commMessages: CommMessage[] = [
     ],
     ifNoReply: [
       "Às vezes a saudade é um desabafo, não um convite. Não cobre continuidade.",
-      "Registre no Diário. Não mande outra para saber o que ele quis dizer.",
+      "Anote para você. Não mande outra para saber o que ele quis dizer.",
     ],
     limits: "Saudade dele não é promessa. Não tome decisões grandes por uma mensagem.",
     copyable: true,
@@ -374,7 +374,7 @@ export const commMessages: CommMessage[] = [
     ],
     whenToAvoid: ["É a primeira vez que ele demonstra saudade (prefira acolher)"],
     ifReply: [
-      "Se ele respeitar o seu ritmo, é um bom sinal. Anote no Diário.",
+      "Se ele respeitar o seu ritmo, é um bom sinal. Anote para você.",
       "Se ele ficar na defensiva, não se explique em várias mensagens.",
     ],
     ifNoReply: ["Você disse algo verdadeiro e saudável. O silêncio dele não desfaz isso."],
@@ -421,7 +421,7 @@ export const commMessages: CommMessage[] = [
     scenarios: "all",
     goal: "Transformar a vontade de mandar mais uma mensagem num compromisso com você.",
     context:
-      "Você mandou mensagem e ele não respondeu. Ou ele visualizou e ficou em silêncio. A vontade de mandar outra é forte. Este texto é para o seu Diário, não para ele.",
+      "Você mandou mensagem e ele não respondeu. Ou ele visualizou e ficou em silêncio. A vontade de mandar outra é forte. Este texto é para você, não para ele.",
     text: "Hoje eu escolho não mandar mais nada. Não porque desisti de mim, mas porque uma mensagem sem resposta já disse o que precisava dizer agora.",
     whyTone:
       "Coloca a decisão nas suas mãos. Você não está sendo ignorada: está escolhendo não insistir.",
@@ -434,7 +434,7 @@ export const commMessages: CommMessage[] = [
     ifReply: ['Se ele responder depois, veja a ferramenta "Ele respondeu. E agora?".'],
     ifNoReply: [
       "Releia este texto quando a vontade voltar.",
-      "Use a Pausa: escreva lá o que queria mandar e guarde no Diário.",
+      "Use a Pausa: escreva lá o que queria mandar, sem enviar.",
     ],
     limits: "Uma mensagem sem resposta não pede segunda tentativa. Nem terceira.",
     copyable: false,
@@ -451,7 +451,7 @@ export const commMessages: CommMessage[] = [
     scenarios: "all",
     goal: "Dizer tudo o que está preso, num lugar seguro, sem depender da reação dele.",
     context:
-      "Quando há muito a dizer e nenhum canal possível (bloqueio, pedido de distância, silêncio) ou quando dizer tudo agora faria mal. Complete no Diário.",
+      "Quando há muito a dizer e nenhum canal possível (bloqueio, pedido de distância, silêncio) ou quando dizer tudo agora faria mal. Complete só para você.",
     text: "O que eu queria que você soubesse é… O que mais me dói agora é… O que eu vou fazer por mim hoje é…",
     whyTone:
       "As três frases levam do que você sente para o que você pode fazer. Termina em você, não nele.",
@@ -943,7 +943,7 @@ export const commMessages: CommMessage[] = [
     scenarios: ["respondeu", "encontro"],
     goal: "Chegar ao encontro sabendo o que você quer viver e o que você não vai fazer.",
     context:
-      "Um roteiro curto para responder no Diário antes do encontro. Não é para ele: é para você chegar inteira.",
+      "Um roteiro curto para você responder antes do encontro. Não é para ele: é para você chegar inteira.",
     text: "O que eu quero viver nesse encontro é… O assunto que eu não vou trazer hoje é… Se ele disser que não quer voltar, eu vou…",
     whyTone:
       "A última frase prepara você para qualquer resposta. Quem chega preparada para o não costuma conduzir melhor o sim.",
@@ -1046,7 +1046,7 @@ export const commMessages: CommMessage[] = [
     whenToUse: ["Nunca é um texto para enviar"],
     whenToAvoid: ['Sempre, inclusive em versões leves como "oi?" ou "sumiu?"'],
     ifReply: ["Se você já enviou, não reforce. Responda com leveza se ele voltar."],
-    ifNoReply: ["Não mande outra. Escreva no Diário o que está sentindo."],
+    ifNoReply: ["Não mande outra. Escreva só para você o que está sentindo."],
     limits: "Uma mensagem sem resposta não pede segunda tentativa.",
     copyable: false,
     keywords: ["visualizou", "cobrar", "vácuo", "responde", "oi?", "sumiu"],
@@ -1115,7 +1115,7 @@ export const commMessages: CommMessage[] = [
     whenToUse: ["Nunca"],
     whenToAvoid: ["Sempre, principalmente com bloqueio ou pedido de não contato"],
     ifReply: ["Se alguém já levou o recado, não reforce. Respeite o limite daqui em diante."],
-    ifNoReply: ["O limite continua valendo. Escreva no Diário o que queria dizer."],
+    ifNoReply: ["O limite continua valendo. Escreva só para você o que queria dizer."],
     limits:
       "Bloqueio e pedido de distância são limites. O plano não sugere nenhuma forma de contorná-los.",
     copyable: false,

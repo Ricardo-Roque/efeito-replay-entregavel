@@ -1,5 +1,7 @@
 # Código da Reconquista: evolução do entregável
 
+> Documento histórico das etapas anteriores. O estado atual das técnicas e da navegação está em `docs/CONTINUIDADE-DESENVOLVIMENTO.md`; em 14/10/2026, as sete técnicas ganharam versões editoriais próprias e deixaram o estado `aguardando_material`.
+
 - **Etapa 1:** fundação técnica para o diagnóstico de entrada, as primeiras 48 horas e a central de mensagens. Nada mudou na tela.
 - **Etapa 2 (seção 6):** diagnóstico de seis perguntas, motor de personalização, tela "Meu Mapa de Reconquista" e nova hierarquia do Início. As perguntas e as regras da etapa 1 foram substituídas. Onde as seções 1 a 5 divergem da seção 6, vale a seção 6.
 

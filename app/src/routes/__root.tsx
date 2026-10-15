@@ -80,7 +80,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Protocolo de 21 dias: controle emocional, comunicação leve e reconstrução gradual.",
+          "Diagnóstico personalizado, mensagens, técnicas e orientações para agir com calma após o término.",
       },
       // Área de clientes: não deve aparecer em buscadores.
       { name: "robots", content: "noindex, nofollow" },

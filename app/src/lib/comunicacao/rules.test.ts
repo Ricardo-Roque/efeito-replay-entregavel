@@ -104,7 +104,7 @@ describe("biblioteca", () => {
       const all = [item.title, item.goal, item.context, item.text, item.whyTone].join(" ");
       for (const pattern of forbidden) expect(all, `${item.id} ${pattern}`).not.toMatch(pattern);
     }
-    expect(vslTechniques.every((t) => t.status === "aguardando_material")).toBe(true);
+    expect(vslTechniques.every((t) => t.status === "rascunho")).toBe(true);
   });
 });
 

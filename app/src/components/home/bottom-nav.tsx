@@ -1,13 +1,15 @@
+import { features } from "@/lib/features";
 import { navIcons } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
 export type AppTab = keyof typeof navIcons;
 
+// Plano e Diário ficam fora da navegação quando ocultos (lib/features.ts).
 const tabs: { id: AppTab; label: string }[] = [
   { id: "home", label: "Início" },
-  { id: "plan", label: "Plano" },
-  { id: "scenarios", label: "Cenários" },
-  { id: "diary", label: "Diário" },
+  ...(features.plan21 ? [{ id: "plan" as const, label: "Plano" }] : []),
+  { id: "scenarios", label: "Situações" },
+  ...(features.diary ? [{ id: "diary" as const, label: "Diário" }] : []),
   { id: "more", label: "Perfil" },
 ];
 

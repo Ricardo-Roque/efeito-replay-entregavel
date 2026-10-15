@@ -157,7 +157,8 @@ export interface LifetimeItem {
 export const LIFETIME_ITEMS: LifetimeItem[] = [
   {
     title: "Código da Reconquista",
-    detail: "Diagnóstico, Plano de 48 Horas, Central de Comunicação e protocolo de 21 dias.",
+    detail:
+      "Diagnóstico, orientações por situação, Central de Comunicação e o assistente de respostas.",
     status: "disponivel",
   },
   {

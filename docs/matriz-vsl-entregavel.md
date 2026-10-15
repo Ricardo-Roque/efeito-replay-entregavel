@@ -2,6 +2,8 @@
 
 Este documento cruza cada promessa feita na venda com o que o app entrega hoje. Ele serve para revisar a VSL e as páginas antes de escalar o tráfego.
 
+> **Atualização de 14/10/2026:** a experiência principal foi reduzida às quatro áreas descritas em `docs/CONTINUIDADE-DESENVOLVIMENTO.md`. Plano de 21 dias, Diário, Plano de 48 Horas e progresso permanecem implementados, porém ocultos. A tabela abaixo conserva a auditoria histórica de capacidades; uma capacidade oculta não deve ser anunciada como parte da experiência atual.
+
 ## Fontes e limite desta matriz
 
 - **O roteiro da VSL não está no repositório.** As promessas abaixo vêm destas fontes:
@@ -33,12 +35,13 @@ Este documento cruza cada promessa feita na venda com o que o app entrega hoje. 
 | 6 | Mensagens prontas para enviar | Parcialmente atendida | Central de Comunicação com 38 conteúdos (modelos, reflexões e exemplos do que não enviar), todos escritos para o app. Não são as mensagens citadas na VSL (linhas 9 a 14). Com limite (bloqueio, pedido de não contato, outra relação), nada vira mensagem | "Modelos de mensagem e o que nunca enviar" |
 | 7 | Primeiras 48 horas | Parcialmente atendida | Meu Plano de 48 Horas: 5 atividades de estabilização emocional e próximo passo. Não é um plano para ele voltar em 48 horas | "Um plano para as primeiras 48 horas depois do término" |
 | 8 | "O erro que faz 93% das mulheres perderem o ex para sempre" (quiz, tela 1) | Não verificável ou não garantível | Regras de ouro trazem os 3 erros mais comuns e o que nunca enviar. O número 93% não tem fonte | Tirar o número ou citar a fonte |
-| 9 | "Mensagem de 3 palavras" que "reativa o lado emocional do cérebro dele" (quiz, telas 7 e 8) | Pendente de conteúdo original | Nada. A técnica está catalogada sem texto (`vslTechniques`, `aguardando_material`) | Não citar até o material existir. A alegação sobre o cérebro não entra sem fonte |
-| 10 | Mensagem que começa com H | Pendente de conteúdo original | Nada | Idem |
-| 11 | Mensagem "pensando aqui" | Pendente de conteúdo original | Nada. "Uma lembrança concreta e leve", da Central, tem tom parecido, mas não é essa técnica | Idem |
-| 12 | Frase número 3 | Pendente de conteúdo original | Nada | Idem |
-| 13 | Frase do Replay | Pendente de conteúdo original | Nada | Idem |
-| 14 | Técnica do buraco negro emocional | Pendente de conteúdo original | Nada. Se envolver sumir para provocar ansiedade, ciúme ou culpa, não entra no app | Idem |
+| 9 | "Mensagem de 3 palavras" que "reativa o lado emocional do cérebro dele" (quiz, telas 7 e 8) | Parcialmente atendida | O app entrega a versão editorial “Lembrei de você.”, com contexto, limites e próximos passos. Não afirma agir no cérebro dele | Anunciar a ferramenta de comunicação, sem a alegação sobre o cérebro |
+| 10 | Mensagem que começa com H | Parcialmente atendida | Versão editorial iniciada por “Hoje”, baseada em uma lembrança real e concreta | Descrever o conteúdo real do módulo |
+| 11 | Mensagem "pensando aqui" | Parcialmente atendida | Versão editorial para reconhecer uma conversa recente, sem pedido ou cobrança | Descrever o conteúdo real do módulo |
+| 12 | Frase número 3 | Parcialmente atendida | “Entendi. Vamos com calma.”, disponível apenas como resposta | Explicar que serve para acolher um pedido de calma |
+| 13 | Frase do Replay | Parcialmente atendida | Fechamento respeitoso de uma conversa recente e recíproca, sem provocar nostalgia calculada | Descrever o conteúdo real do módulo |
+| 14 | Técnica do buraco negro emocional | Parcialmente atendida | Prática de 30 minutos para absorver o próprio impulso. Não usa silêncio para provocar ansiedade, ciúme ou culpa | Anunciar como pausa de autorregulação |
+| 14a | Técnica noturna mencionada na oferta | Parcialmente atendida | Prática de encerramento da noite em cinco passos, distinta do módulo noturno do Reset | Anunciar como prática para evitar decisões de contato durante a noite |
 | 15 | Vídeo de 60 segundos com o passo a passo (quiz, tela 9) | Pendente de conteúdo original | Não há vídeo no app | Entregar o vídeo ou tirar a menção |
 | 16 | "Ele vai voltar a te procurar" com uma mensagem psicológica (quiz, tela 1) | Não verificável ou não garantível | O app ensina comunicação leve e respeitosa. Não controla a resposta dele | "Como se comunicar de forma leve e respeitosa" |
 | 17 | "Atalho sujo para trazê-lo de volta nas próximas 48 horas" / "recuperar o seu ex em 48 horas" (quiz e título da VSL) | Não verificável ou não garantível | O plano das 48 horas é de estabilização dela | Trocar pela frase da linha 7 |
@@ -78,8 +81,8 @@ O Reset deixou de ser uma oferta atual (ver `docs/estrutura-comercial-upsells.md
 | Classificação | Quantidade |
 |---|---|
 | Atendida | 9 |
-| Parcialmente atendida | 6 |
-| Pendente de conteúdo original | 7 |
+| Parcialmente atendida | 13 |
+| Pendente de conteúdo original | 1 |
 | Não verificável ou não garantível | 10 (mais 3 ofertas: 2 fora do app e o Vitalício, ainda sem permissão no banco) |
 
 Prioridade para a VSL: tirar a promessa de fazer ele responder mesmo com bloqueio (linha 20) e a de reconquista em 48 horas (linha 17). Hoje as duas contradizem diretamente o que a cliente encontra no app.

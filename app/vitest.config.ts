@@ -4,5 +4,6 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
-  test: { include: ["src/**/*.test.ts"], environment: "node" },
+  // As matrizes de segurança percorrem milhares de combinações válidas do diagnóstico.
+  test: { include: ["src/**/*.test.ts"], environment: "node", testTimeout: 15_000 },
 });

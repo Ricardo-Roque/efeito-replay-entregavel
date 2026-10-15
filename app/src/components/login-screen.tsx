@@ -61,7 +61,7 @@ export function LoginScreen({ notice }: { notice?: string }) {
 
         <section className="relative z-10 rounded-card bg-card p-5 shadow-soft">
           <p className="text-sm leading-6 text-muted-foreground">
-            Digite o e-mail que você usou na compra para entrar no seu plano de 21 dias.
+            Digite o e-mail que você usou na compra para entrar no Código da Reconquista.
           </p>
           <form className="mt-4" onSubmit={(event) => void submit(event)} noValidate>
             <Label htmlFor="email">E-mail</Label>
@@ -130,7 +130,7 @@ export function LoginScreen({ notice }: { notice?: string }) {
         )}
 
         <p className="mt-auto pt-8 text-center text-xs leading-5 text-muted-foreground">
-          Seu acesso é pessoal. Ninguém além de você vê o seu Diário.
+          Seu acesso é pessoal. Ninguém além de você vê as suas respostas.
         </p>
       </div>
     </main>

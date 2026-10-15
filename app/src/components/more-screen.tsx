@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { whatsappLink } from "@/lib/config";
 import { BENEFIT_IDS, BENEFITS, accessLabel, benefitAccess } from "@/lib/benefits";
 import { careLines } from "@/lib/guide";
+import { features } from "@/lib/features";
 import { first48Progress } from "@/lib/jornada/first48";
 import { useJornada } from "@/lib/jornada/store";
 import { moreIcons } from "@/lib/icons";
@@ -37,7 +38,7 @@ type Modal = "profile" | "install" | "privacy" | "care" | "reset" | "logout" | n
 const dialogClass = "w-[calc(100%-2rem)] rounded-2xl border-border sm:max-w-md";
 
 /** Mesma aba Perfil do CalmBaby: cartão do perfil, menu em lista, diálogos e "Sair".
- * "Recomeçar do zero" apaga o progresso desta conta neste aparelho. */
+ * "Apagar os dados" limpa os dados desta conta neste aparelho. */
 export function MoreScreen({
   openScenarios,
   openRules,
@@ -80,13 +81,13 @@ export function MoreScreen({
 
   const menu: { label: string; icon: LucideIcon; detail?: string; onClick: () => void }[] = [
     {
-      label: "Meu Mapa de Reconquista",
+      label: "Meu Protocolo Personalizado",
       icon: moreIcons.diagnosis,
       detail: jornada.current ? "Ver ou refazer" : "Fazer diagnóstico",
       onClick: jornada.current ? openMap : openDiagnosis,
     },
-    // Só depois do diagnóstico: o plano das 48 horas é montado a partir dele.
-    ...(jornada.current
+    // Só depois do diagnóstico: o plano das 48 horas é montado a partir dele (oculto em lib/features.ts).
+    ...(features.first48 && jornada.current
       ? [
           {
             label: "Meu Plano de 48 Horas",
@@ -99,12 +100,16 @@ export function MoreScreen({
           },
         ]
       : []),
-    {
-      label: "Meu progresso",
-      icon: moreIcons.progress,
-      detail: `${progress.total} de 21 dias`,
-      onClick: openProgress,
-    },
+    ...(features.progress
+      ? [
+          {
+            label: "Meu progresso",
+            icon: moreIcons.progress,
+            detail: `${progress.total} de 21 dias`,
+            onClick: openProgress,
+          },
+        ]
+      : []),
     {
       label: "Central de Comunicação",
       icon: moreIcons.central,
@@ -115,7 +120,7 @@ export function MoreScreen({
       onClick: openCentral,
     },
     {
-      label: "Meu cenário",
+      label: "Situações especiais",
       icon: moreIcons.scenario,
       detail: profile.scenario ? scenarioById(profile.scenario).label : "Escolher",
       onClick: openScenarios,
@@ -162,9 +167,13 @@ export function MoreScreen({
         <div className="min-w-0 flex-1">
           <h2 className="truncate font-display text-lg font-bold">{profile.name}</h2>
           <p className="truncate text-sm text-muted-foreground">
-            {progress.finished
-              ? "Plano concluído"
-              : `Dia ${progress.currentDay} de 21 · Fase ${progress.phase.phase}`}
+            {features.plan21
+              ? progress.finished
+                ? "Plano concluído"
+                : `Dia ${progress.currentDay} de 21 · Fase ${progress.phase.phase}`
+              : jornada.current
+                ? "Protocolo personalizado disponível"
+                : "Diagnóstico pendente"}
           </p>
           <p className="truncate text-sm text-muted-foreground">{email}</p>
         </div>
@@ -175,7 +184,7 @@ export function MoreScreen({
             setDraftName(profile.name);
             setModal("profile");
           }}
-          className="grid size-9 shrink-0 cursor-pointer place-items-center rounded-xl border border-input bg-background text-foreground shadow-sm hover:bg-accent"
+          className="grid size-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-input bg-background text-foreground shadow-sm hover:bg-accent"
         >
           <Pencil className="size-4" />
         </button>
@@ -213,28 +222,26 @@ export function MoreScreen({
       <button
         type="button"
         onClick={() => setModal("reset")}
-        className="mt-1 flex w-full cursor-pointer items-center gap-2 px-5 py-2 text-xs font-bold text-muted-foreground hover:text-foreground"
+        className="mt-1 flex min-h-11 w-full cursor-pointer items-center gap-2 px-5 py-2 text-xs font-bold text-muted-foreground hover:text-foreground"
       >
-        <RotateCcw className="size-3.5" /> Recomeçar o plano do zero neste aparelho
+        <RotateCcw className="size-3.5" /> Apagar os dados deste aparelho
       </button>
 
       {import.meta.env.DEV && (
         <section className="mt-6 rounded-card border-2 border-dashed border-border p-4">
           <p className="eyebrow">Teste local (só aparece em desenvolvimento)</p>
-          <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
-            Os dias liberam no dia seguinte do calendário. Para testar a jornada sem esperar, simule
-            a passagem de um dia.
-          </p>
+          {features.plan21 && (
+            <Button
+              variant="outline"
+              className="mt-3 h-10 w-full rounded-xl bg-card font-bold"
+              onClick={() => shiftDays(1) && showToast("Um dia a mais se passou (simulação).")}
+            >
+              <FastForward /> Simular a passagem de 1 dia
+            </Button>
+          )}
           <Button
             variant="outline"
-            className="mt-3 h-10 w-full rounded-xl bg-card font-bold"
-            onClick={() => shiftDays(1) && showToast("Um dia a mais se passou (simulação).")}
-          >
-            <FastForward /> Simular a passagem de 1 dia
-          </Button>
-          <Button
-            variant="outline"
-            className="mt-2 h-10 w-full rounded-xl bg-card font-bold"
+            className="mt-2 h-11 w-full rounded-xl bg-card font-bold"
             onClick={() => devSetReset(!entitlements.reset)}
           >
             {entitlements.reset ? "Remover compra simulada do Reset" : "Simular compra do Reset"}
@@ -254,7 +261,7 @@ export function MoreScreen({
               </Button>
             );
           })}
-          {jornada.data.first48.startedAt && (
+          {features.first48 && jornada.data.first48.startedAt && (
             <Button
               variant="outline"
               className="mt-2 h-10 w-full rounded-xl bg-card font-bold"
@@ -326,9 +333,9 @@ export function MoreScreen({
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Privacidade</DialogTitle>
             <DialogDescription className="leading-6">
-              Você entra com o e-mail da compra. O seu Diário, os rascunhos e o seu progresso ficam
-              salvos só neste aparelho. Nada é enviado para ninguém, e o app nunca manda mensagens
-              por você. Para apagar tudo, use "Recomeçar o plano do zero".
+              Você entra com o e-mail da compra. O seu diagnóstico e as mensagens que você favoritou
+              ficam salvos só neste aparelho. Nada é enviado para ninguém, e o app nunca manda
+              mensagens por você. Para apagar tudo, use "Apagar os dados deste aparelho".
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
@@ -364,10 +371,10 @@ export function MoreScreen({
       <Dialog open={modal === "reset"} onOpenChange={(open) => !open && setModal(null)}>
         <DialogContent className={dialogClass}>
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl">Recomeçar do zero?</DialogTitle>
+            <DialogTitle className="font-display text-2xl">Apagar os dados?</DialogTitle>
             <DialogDescription>
-              Isso apaga o seu progresso, o Diário, os rascunhos, o diagnóstico e o plano de 48
-              horas deste aparelho. Não dá para desfazer.
+              Isso apaga tudo o que o app guardou neste aparelho, inclusive o diagnóstico e as
+              mensagens favoritas. Não dá para desfazer.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
@@ -382,7 +389,7 @@ export function MoreScreen({
               // O diagnóstico fica numa chave própria: apaga junto, para "do zero" valer para tudo.
               onClick={() => resetAll() && jornada.clear() && setModal(null)}
             >
-              Apagar e recomeçar
+              Apagar
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -393,7 +400,7 @@ export function MoreScreen({
           <DialogHeader>
             <DialogTitle className="font-display text-2xl">Sair do app?</DialogTitle>
             <DialogDescription>
-              Seu progresso continua salvo neste aparelho. Para entrar de novo, use o e-mail da
+              Seus dados continuam salvos neste aparelho. Para entrar de novo, use o e-mail da
               compra.
             </DialogDescription>
           </DialogHeader>
